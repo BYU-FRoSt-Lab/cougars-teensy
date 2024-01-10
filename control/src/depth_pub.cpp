@@ -1,15 +1,15 @@
-#include "depth_pub.hpp"
+#include "depth_pub.h"
 
 #define AVG_COUNT 10
 #define AVG_DEC 0.1
 #define FLUID_DENSITY 997
 
-static float pressure;
-static float depth;
-static float temperature;
-static float pressure_at_zero_depth;
-static float depth_error_at_zero_depth;
-static MS5837 pressure_sensor;
+float pressure;
+float depth;
+float temperature;
+float pressure_at_zero_depth;
+float depth_error_at_zero_depth;
+MS5837 pressure_sensor;
 
 void DepthPub::setup(rcl_node_t node) {
 

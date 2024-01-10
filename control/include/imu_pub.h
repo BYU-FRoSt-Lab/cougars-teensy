@@ -1,7 +1,7 @@
 #ifndef IMU_PUB
 #define IMU_PUB
 
-#include "publisher.hpp"
+#include "publisher.h"
 #include <Adafruit_BNO08x.h>
 #include <Wire.h>
 #include <frost_interfaces/msg/imu.h>

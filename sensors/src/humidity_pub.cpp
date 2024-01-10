@@ -1,4 +1,4 @@
-#include "humidity_pub.hpp"
+#include "humidity_pub.h"
 
 #define DHTPIN 4
 #define DHTTYPE DHT22
@@ -8,8 +8,8 @@
 #define AVG_DELAY 10
 
 // cross-function variables
-static DHT dht = DHT(DHTPIN, DHTTYPE);
-static float humidity_on_init;
+DHT dht = DHT(DHTPIN, DHTTYPE);
+float humidity_on_init;
 
 void HumidityPub::setup(rcl_node_t node) {
 

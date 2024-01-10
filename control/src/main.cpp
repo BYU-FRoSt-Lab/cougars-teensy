@@ -1,6 +1,6 @@
-#include "pid_control.hpp"
-#include "imu_pub.hpp"
-#include "depth_pub.hpp"
+#include "pid_control.h"
+#include "imu_pub.h"
+#include "depth_pub.h"
 
 #include <Servo.h>
 #include <frost_interfaces/msg/pid.h>
@@ -43,32 +43,32 @@
 #define DEPTH_I 0.05
 
 // micro-ROS objects
-static rclc_support_t support;
-static rcl_allocator_t allocator;
-static rcl_node_t node;
-static rclc_executor_t executor;
-static rcl_subscription_t subscriber;
-static rcl_timer_t timer_pub;
-static rcl_timer_t timer_pid;
-static frost_interfaces__msg__PID msg;
-static frost_interfaces__msg__PID *pid_request_msg =
+rclc_support_t support;
+rcl_allocator_t allocator;
+rcl_node_t node;
+rclc_executor_t executor;
+rcl_subscription_t subscriber;
+rcl_timer_t timer_pub;
+rcl_timer_t timer_pid;
+frost_interfaces__msg__PID msg;
+frost_interfaces__msg__PID *pid_request_msg =
     new frost_interfaces__msg__PID;
 
 // publisher objects
-static DepthPub depth_pub;
-static IMUPub imu_pub;
+DepthPub depth_pub;
+IMUPub imu_pub;
 
 // servo, thruster objects
-static Servo my_servo1;
-static Servo my_servo2;
-static Servo my_servo3;
-static Servo thruster;
+Servo my_servo1;
+Servo my_servo2;
+Servo my_servo3;
+Servo thruster;
 
 // PID objects
-static PID_Control Heading(HEADING_P, HEADING_I, 40, 140,
+PID_Control Heading(HEADING_P, HEADING_I, 40, 140,
                            90); // TO DO: fix magic numbers
-static PID_Control Velocity(VELOCITY_P, VELOCITY_I, 0, 100, 0);
-static PID_Control Depth(DEPTH_P, DEPTH_I, 45, 135, 90);
+PID_Control Velocity(VELOCITY_P, VELOCITY_I, 0, 100, 0);
+PID_Control Depth(DEPTH_P, DEPTH_I, 45, 135, 90);
 
 // states for state machine in loop function
 enum states {
@@ -79,10 +79,10 @@ enum states {
 } static state;
 
 // used to make sure imu_setup is only called once
-static bool already_setup = false;
+bool already_setup = false;
 
 // responds to errors with micro-ROS functions
-static void error_loop() {
+void error_loop() {
   while (1) {
     delay(100);
   }

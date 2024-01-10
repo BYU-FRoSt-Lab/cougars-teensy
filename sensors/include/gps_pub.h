@@ -1,7 +1,7 @@
 #ifndef GPS_PUB
 #define GPS_PUB
 
-#include "publisher.hpp"
+#include "publisher.h"
 #include <SoftwareSerial.h>
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>
 #include <frost_interfaces/msg/gps.h>

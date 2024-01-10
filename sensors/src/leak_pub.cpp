@@ -1,8 +1,8 @@
-#include "leak_pub.hpp"
+#include "leak_pub.h"
 
 #define LEAK_PIN 16
 
-static int leak = 0;
+int leak = 0;
 
 void LeakPub::setup(rcl_node_t node) {
 

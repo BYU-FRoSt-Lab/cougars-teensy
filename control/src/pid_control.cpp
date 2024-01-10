@@ -1,4 +1,4 @@
-#include "pid_control.hpp"
+#include "pid_control.h"
 
 PID_Control::PID_Control(float p, float i, int min, int max, int adjust = 0) {
   kp = p;

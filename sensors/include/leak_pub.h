@@ -1,7 +1,7 @@
 #ifndef LEAK_PUB
 #define LEAK_PUB
 
-#include "publisher.hpp"
+#include "publisher.h"
 #include <frost_interfaces/msg/leak.h>
 #include <std_msgs/msg/bool.h>
 

@@ -1,11 +1,11 @@
-#include "echo_pub.hpp"
+#include "echo_pub.h"
 
 #define ECHO_RATE 115200
 #define ECHO_RX_PIN 21
 #define ECHO_TX_PIN 20
 
-static SoftwareSerial ping_serial = SoftwareSerial(ECHO_RX_PIN, ECHO_TX_PIN);
-static Ping1D ping{ping_serial};
+SoftwareSerial ping_serial = SoftwareSerial(ECHO_RX_PIN, ECHO_TX_PIN);
+Ping1D ping{ping_serial};
 
 void EchoPub::setup(rcl_node_t node) {
 

@@ -1,9 +1,9 @@
-#include "voltage_pub.hpp"
+#include "voltage_pub.h"
 
 #define VOLTAGE_WARNING 15000
 #define VOLTAGE_CRITICAL 13000
 
-static Adafruit_INA260 ina260 = Adafruit_INA260();
+Adafruit_INA260 ina260 = Adafruit_INA260();
 
 void VoltagePub::setup(rcl_node_t node) {
   ina260.begin(INA260_I2CADDR_DEFAULT, &Wire2);

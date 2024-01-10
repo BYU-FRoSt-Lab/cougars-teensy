@@ -1,11 +1,11 @@
-#include "gps_pub.hpp"
+#include "gps_pub.h"
 
 #define GPS_RATE 9600
 #define GPS_RX_PIN 28
 #define GPS_TX_PIN 29
 
-static SoftwareSerial gps_serial = SoftwareSerial(GPS_RX_PIN, GPS_TX_PIN);
-static SFE_UBLOX_GNSS GNSS;
+SoftwareSerial gps_serial = SoftwareSerial(GPS_RX_PIN, GPS_TX_PIN);
+SFE_UBLOX_GNSS GNSS;
 
 void GPSPub::setup(rcl_node_t node) {
   gps_serial.begin(GPS_RATE);

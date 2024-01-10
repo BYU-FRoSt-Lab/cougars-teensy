@@ -1,7 +1,7 @@
 #ifndef ECHO_PUB
 #define ECHO_PUB
 
-#include "publisher.hpp"
+#include "publisher.h"
 #include <SoftwareSerial.h>
 #include <frost_interfaces/msg/echo.h>
 #include <ping1d.h>

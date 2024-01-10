@@ -1,8 +1,8 @@
-#include "echo_pub.hpp"
-#include "gps_pub.hpp"
-#include "humidity_pub.hpp"
-#include "leak_pub.hpp"
-#include "voltage_pub.hpp"
+#include "echo_pub.h"
+#include "gps_pub.h"
+#include "humidity_pub.h"
+#include "leak_pub.h"
+#include "voltage_pub.h"
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
@@ -22,18 +22,18 @@
 #define SYNC_TIMEOUT 1000
 
 // micro-ROS objects
-static rclc_support_t support;
-static rcl_allocator_t allocator;
-static rcl_node_t node;
-static rclc_executor_t executor;
-static rcl_timer_t timer_pub;
+rclc_support_t support;
+rcl_allocator_t allocator;
+rcl_node_t node;
+rclc_executor_t executor;
+rcl_timer_t timer_pub;
 
 // publisher objects
-static VoltagePub voltage_pub;
-static HumidityPub humidity_pub;
-static LeakPub leak_pub;
-static GPSPub gps_pub;
-static EchoPub echo_pub;
+VoltagePub voltage_pub;
+HumidityPub humidity_pub;
+LeakPub leak_pub;
+GPSPub gps_pub;
+EchoPub echo_pub;
 
 // states for state machine in loop function
 enum states {
@@ -44,7 +44,7 @@ enum states {
 } static state;
 
 // responds to errors with micro-ROS functions
-static void error_loop() {
+void error_loop() {
   while (1) {
     delay(100);
   }

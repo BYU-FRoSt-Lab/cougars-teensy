@@ -1,7 +1,7 @@
 #ifndef HUMIDITY_PUB
 #define HUMIDITY_PUB
 
-#include "publisher.hpp"
+#include "publisher.h"
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <frost_interfaces/msg/humid.h>

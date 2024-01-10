@@ -1,7 +1,7 @@
 #ifndef DEPTH_PUB
 #define DEPTH_PUB
 
-#include "publisher.hpp"
+#include "publisher.h"
 #include <MS5837.h>
 #include <Wire.h>
 #include <frost_interfaces/msg/depth.h>
