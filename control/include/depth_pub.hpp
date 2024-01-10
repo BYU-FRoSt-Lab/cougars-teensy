@@ -1,5 +1,5 @@
-#ifndef PRESSURE_PUB
-#define PRESSURE_PUB
+#ifndef DEPTH_PUB
+#define DEPTH_PUB
 
 #include "publisher.hpp"
 #include <MS5837.h>
@@ -7,12 +7,12 @@
 #include <frost_interfaces/msg/depth.h>
 #include <std_msgs/msg/float64.h>
 
-class PressurePub : Publisher {
+class DepthPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void pressure_setup();
-  void pressure_update();
+  void depth_setup();
+  void depth_update();
   void publish();
   using Publisher::destroy;
 
@@ -22,4 +22,4 @@ private:
 
 };
 
-#endif // PRESSURE_PUB
+#endif // DEPTH_PUB

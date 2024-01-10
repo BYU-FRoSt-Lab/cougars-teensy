@@ -1,12 +1,12 @@
-#ifndef IMU_PUB_NEW
-#define IMU_PUB_NEW
+#ifndef IMU_PUB
+#define IMU_PUB
 
 #include "publisher.hpp"
 #include <Adafruit_BNO08x.h>
 #include <Wire.h>
 #include <frost_interfaces/msg/imu.h>
 
-class IMUPubNew : Publisher {
+class IMUPub : Publisher {
 
 public:
   void setup(rcl_node_t node);

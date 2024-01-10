@@ -1,4 +1,4 @@
-#include "pressure_pub.hpp"
+#include "depth_pub.hpp"
 
 #define AVG_COUNT 10
 #define AVG_DEC 0.1
@@ -11,7 +11,7 @@ static float pressure_at_zero_depth;
 static float depth_error_at_zero_depth;
 static MS5837 pressure_sensor;
 
-void PressurePub::setup(rcl_node_t node) {
+void DepthPub::setup(rcl_node_t node) {
 
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
@@ -19,13 +19,13 @@ void PressurePub::setup(rcl_node_t node) {
       "depth_data"));
 }
 
-void PressurePub::pressure_setup() {
+void DepthPub::depth_setup() {
 
   pressure_sensor.init();
   pressure_calibrate();
 }
 
-void PressurePub::pressure_update() {
+void DepthPub::depth_update() {
 
   pressure_sensor.read();
   msg.pressure = pressure_sensor.pressure(); // - pressure_at_zero_depth
@@ -33,13 +33,13 @@ void PressurePub::pressure_update() {
   msg.temperature = pressure_sensor.temperature();
 }
 
-void PressurePub::publish() {
+void DepthPub::publish() {
 
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
   RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
 }
 
-void PressurePub::pressure_calibrate() {
+void DepthPub::pressure_calibrate() {
 
   pressure_sensor.setFluidDensity(FLUID_DENSITY);
 

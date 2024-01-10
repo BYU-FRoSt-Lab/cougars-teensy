@@ -1,14 +1,8 @@
 #include "pid_control.hpp"
-#include "echo_srv.hpp"
-#include "gps_srv.hpp"
-#include "humidity_pub.hpp"
-#include "imu_pub_new.hpp"
-#include "leak_pub.hpp"
-#include "pressure_pub.hpp"
-#include "voltage_pub.hpp"
+#include "imu_pub.hpp"
+#include "depth_pub.hpp"
 
 #include <Servo.h>
-#include <frost_interfaces/msg/nav.h>
 #include <frost_interfaces/msg/pid.h>
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
@@ -24,8 +18,8 @@
   } while (0)
 
 #define BAUD_RATE 6000000
-#define CALLBACK_TOTAL 6
-#define TIMER_PERIOD 30000
+#define CALLBACK_TOTAL 3
+#define TIMER_PUB_PERIOD 30000
 #define TIMER_PID_PERIOD 5
 #define SYNC_TIMEOUT 1000
 
@@ -54,8 +48,6 @@ static rcl_allocator_t allocator;
 static rcl_node_t node;
 static rclc_executor_t executor;
 static rcl_subscription_t subscriber;
-static rcl_publisher_t pid_publisher;
-static rcl_publisher_t nav_publisher;
 static rcl_timer_t timer_pub;
 static rcl_timer_t timer_pid;
 static frost_interfaces__msg__PID msg;
@@ -63,15 +55,8 @@ static frost_interfaces__msg__PID *pid_request_msg =
     new frost_interfaces__msg__PID;
 
 // publisher objects
-static VoltagePub voltage_pub;
-static HumidityPub humidity_pub;
-static LeakPub leak_pub;
-static PressurePub pressure_pub;
-static IMUPubNew imu_pub;
-
-// service objects
-static GPSSrv gps_srv;
-static EchoSrv echo_srv;
+static DepthPub depth_pub;
+static IMUPub imu_pub;
 
 // servo, thruster objects
 static Servo my_servo1;
@@ -101,6 +86,26 @@ static void error_loop() {
   while (1) {
     delay(100);
   }
+}
+
+// pin setup for servos and thruster
+void pin_setup() {
+
+  pinMode(SERVO_PIN1, OUTPUT);
+  pinMode(SERVO_PIN2, OUTPUT);
+  pinMode(SERVO_PIN3, OUTPUT);
+  pinMode(THRUSTER_PIN, OUTPUT);
+
+  my_servo1.attach(SERVO_PIN1);
+  my_servo2.attach(SERVO_PIN2);
+  my_servo3.attach(SERVO_PIN3);
+  thruster.attach(THRUSTER_PIN);
+
+  my_servo1.write(DEFAULT_SERVO);
+  my_servo2.write(DEFAULT_SERVO);
+  my_servo3.write(DEFAULT_SERVO);
+  thruster.writeMicroseconds(DEFAULT_THRUSTER);
+  delay(7000);
 }
 
 // TODO: Can we add this to the PID object?
@@ -172,57 +177,13 @@ void run_pid() {
   //////////////////////////////////////////////////////////
 }
 
-// pin setup for servos and thruster
-void pin_setup() {
-
-  pinMode(SERVO_PIN1, OUTPUT);
-  pinMode(SERVO_PIN2, OUTPUT);
-  pinMode(SERVO_PIN3, OUTPUT);
-  pinMode(THRUSTER_PIN, OUTPUT);
-
-  my_servo1.attach(SERVO_PIN1);
-  my_servo2.attach(SERVO_PIN2);
-  my_servo3.attach(SERVO_PIN3);
-  thruster.attach(THRUSTER_PIN);
-
-  my_servo1.write(DEFAULT_SERVO);
-  my_servo2.write(DEFAULT_SERVO);
-  my_servo3.write(DEFAULT_SERVO);
-  thruster.writeMicroseconds(DEFAULT_THRUSTER);
-  delay(7000);
-}
-
-// "fake function" to allow the service object function to be called
-void gps_service_callback(const void *request_msg, void *response_msg) {
-  gps_srv.respond(request_msg, response_msg);
-}
-
-// "fake function" to allow the service object function to be called
-void echo_service_callback(const void *request_msg, void *response_msg) {
-  echo_srv.respond(request_msg, response_msg);
-}
-
 // micro-ROS function that publishes all the data to their topics
 void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
   (void)last_call_time;
-
-  // TODO: test how fast the code is running using the below
-  static unsigned long last_timer = 0;
-  static unsigned long current = 0;
-
   if (timer != NULL) {
 
-    // TODO: test how fast the code is running using the below
-    Serial5.print("PUBLISH LOOP TIMER: ");
-    current = millis();
-    Serial5.println(current - last_timer);
-    last_timer = current;
-
-    voltage_pub.publish();
-    humidity_pub.publish();
-    leak_pub.publish();
-    pressure_pub.publish();
+    depth_pub.publish();
     imu_pub.publish();
   }
 }
@@ -231,21 +192,10 @@ void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
 void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
   (void)last_call_time;
-
-  // TODO: test how fast the code is running using the below
-  static unsigned long last_timer = 0;
-  static unsigned long current = 0;
-
   if (timer != NULL) {
 
-    // TODO: test how fast the code is running using the below
-    Serial5.print("PID LOOP TIMER: ");
-    current = millis();
-    Serial5.println(current - last_timer);
-    last_timer = current;
-
     imu_pub.imu_update();
-    pressure_pub.pressure_update();
+    depth_pub.depth_update();
     run_pid();
   }
 }
@@ -268,18 +218,11 @@ bool create_entities() {
   // synchronize timestamps with the Raspberry Pi
   // after sync, timing should be able to be accessed with "rmw_uros_epoch"
   // functions
-  RCCHECK(rmw_uros_sync_session(1000));
+  RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
-  voltage_pub.setup(node);
-  humidity_pub.setup(node);
-  leak_pub.setup(node);
-  pressure_pub.setup(node);
+  depth_pub.setup(node);
   imu_pub.setup(node);
-
-  // create services
-  gps_srv.setup(node);
-  echo_srv.setup(node);
 
   // create subscriber
   RCCHECK(rclc_subscription_init_default(
@@ -288,7 +231,7 @@ bool create_entities() {
 
   // create timer (handles periodic publications)
   RCCHECK(rclc_timer_init_default(
-      &timer_pub, &support, RCL_MS_TO_NS(TIMER_PERIOD), timer_pub_callback));
+      &timer_pub, &support, RCL_MS_TO_NS(TIMER_PUB_PERIOD), timer_pub_callback));
   RCCHECK(rclc_timer_init_default(&timer_pid, &support,
                                   RCL_MS_TO_NS(TIMER_PID_PERIOD),
                                   timer_pid_callback));
@@ -300,12 +243,6 @@ bool create_entities() {
   // add callbacks to executor
   RCSOFTCHECK(rclc_executor_add_timer(&executor, &timer_pub));
   RCSOFTCHECK(rclc_executor_add_timer(&executor, &timer_pid));
-  RCSOFTCHECK(rclc_executor_add_service(&executor, &gps_srv.service,
-                                        &gps_srv.msgReq, &gps_srv.msgRes,
-                                        gps_service_callback));
-  RCSOFTCHECK(rclc_executor_add_service(&executor, &echo_srv.service,
-                                        &echo_srv.msgReq, &echo_srv.msgRes,
-                                        echo_service_callback));
   RCSOFTCHECK(rclc_executor_add_subscription(
       &executor, &subscriber, &msg, &subscription_callback, ON_NEW_DATA));
 
@@ -314,7 +251,7 @@ bool create_entities() {
 
   if (!already_setup) {
     imu_pub.imu_setup();
-    pressure_pub.pressure_setup();
+    depth_pub.depth_setup();
     already_setup = true;
   }
 
@@ -326,15 +263,8 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
-  voltage_pub.destroy(node);
-  humidity_pub.destroy(node);
-  leak_pub.destroy(node);
-  pressure_pub.destroy(node);
+  depth_pub.destroy(node);
   imu_pub.destroy(node);
-
-  // destroy services
-  gps_srv.destroy(node);
-  echo_srv.destroy(node);
 
   // destroy everything else
   rcl_subscription_fini(&subscriber, &node);
@@ -349,10 +279,8 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
-  Serial5.begin(115200);
+  // Serial5.begin(115200);
   pin_setup();
-
-  Serial5.println("setup");
 
   state = WAITING_AGENT;
 }

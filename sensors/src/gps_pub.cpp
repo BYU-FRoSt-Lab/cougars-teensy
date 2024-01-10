@@ -1,7 +1,4 @@
 #include "publisher.hpp"
-#include <SoftwareSerial.h>
-#include <SparkFun_u-blox_GNSS_Arduino_Library.h>
-#include <frost_interfaces/msg/gps.h>
 
 #define GPS_RATE 9600
 #define RX_PIN 28

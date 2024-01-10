@@ -1,16 +1,16 @@
-#include "imu_pub_new.hpp"
+#include "imu_pub.hpp"
 
 #include "SparkFun_BNO080_Arduino_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_BNO080
 BNO080 myIMU;
 
-void IMUPubNew::setup(rcl_node_t node) {
+void IMUPub::setup(rcl_node_t node) {
 
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, IMU), "imu_data"));
 }
 
-void IMUPubNew::imu_setup() {
+void IMUPub::imu_setup() {
 
   Wire2.begin();
   myIMU.begin(0x4A, Wire2);
@@ -21,7 +21,7 @@ void IMUPubNew::imu_setup() {
 
 }
 
-void IMUPubNew::imu_update() {
+void IMUPub::imu_update() {
 
   if (myIMU.dataAvailable() == true)
   {
@@ -37,7 +37,7 @@ void IMUPubNew::imu_update() {
 
 }
 
-void IMUPubNew::publish() {
+void IMUPub::publish() {
 
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
   RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));

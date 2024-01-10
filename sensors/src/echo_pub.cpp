@@ -1,7 +1,4 @@
 #include "publisher.hpp"
-#include <SoftwareSerial.h>
-#include <frost_interfaces/msg/echo.h>
-#include <ping1d.h>
 
 #define ECHO_RATE 115200
 #define RX_PIN 21
