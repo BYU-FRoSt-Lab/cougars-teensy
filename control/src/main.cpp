@@ -1,4 +1,3 @@
-#include "pid_control.h"
 #include "imu_pub.h"
 #include "depth_pub.h"
 
@@ -55,7 +54,7 @@ frost_interfaces__msg__PID *pid_request_msg =
     new frost_interfaces__msg__PID;
 
 // publisher objects
-DepthPub depth_pub;
+// DepthPub depth_pub;
 IMUPub imu_pub;
 
 // servo, thruster objects
@@ -63,12 +62,6 @@ Servo my_servo1;
 Servo my_servo2;
 Servo my_servo3;
 Servo thruster;
-
-// PID objects
-PID_Control Heading(HEADING_P, HEADING_I, 40, 140,
-                           90); // TO DO: fix magic numbers
-PID_Control Velocity(VELOCITY_P, VELOCITY_I, 0, 100, 0);
-PID_Control Depth(DEPTH_P, DEPTH_I, 45, 135, 90);
 
 // states for state machine in loop function
 enum states {
@@ -108,29 +101,6 @@ void pin_setup() {
   delay(7000);
 }
 
-// TODO: Can we add this to the PID object?
-int compute_heading(float goal_heading, float heading_curr) {
-
-  static float input = 0;
-  static float output = 0;
-  if (goal_heading > heading_curr) {
-    if ((360 - goal_heading + heading_curr) <
-        (goal_heading - heading_curr)) { // TODO: fix magic numbers
-      input = -1 * (360 - goal_heading + heading_curr);
-    } else {
-      input = goal_heading - heading_curr;
-    }
-  } else { // add this to nav
-    if ((360 - heading_curr + goal_heading) < (heading_curr - goal_heading)) {
-      input = (360 - heading_curr + goal_heading);
-    } else {
-      input = goal_heading - heading_curr;
-    }
-  }
-  output = Heading.compute(goal_heading, heading_curr);
-  return int(output);
-}
-
 void run_pid() {
 
   //////////////////////////////////////////////////////////
@@ -147,9 +117,7 @@ void run_pid() {
     // use custom functions from imu_pub and depth_pub to get values
 
     int servo1_angle = 0;
-        // compute_heading(pid_request_msg->yaw, imu_pub.returnYaw());
     int thruster_speed = 0;
-        // Velocity.compute(pid_request_msg->velocity, imu_pub.returnVel());
 
     // TODO: test thruster using this code
     int servo2_angle = map(thruster_speed, 0, 100, 25, 165);
@@ -183,7 +151,7 @@ void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
   (void)last_call_time;
   if (timer != NULL) {
 
-    depth_pub.publish();
+    // depth_pub.publish();
     imu_pub.publish();
   }
 }
@@ -195,7 +163,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
   if (timer != NULL) {
 
     imu_pub.imu_update();
-    depth_pub.depth_update();
+    // depth_pub.depth_update();
     run_pid();
   }
 }
@@ -221,7 +189,7 @@ bool create_entities() {
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
-  depth_pub.setup(node);
+  // depth_pub.setup(node);
   imu_pub.setup(node);
 
   // create subscriber
@@ -251,7 +219,7 @@ bool create_entities() {
 
   if (!already_setup) {
     imu_pub.imu_setup();
-    depth_pub.depth_setup();
+    // depth_pub.depth_setup();
     already_setup = true;
   }
 
@@ -263,7 +231,7 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
-  depth_pub.destroy(node);
+  // depth_pub.destroy(node);
   imu_pub.destroy(node);
 
   // destroy everything else

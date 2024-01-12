@@ -32,8 +32,8 @@ rcl_timer_t timer_pub;
 VoltagePub voltage_pub;
 HumidityPub humidity_pub;
 LeakPub leak_pub;
-GPSPub gps_pub;
-EchoPub echo_pub;
+// GPSPub gps_pub;
+// EchoPub echo_pub;
 
 // states for state machine in loop function
 enum states {
@@ -59,8 +59,8 @@ void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
     voltage_pub.publish();
     humidity_pub.publish();
     leak_pub.publish();
-    gps_pub.publish();
-    echo_pub.publish();
+    // gps_pub.publish();
+    // echo_pub.publish();
   }
 }
 
@@ -83,8 +83,8 @@ bool create_entities() {
   voltage_pub.setup(node);
   humidity_pub.setup(node);
   leak_pub.setup(node);
-  gps_pub.setup(node);
-  echo_pub.setup(node);
+  // gps_pub.setup(node);
+  // echo_pub.setup(node);
 
   // create timer (handles periodic publications)
   RCCHECK(rclc_timer_init_default(
@@ -108,8 +108,8 @@ void destroy_entities() {
   voltage_pub.destroy(node);
   humidity_pub.destroy(node);
   leak_pub.destroy(node);
-  gps_pub.destroy(node);
-  echo_pub.destroy(node);
+  // gps_pub.destroy(node);
+  // echo_pub.destroy(node);
 
   // destroy everything else
   rcl_timer_fini(&timer_pub);
