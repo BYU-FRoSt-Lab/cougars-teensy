@@ -13,7 +13,6 @@ public:
   using Publisher::destroy;
 
 private:
-  bool check_water_leak();
   frost_interfaces__msg__Leak msg;
 };
 

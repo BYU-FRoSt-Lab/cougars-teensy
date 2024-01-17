@@ -15,7 +15,6 @@ public:
 
 private:
   frost_interfaces__msg__Volt msg;
-
 };
 
 #endif // VOLTAGE_PUB

@@ -4,7 +4,7 @@
 #define ECHO_RX_PIN 21
 #define ECHO_TX_PIN 20
 
-Ping1D ping { Serial5 };
+static Ping1D ping { Serial5 };
 
 void EchoPub::setup(rcl_node_t node) {
 
