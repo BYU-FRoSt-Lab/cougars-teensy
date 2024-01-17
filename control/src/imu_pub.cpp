@@ -1,7 +1,7 @@
 #include "imu_pub.h"
+#include "SparkFun_BNO080_Arduino_Library.h"
 
-#include "SparkFun_BNO080_Arduino_Library.h" // Click here to get the library: http://librarymanager/All#SparkFun_BNO080
-BNO080 myIMU;
+static BNO080 myIMU;
 
 void IMUPub::setup(rcl_node_t node) {
 
@@ -12,13 +12,12 @@ void IMUPub::setup(rcl_node_t node) {
 
 void IMUPub::imu_setup() {
 
-  Wire2.begin();
-  myIMU.begin(0x4A, Wire2);
-  Wire2.setClock(400000);
+  Wire.begin();
+  myIMU.begin(0x4A, Wire);
+  Wire.setClock(400000);
 
   myIMU.enableLinearAccelerometer(50); //Send data update every 50ms
   myIMU.enableRotationVector(50); //Send data update every 50ms
-
 }
 
 void IMUPub::imu_update() {

@@ -34,13 +34,6 @@
 #define DEFAULT_SERVO 90
 #define DEFAULT_THRUSTER 1500
 
-#define HEADING_P 0.6
-#define HEADING_I 0.05
-#define VELOCITY_P 0.6
-#define VELOCITY_I 0.05
-#define DEPTH_P 0.2
-#define DEPTH_I 0.05
-
 // micro-ROS objects
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -54,7 +47,7 @@ frost_interfaces__msg__PID *pid_request_msg =
     new frost_interfaces__msg__PID;
 
 // publisher objects
-// DepthPub depth_pub;
+DepthPub depth_pub;
 IMUPub imu_pub;
 
 // servo, thruster objects
@@ -151,7 +144,7 @@ void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
   (void)last_call_time;
   if (timer != NULL) {
 
-    // depth_pub.publish();
+    depth_pub.publish();
     imu_pub.publish();
   }
 }
@@ -163,7 +156,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
   if (timer != NULL) {
 
     imu_pub.imu_update();
-    // depth_pub.depth_update();
+    depth_pub.depth_update();
     run_pid();
   }
 }
@@ -189,7 +182,7 @@ bool create_entities() {
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
-  // depth_pub.setup(node);
+  depth_pub.setup(node);
   imu_pub.setup(node);
 
   // create subscriber
@@ -219,7 +212,7 @@ bool create_entities() {
 
   if (!already_setup) {
     imu_pub.imu_setup();
-    // depth_pub.depth_setup();
+    depth_pub.depth_setup();
     already_setup = true;
   }
 
@@ -231,7 +224,7 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
-  // depth_pub.destroy(node);
+  depth_pub.destroy(node);
   imu_pub.destroy(node);
 
   // destroy everything else
@@ -247,7 +240,7 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
-  // Serial5.begin(115200);
+  // Serial8.begin(115200);
   pin_setup();
 
   state = WAITING_AGENT;

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ~/teensy_ws/sensors
+cd ~/teensy_ws/test
 pio run
 
 cd .pio/build/teensy41
