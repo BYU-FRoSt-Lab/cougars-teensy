@@ -14,6 +14,7 @@
       error_loop();                                                            \
     }                                                                          \
   }
+  
 #define RCSOFTCHECK(fn)                                                        \
   {                                                                            \
     rcl_ret_t temp_rc = fn;                                                    \
