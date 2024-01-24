@@ -7,14 +7,14 @@ void GPSPub::setup(rcl_node_t node) {
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, GPS), "gps_data"));
 }
 
-void GPSPub::update(SFE_UBLOX_GNSS GNSS) {
+// void GPSPub::update(SFE_UBLOX_GNSS GNSS) {
 
-  msg.longitude = GNSS.getLongitude();
-  msg.latitude = GNSS.getLatitude();
-  msg.altitude = GNSS.getAltitude();
-  msg.siv = GNSS.getSIV();
-  msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
-}
+//   msg.longitude = GNSS.getLongitude();
+//   msg.latitude = GNSS.getLatitude();
+//   msg.altitude = GNSS.getAltitude();
+//   msg.siv = GNSS.getSIV();
+//   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
+// }
 
 void GPSPub::publish() {
 

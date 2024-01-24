@@ -9,7 +9,7 @@ class GPSPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update(SFE_UBLOX_GNSS GNSS);
+  // void update(SFE_UBLOX_GNSS GNSS);
   void publish();
   using Publisher::destroy;
 
