@@ -34,13 +34,13 @@ rcl_timer_t timer_pub;
 // publisher objects
 VoltagePub voltage_pub;
 LeakPub leak_pub;
-GPSPub gps_pub;
-// EchoPub echo_pub;
+// GPSPub gps_pub;
+EchoPub echo_pub;
 
 // sensor objects
 Adafruit_INA260 ina260;
-// Ping1D ping { Serial5 };
-SFE_UBLOX_GNSS GNSS;
+Ping1D ping { Serial5 };
+// SFE_UBLOX_GNSS GNSS;
 
 // states for state machine in loop function
 enum states {
@@ -68,9 +68,9 @@ void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
     leak_pub.update(LEAK_PIN);
     leak_pub.publish();
     // gps_pub.update(GNSS);
-    gps_pub.publish();
-    // echo_pub.update(ping);
-    // echo_pub.publish();
+    // gps_pub.publish();
+    echo_pub.update(ping);
+    echo_pub.publish();
   }
 }
 
@@ -92,8 +92,8 @@ bool create_entities() {
   // create publishers
   voltage_pub.setup(node);
   leak_pub.setup(node);
-  gps_pub.setup(node);
-  // echo_pub.setup(node);
+  // gps_pub.setup(node);
+  echo_pub.setup(node);
 
   // create timer (handles periodic publications)
   RCCHECK(rclc_timer_init_default(
@@ -117,8 +117,8 @@ void destroy_entities() {
   // destroy publishers
   voltage_pub.destroy(node);
   leak_pub.destroy(node);
-  gps_pub.destroy(node);
-  // echo_pub.destroy(node);
+  // gps_pub.destroy(node);
+  echo_pub.destroy(node);
 
   // destroy everything else
   rcl_timer_fini(&timer_pub);
@@ -140,31 +140,31 @@ void setup() {
   ina260.setCurrentConversionTime(INA260_TIME_140_us);
 
   // set up the echosounder
-  // Serial5.begin(ECHO_RATE);
-  // while(!ping.initialize()) {
-  //   delay(1000);
-  // }
+  Serial5.begin(ECHO_RATE);
+  while(!ping.initialize()) {
+    delay(1000);
+  }
 
   // set up the gps
-  do {
+  // do {
 
-    Serial7.begin(GPS_RATE);
-    if (GNSS.begin(Serial7) == true) break;
+  //   Serial7.begin(GPS_RATE);
+  //   if (GNSS.begin(Serial7) == true) break;
 
-    delay(100);
-    Serial7.begin(9600);
-    if (GNSS.begin(Serial7) == true) {
-        GNSS.setSerialRate(GPS_RATE);
-        delay(100);
-    } else {
-        // GNSS.factoryReset();
-        delay(2000);
-    }
-  } while(1);
+  //   delay(100);
+  //   Serial7.begin(9600);
+  //   if (GNSS.begin(Serial7) == true) {
+  //       GNSS.setSerialRate(GPS_RATE);
+  //       delay(100);
+  //   } else {
+  //       // GNSS.factoryReset();
+  //       delay(2000);
+  //   }
+  // } while(1);
 
-  GNSS.setUART1Output(COM_TYPE_UBX); // Set the UART port to output UBX only
-  GNSS.setI2COutput(COM_TYPE_UBX); // Set the I2C port to output UBX only (turn off NMEA noise)
-  GNSS.saveConfiguration(); // Save the current settings to flash and BBR
+  // GNSS.setUART1Output(COM_TYPE_UBX); // Set the UART port to output UBX only
+  // GNSS.setI2COutput(COM_TYPE_UBX); // Set the I2C port to output UBX only (turn off NMEA noise)
+  // GNSS.saveConfiguration(); // Save the current settings to flash and BBR
   
   state = WAITING_AGENT;
 }
