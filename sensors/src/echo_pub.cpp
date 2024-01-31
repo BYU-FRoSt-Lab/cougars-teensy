@@ -7,11 +7,11 @@ void EchoPub::setup(rcl_node_t node) {
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Echo), "echo_data"));
 }
 
-void EchoPub::update(Ping1D ping) {
+void EchoPub::update(Ping1D* ping) {
 
-  if (ping.update()) {
-    msg.distance = ping.distance();
-    msg.conf_level = ping.confidence();
+  if (ping->update()) {
+    msg.distance = ping->distance();
+    msg.conf_level = ping->confidence();
     msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
   }
 }

@@ -1,6 +1,7 @@
 #include "imu_pub.h"
 #include "depth_pub.h"
 
+#include <Wire.h>
 #include <Servo.h>
 #include <frost_interfaces/msg/pid.h>
 
@@ -22,10 +23,9 @@
 #define TIMER_PID_PERIOD 5
 #define SYNC_TIMEOUT 1000
 
-#define LOW_FINAL 0
-#define HIGH_FINAL 100
-#define LOW_INITIAL 1500
-#define HIGH_INITIAL 2000
+#define AVG_COUNT 10
+#define AVG_DEC 0.1
+#define FLUID_DENSITY 997
 
 #define SERVO_PIN1 9
 #define SERVO_PIN2 10
@@ -46,6 +46,10 @@ frost_interfaces__msg__PID msg;
 frost_interfaces__msg__PID *pid_request_msg =
     new frost_interfaces__msg__PID;
 
+// sensor objects
+BNO08x myIMU;
+MS5837 pressure_sensor;
+
 // publisher objects
 DepthPub depth_pub;
 IMUPub imu_pub;
@@ -56,6 +60,23 @@ Servo my_servo2;
 Servo my_servo3;
 Servo thruster;
 
+// global sensor variables
+float roll = 0.0;
+float pitch = 0.0;
+float yaw = 0.0;
+float accel_x = 0.0;
+float accel_y = 0.0;
+float accel_z = 0.0;
+float pressure = 0.0;
+float depth = 0.0;
+float temperature = 0.0;
+
+// calibration variables
+float sum_pressure_at_zero_depth = 0.0;
+float sum_depth_error_at_zero_depth = 0.0;
+float pressure_at_zero_depth = 0.0;
+float depth_error_at_zero_depth = 0.0;
+
 // states for state machine in loop function
 enum states {
   WAITING_AGENT,
@@ -64,9 +85,6 @@ enum states {
   AGENT_DISCONNECTED
 } static state;
 
-// used to make sure imu_setup is only called once
-bool already_setup = false;
-
 // responds to errors with micro-ROS functions
 void error_loop() {
   while (1) {
@@ -74,94 +92,51 @@ void error_loop() {
   }
 }
 
-// pin setup for servos and thruster
-void pin_setup() {
-
-  pinMode(SERVO_PIN1, OUTPUT);
-  pinMode(SERVO_PIN2, OUTPUT);
-  pinMode(SERVO_PIN3, OUTPUT);
-  pinMode(THRUSTER_PIN, OUTPUT);
-
-  my_servo1.attach(SERVO_PIN1);
-  my_servo2.attach(SERVO_PIN2);
-  my_servo3.attach(SERVO_PIN3);
-  thruster.attach(THRUSTER_PIN);
-
-  my_servo1.write(DEFAULT_SERVO);
-  my_servo2.write(DEFAULT_SERVO);
-  my_servo3.write(DEFAULT_SERVO);
-  thruster.writeMicroseconds(DEFAULT_THRUSTER);
-  delay(7000);
-}
-
-void run_pid() {
-
-  //////////////////////////////////////////////////////////
-  // LOW-LEVEL CONTROLLER CODE STARTS HERE
-  //////////////////////////////////////////////////////////
-
-  if (pid_request_msg->stop == false) {
-
-    // TODO: add PID stuff here
-
-    // reference wanted values using pid_request_msg->velocity,
-    // pid_request_msg->yaw, etc
-
-    // use custom functions from imu_pub and depth_pub to get values
-
-    int servo1_angle = 0;
-    int thruster_speed = 0;
-
-    // TODO: test thruster using this code
-    int servo2_angle = map(thruster_speed, 0, 100, 25, 165);
-    Serial5.print("Thruster Value: ");
-    Serial5.print(map(thruster_speed, 0, 100, 1500, 2000));
-
-    // TODO: use this code to write to the servos and thruster
-    my_servo1.write(servo1_angle);
-    my_servo2.write(DEFAULT_SERVO);
-    my_servo3.write(DEFAULT_SERVO);
-    int thrusterValue =
-        map(0, LOW_FINAL, HIGH_FINAL, LOW_INITIAL, HIGH_INITIAL);
-    thruster.writeMicroseconds(thrusterValue);
-
-  } else {
-
-    my_servo1.write(DEFAULT_SERVO);
-    my_servo2.write(DEFAULT_SERVO);
-    my_servo3.write(DEFAULT_SERVO);
-    thruster.writeMicroseconds(DEFAULT_THRUSTER);
-  }
-
-  //////////////////////////////////////////////////////////
-  // LOW-LEVEL CONTROLLER CODE ENDS HERE
-  //////////////////////////////////////////////////////////
-}
-
-// micro-ROS function that publishes all the data to their topics
+// micro-ROS timer function that publishes all the data to their topics
 void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
   (void)last_call_time;
   if (timer != NULL) {
 
+    depth_pub.update(pressure, depth, temperature);
     depth_pub.publish();
+    imu_pub.update(roll, pitch, yaw, accel_x, accel_y, accel_z);
     imu_pub.publish();
   }
 }
 
-// TODO: ADD HERE
+// micro-ROS timer function that runs the PID
 void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
   (void)last_call_time;
   if (timer != NULL) {
 
-    imu_pub.imu_update();
-    depth_pub.depth_update();
-    run_pid();
+    //////////////////////////////////////////////////////////
+    // LOW-LEVEL CONTROLLER CODE STARTS HERE
+    //////////////////////////////////////////////////////////
+
+    if (pid_request_msg->stop == false) {
+
+      // TODO: add PID stuff here
+
+      // reference wanted values using pid_request_msg->velocity,
+      // pid_request_msg->yaw, etc
+
+    } else {
+
+      my_servo1.write(DEFAULT_SERVO);
+      my_servo2.write(DEFAULT_SERVO);
+      my_servo3.write(DEFAULT_SERVO);
+      thruster.writeMicroseconds(DEFAULT_THRUSTER);
+    }
+
+    //////////////////////////////////////////////////////////
+    // LOW-LEVEL CONTROLLER CODE ENDS HERE
+    //////////////////////////////////////////////////////////
   }
 }
 
-// micro-Ros function that subscribes to requested PID values
+// micro-ROS function that subscribes to requested PID values
 void subscription_callback(const void *pid_msgin) {
   pid_request_msg = (frost_interfaces__msg__PID *)pid_msgin;
 }
@@ -210,12 +185,6 @@ bool create_entities() {
   // wait for first new data to arrive from pid_request topic
   pid_request_msg->stop = true;
 
-  if (!already_setup) {
-    imu_pub.imu_setup();
-    depth_pub.depth_setup();
-    already_setup = true;
-  }
-
   return true;
 }
 
@@ -241,7 +210,47 @@ void setup() {
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
   // Serial8.begin(115200);
-  pin_setup();
+  
+  // set up the servo and thruster pins
+  pinMode(SERVO_PIN1, OUTPUT);
+  pinMode(SERVO_PIN2, OUTPUT);
+  pinMode(SERVO_PIN3, OUTPUT);
+  pinMode(THRUSTER_PIN, OUTPUT);
+
+  my_servo1.attach(SERVO_PIN1);
+  my_servo2.attach(SERVO_PIN2);
+  my_servo3.attach(SERVO_PIN3);
+  thruster.attach(THRUSTER_PIN);
+
+  my_servo1.write(DEFAULT_SERVO);
+  my_servo2.write(DEFAULT_SERVO);
+  my_servo3.write(DEFAULT_SERVO);
+  thruster.writeMicroseconds(DEFAULT_THRUSTER);
+  delay(7000);
+
+  // set up the IMU
+  Wire.begin();
+  Wire.setClock(400000);
+
+  myIMU.begin(0x4A, Wire);
+  myIMU.enableLinearAccelerometer(50); // send data update every 50ms
+  myIMU.enableRotationVector(50); // send data update every 50ms
+
+  // set up the pressure sensor
+  pressure_sensor.init();
+  pressure_sensor.setModel(MS5837::MS5837_30BA);
+  pressure_sensor.setFluidDensity(FLUID_DENSITY);
+
+  // calibrate the pressure sensor
+  for (int i = 0; i < AVG_COUNT; i++) {
+    pressure_sensor.read();
+    sum_pressure_at_zero_depth += pressure_sensor.pressure();
+    sum_depth_error_at_zero_depth += pressure_sensor.depth();
+    // the read function takes ~ 40 ms according to documentation
+  }
+
+  pressure_at_zero_depth = sum_pressure_at_zero_depth * AVG_DEC;
+  depth_error_at_zero_depth = sum_depth_error_at_zero_depth * AVG_DEC;
 
   state = WAITING_AGENT;
 }
@@ -269,7 +278,40 @@ void loop() {
                                         : AGENT_DISCONNECTED;);
 
     if (state == AGENT_CONNECTED) {
+
+      //////////////////////////////////////////////////////////
+      // AGENT CONNECTED EXECUTION CODE STARTS HERE
+      //////////////////////////////////////////////////////////
+
+      // update the global IMU values
+      if (myIMU.getSensorEvent() == true) {
+
+        if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
+
+          roll = myIMU.getRoll();
+          pitch = myIMU.getPitch();
+          yaw = myIMU.getYaw();
+        }
+
+        if (myIMU.getSensorEventID() == SENSOR_REPORTID_ACCELEROMETER) {
+
+          accel_x = myIMU.getAccelX();
+          accel_y = myIMU.getAccelY();
+          accel_z = myIMU.getAccelZ();
+        }
+      }
+
+      // update the global pressure values
+      pressure_sensor.read();
+      pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
+      depth = pressure_sensor.depth() - depth_error_at_zero_depth;
+      temperature = pressure_sensor.temperature();
+
       rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
+
+      //////////////////////////////////////////////////////////
+      // AGENT CONNECTED EXECUTION CODE ENDS HERE
+      //////////////////////////////////////////////////////////
     }
     break;
 

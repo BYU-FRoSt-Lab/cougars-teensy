@@ -2,16 +2,14 @@
 #define IMU_PUB
 
 #include "publisher.h"
-#include <Adafruit_BNO08x.h>
-#include <Wire.h>
 #include <frost_interfaces/msg/imu.h>
+#include "SparkFun_BNO08x_Arduino_Library.h"
 
 class IMUPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void imu_setup();
-  void imu_update();
+  void update(float roll, float pitch, float yaw, float accel_x, float accel_y, float accel_z);
   void publish();
   using Publisher::destroy;
 

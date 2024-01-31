@@ -9,7 +9,7 @@ class EchoPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update(Ping1D ping);
+  void update(Ping1D* ping);
   void publish();
   using Publisher::destroy;
 
