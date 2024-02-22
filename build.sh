@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ~/teensy_ws/control
+cd ~/teensy_ws/test_ros
 pio run
 
 cd .pio/build/teensy41

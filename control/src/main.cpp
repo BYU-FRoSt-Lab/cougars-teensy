@@ -257,6 +257,30 @@ void setup() {
 
 void loop() {
 
+  // update the global IMU values
+  if (myIMU.getSensorEvent() == true) {
+
+    if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
+
+      roll = myIMU.getRoll();
+      pitch = myIMU.getPitch();
+      yaw = myIMU.getYaw();
+    }
+
+    if (myIMU.getSensorEventID() == SENSOR_REPORTID_ACCELEROMETER) {
+
+      accel_x = myIMU.getAccelX();
+      accel_y = myIMU.getAccelY();
+      accel_z = myIMU.getAccelZ();
+    }
+  }
+
+  // update the global pressure values
+  pressure_sensor.read();
+  pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
+  depth = pressure_sensor.depth() - depth_error_at_zero_depth;
+  temperature = pressure_sensor.temperature();
+
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
   case WAITING_AGENT:
@@ -276,42 +300,8 @@ void loop() {
     EXECUTE_EVERY_N_MS(200, state = (RMW_RET_OK == rmw_uros_ping_agent(100, 1))
                                         ? AGENT_CONNECTED
                                         : AGENT_DISCONNECTED;);
-
     if (state == AGENT_CONNECTED) {
-
-      //////////////////////////////////////////////////////////
-      // AGENT CONNECTED EXECUTION CODE STARTS HERE
-      //////////////////////////////////////////////////////////
-
-      // update the global IMU values
-      if (myIMU.getSensorEvent() == true) {
-
-        if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-
-          roll = myIMU.getRoll();
-          pitch = myIMU.getPitch();
-          yaw = myIMU.getYaw();
-        }
-
-        if (myIMU.getSensorEventID() == SENSOR_REPORTID_ACCELEROMETER) {
-
-          accel_x = myIMU.getAccelX();
-          accel_y = myIMU.getAccelY();
-          accel_z = myIMU.getAccelZ();
-        }
-      }
-
-      // update the global pressure values
-      pressure_sensor.read();
-      pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
-      depth = pressure_sensor.depth() - depth_error_at_zero_depth;
-      temperature = pressure_sensor.temperature();
-
       rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
-
-      //////////////////////////////////////////////////////////
-      // AGENT CONNECTED EXECUTION CODE ENDS HERE
-      //////////////////////////////////////////////////////////
     }
     break;
 
