@@ -16,7 +16,7 @@
 
 #define BAUD_RATE 6000000
 #define CALLBACK_TOTAL 1
-#define TIMER_PERIOD 30000
+#define TIMER_PERIOD 3000
 #define SYNC_TIMEOUT 1000
 
 #define LEAK_PIN 16
@@ -34,8 +34,11 @@ VoltagePub voltage_pub;
 LeakPub leak_pub;
 EchoPub echo_pub;
 
+// global sensor variables
+float distance = 0.0;
+float conf_level = 0.0;
+
 // sensor objects
-Adafruit_INA260 ina260;
 Ping1D ping { Serial5 };
 
 // states for state machine in loop function
@@ -59,11 +62,11 @@ void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
   (void)last_call_time;
   if (timer != NULL) {
 
-    voltage_pub.update(&ina260);
+    voltage_pub.update();
     voltage_pub.publish();
     leak_pub.update(LEAK_PIN);
     leak_pub.publish();
-    echo_pub.update(&ping);
+    echo_pub.update(distance, conf_level);
     echo_pub.publish();
   }
 }
@@ -125,22 +128,22 @@ void setup() {
   set_microros_serial_transports(Serial);
   // Serial8.begin(115200);
 
-  // set up the voltage sensor
-  ina260.begin(INA260_I2CADDR_DEFAULT, &Wire2);
-  ina260.setAveragingCount(INA260_COUNT_16);
-  ina260.setVoltageConversionTime(INA260_TIME_140_us);
-  ina260.setCurrentConversionTime(INA260_TIME_140_us);
-
   // set up the echosounder
-  Serial5.begin(ECHO_RATE);
-  while(!ping.initialize()) {
-    delay(1000);
-  }
+  // Serial5.begin(ECHO_RATE);
+  // while(!ping.initialize()) {
+  //   delay(1000);
+  // }
   
   state = WAITING_AGENT;
 }
 
 void loop() {
+
+  // update the global echosounder values
+  // if (ping->update()) {
+  //   distance = ping->distance();
+  //   conf_level = ping->confidence();
+  // }
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {

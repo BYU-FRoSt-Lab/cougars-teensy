@@ -16,8 +16,10 @@ void LeakPub::update(int pin) {
 
   if (digitalRead(pin)) {
     msg.leak_detected = true;
-    msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
+  } else {
+    msg.leak_detected = false;
   }
+  msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
 }
 
 void LeakPub::publish() {

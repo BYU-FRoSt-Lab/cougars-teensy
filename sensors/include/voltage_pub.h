@@ -10,7 +10,7 @@ class VoltagePub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update(Adafruit_INA260* ina260);
+  void update();
   void publish();
   using Publisher::destroy;
 
