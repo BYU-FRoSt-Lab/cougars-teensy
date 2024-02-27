@@ -209,7 +209,12 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
-  // Serial8.begin(115200);
+  Serial8.begin(9600); // TO DO: I think we need to try SoftwareSerial here
+
+  while (true) {
+    Serial8.println("Got here");
+    delay(2000);
+  }
   
   // set up the servo and thruster pins
   pinMode(SERVO_PIN1, OUTPUT);
@@ -256,6 +261,8 @@ void setup() {
 }
 
 void loop() {
+
+  Serial8.println("in the loop");
 
   // update the global IMU values
   if (myIMU.getSensorEvent() == true) {

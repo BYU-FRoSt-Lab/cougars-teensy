@@ -126,7 +126,7 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
-  // Serial8.begin(115200);
+  // TODO: add bluetooth module code
 
   // set up the echosounder
   // Serial5.begin(ECHO_RATE);
