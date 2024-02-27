@@ -209,12 +209,12 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
-  Serial8.begin(9600); // TO DO: I think we need to try SoftwareSerial here
+  // Serial8.begin(9600); // TO DO: I think we need to try SoftwareSerial here
 
-  while (true) {
-    Serial8.println("Got here");
-    delay(2000);
-  }
+  // while (true) {
+  //   Serial8.println("Got here");
+  //   delay(2000);
+  // }
   
   // set up the servo and thruster pins
   pinMode(SERVO_PIN1, OUTPUT);
@@ -233,26 +233,27 @@ void setup() {
   thruster.writeMicroseconds(DEFAULT_THRUSTER);
   delay(7000);
 
-  // set up the IMU
+  // set up the I2C
   Wire.begin();
   Wire.setClock(400000);
 
-  myIMU.begin(0x4A, Wire);
-  myIMU.enableLinearAccelerometer(50); // send data update every 50ms
-  myIMU.enableRotationVector(50); // send data update every 50ms
+  // set up the IMU
+  // myIMU.begin(0x4A, Wire);
+  // myIMU.enableLinearAccelerometer(50); // send data update every 50ms
+  // myIMU.enableRotationVector(50); // send data update every 50ms
 
   // set up the pressure sensor
-  pressure_sensor.init();
-  pressure_sensor.setModel(MS5837::MS5837_30BA);
-  pressure_sensor.setFluidDensity(FLUID_DENSITY);
+  // pressure_sensor.init();
+  // pressure_sensor.setModel(MS5837::MS5837_30BA);
+  // pressure_sensor.setFluidDensity(FLUID_DENSITY);
 
   // calibrate the pressure sensor
-  for (int i = 0; i < AVG_COUNT; i++) {
-    pressure_sensor.read();
-    sum_pressure_at_zero_depth += pressure_sensor.pressure();
-    sum_depth_error_at_zero_depth += pressure_sensor.depth();
-    // the read function takes ~ 40 ms according to documentation
-  }
+  // for (int i = 0; i < AVG_COUNT; i++) {
+  //   pressure_sensor.read();
+  //   sum_pressure_at_zero_depth += pressure_sensor.pressure();
+  //   sum_depth_error_at_zero_depth += pressure_sensor.depth();
+  //   // the read function takes ~ 40 ms according to documentation
+  // }
 
   pressure_at_zero_depth = sum_pressure_at_zero_depth * AVG_DEC;
   depth_error_at_zero_depth = sum_depth_error_at_zero_depth * AVG_DEC;
@@ -262,31 +263,29 @@ void setup() {
 
 void loop() {
 
-  Serial8.println("in the loop");
-
   // update the global IMU values
-  if (myIMU.getSensorEvent() == true) {
+  // if (myIMU.getSensorEvent() == true) {
 
-    if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
+  //   if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
 
-      roll = myIMU.getRoll();
-      pitch = myIMU.getPitch();
-      yaw = myIMU.getYaw();
-    }
+  //     roll = myIMU.getRoll();
+  //     pitch = myIMU.getPitch();
+  //     yaw = myIMU.getYaw();
+  //   }
 
-    if (myIMU.getSensorEventID() == SENSOR_REPORTID_ACCELEROMETER) {
+  //   if (myIMU.getSensorEventID() == SENSOR_REPORTID_ACCELEROMETER) {
 
-      accel_x = myIMU.getAccelX();
-      accel_y = myIMU.getAccelY();
-      accel_z = myIMU.getAccelZ();
-    }
-  }
+  //     accel_x = myIMU.getAccelX();
+  //     accel_y = myIMU.getAccelY();
+  //     accel_z = myIMU.getAccelZ();
+  //   }
+  // }
 
   // update the global pressure values
-  pressure_sensor.read();
-  pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
-  depth = pressure_sensor.depth() - depth_error_at_zero_depth;
-  temperature = pressure_sensor.temperature();
+  // pressure_sensor.read();
+  // pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
+  // depth = pressure_sensor.depth() - depth_error_at_zero_depth;
+  // temperature = pressure_sensor.temperature();
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
