@@ -1,6 +1,7 @@
 #!/bin/bash
 
 cd ~/teensy_ws/gpio
+python3 toggle_on_sensors.py
 python3 toggle_off_control.py
 
 cd ~/teensy_ws/sensors/.pio/build/teensy41
