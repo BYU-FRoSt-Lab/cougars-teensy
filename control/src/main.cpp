@@ -3,6 +3,7 @@
 
 #include <Wire.h>
 #include <Servo.h>
+#include <SoftwareSerial.h>
 #include <frost_interfaces/msg/pid.h>
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
@@ -33,6 +34,9 @@
 #define THRUSTER_PIN 12
 #define DEFAULT_SERVO 90
 #define DEFAULT_THRUSTER 1500
+
+// bluetooth serial
+SoftwareSerial BTSerial(34, 35);
 
 // micro-ROS objects
 rclc_support_t support;
@@ -209,12 +213,7 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
-  // Serial8.begin(9600); // TO DO: I think we need to try SoftwareSerial here
-
-  // while (true) {
-  //   Serial8.println("Got here");
-  //   delay(2000);
-  // }
+  BTSerial.begin(9600);
   
   // set up the servo and thruster pins
   pinMode(SERVO_PIN1, OUTPUT);
@@ -238,22 +237,22 @@ void setup() {
   Wire.setClock(400000);
 
   // set up the IMU
-  // myIMU.begin(0x4A, Wire);
+  // myIMU.begin(0x4B, Wire);
   // myIMU.enableLinearAccelerometer(50); // send data update every 50ms
   // myIMU.enableRotationVector(50); // send data update every 50ms
 
   // set up the pressure sensor
-  // pressure_sensor.init();
-  // pressure_sensor.setModel(MS5837::MS5837_30BA);
-  // pressure_sensor.setFluidDensity(FLUID_DENSITY);
+  pressure_sensor.init();
+  pressure_sensor.setModel(MS5837::MS5837_30BA);
+  pressure_sensor.setFluidDensity(FLUID_DENSITY);
 
   // calibrate the pressure sensor
-  // for (int i = 0; i < AVG_COUNT; i++) {
-  //   pressure_sensor.read();
-  //   sum_pressure_at_zero_depth += pressure_sensor.pressure();
-  //   sum_depth_error_at_zero_depth += pressure_sensor.depth();
-  //   // the read function takes ~ 40 ms according to documentation
-  // }
+  for (int i = 0; i < AVG_COUNT; i++) {
+    pressure_sensor.read();
+    sum_pressure_at_zero_depth += pressure_sensor.pressure();
+    sum_depth_error_at_zero_depth += pressure_sensor.depth();
+    // the read function takes ~ 40 ms according to documentation
+  }
 
   pressure_at_zero_depth = sum_pressure_at_zero_depth * AVG_DEC;
   depth_error_at_zero_depth = sum_depth_error_at_zero_depth * AVG_DEC;
@@ -282,10 +281,10 @@ void loop() {
   // }
 
   // update the global pressure values
-  // pressure_sensor.read();
-  // pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
-  // depth = pressure_sensor.depth() - depth_error_at_zero_depth;
-  // temperature = pressure_sensor.temperature();
+  pressure_sensor.read();
+  pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
+  depth = pressure_sensor.depth() - depth_error_at_zero_depth;
+  temperature = pressure_sensor.temperature();
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {

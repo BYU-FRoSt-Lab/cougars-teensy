@@ -22,6 +22,9 @@
 #define LEAK_PIN 16
 #define ECHO_RATE 115200
 
+// bluetooth serial
+SoftwareSerial BTSerial(34, 35);
+
 // micro-ROS objects
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -126,7 +129,7 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
-  // TODO: add bluetooth module code
+  // BTSerial.begin(9600);
 
   // set up the echosounder
   // Serial5.begin(ECHO_RATE);
