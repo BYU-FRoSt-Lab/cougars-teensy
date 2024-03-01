@@ -21,7 +21,7 @@
 #define BAUD_RATE 6000000
 #define CALLBACK_TOTAL 3
 #define TIMER_PUB_PERIOD 3000
-#define TIMER_PID_PERIOD 5
+#define TIMER_PID_PERIOD 10 // 100 Hz
 #define SYNC_TIMEOUT 1000
 
 #define AVG_COUNT 10
@@ -240,10 +240,10 @@ void setup() {
   while (!myIMU.begin(0x4A, Wire)) {
     BTSerial.println("ERROR: Could not connect to IMU over I2C");
   }
-  if (myIMU.enableLinearAccelerometer(50) == false) { // send data update every 50ms
+  if (myIMU.enableLinearAccelerometer(10) == false) { // send data update every 10ms (100 Hz)
     BTSerial.println("ERROR: Could not enable linear accelerometer reports");
   }
-  if (myIMU.enableRotationVector(50) == false) { // send data update every 50ms
+  if (myIMU.enableRotationVector(10) == false) { // send data update every 10ms (100 Hz)
     BTSerial.println("ERROR: Could not enable rotation vector reports");
   }
 
@@ -271,7 +271,7 @@ void loop() {
 
   // update the global IMU values
   if (myIMU.wasReset()) {
-    BTSerial.println("ERROR: IMU sensor was reset");
+    BTSerial.println("ALERT: IMU sensor was reset");
 
     // set reports again
     if (myIMU.enableLinearAccelerometer(50) == false) { // send data update every 50ms
@@ -286,20 +286,20 @@ void loop() {
 
     if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
 
+      BTSerial.println("Got rotation vector update");
+
       roll = myIMU.getRoll();
       pitch = myIMU.getPitch();
       yaw = myIMU.getYaw();
-      
-      BTSerial.println(roll);
-      BTSerial.println(pitch);
-      BTSerial.println(yaw);
     }
 
-    if (myIMU.getSensorEventID() == SENSOR_REPORTID_ACCELEROMETER) {
+    if (myIMU.getSensorEventID() == SENSOR_REPORTID_LINEAR_ACCELERATION) {
 
-      accel_x = myIMU.getAccelX();
-      accel_y = myIMU.getAccelY();
-      accel_z = myIMU.getAccelZ();
+      BTSerial.println("Got linear accelerometer update");
+
+      accel_x = myIMU.getLinAccelX();
+      accel_y = myIMU.getLinAccelY();
+      accel_z = myIMU.getLinAccelZ();
     }
   }
 
