@@ -237,7 +237,7 @@ void setup() {
   Wire.setClock(400000);
 
   // set up the IMU
-  if (myIMU.begin(0x4A, Wire) == false) {
+  while (!myIMU.begin(0x4A, Wire)) {
     BTSerial.println("ERROR: Could not connect to IMU over I2C");
   }
   if (myIMU.enableLinearAccelerometer(50) == false) { // send data update every 50ms
@@ -248,20 +248,21 @@ void setup() {
   }
 
   // set up the pressure sensor
-  // pressure_sensor.init();
-  // pressure_sensor.setModel(MS5837::MS5837_30BA);
-  // pressure_sensor.setFluidDensity(FLUID_DENSITY);
+  while (!pressure_sensor.init()) {
+    BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
+  }
+  pressure_sensor.setFluidDensity(FLUID_DENSITY);
 
   // calibrate the pressure sensor
-  // for (int i = 0; i < AVG_COUNT; i++) {
-  //   pressure_sensor.read();
-  //   sum_pressure_at_zero_depth += pressure_sensor.pressure();
-  //   sum_depth_error_at_zero_depth += pressure_sensor.depth();
-  //   // the read function takes ~ 40 ms according to documentation
-  // }
+  for (int i = 0; i < AVG_COUNT; i++) {
+    pressure_sensor.read();
+    sum_pressure_at_zero_depth += pressure_sensor.pressure();
+    sum_depth_error_at_zero_depth += pressure_sensor.depth();
+    // the read function takes ~ 40 ms according to documentation
+  }
 
-  // pressure_at_zero_depth = sum_pressure_at_zero_depth * AVG_DEC;
-  // depth_error_at_zero_depth = sum_depth_error_at_zero_depth * AVG_DEC;
+  pressure_at_zero_depth = sum_pressure_at_zero_depth * AVG_DEC;
+  depth_error_at_zero_depth = sum_depth_error_at_zero_depth * AVG_DEC;
 
   state = WAITING_AGENT;
 }
@@ -303,10 +304,10 @@ void loop() {
   }
 
   // update the global pressure values
-  // pressure_sensor.read();
-  // pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
-  // depth = pressure_sensor.depth() - depth_error_at_zero_depth;
-  // temperature = pressure_sensor.temperature();
+  pressure_sensor.read();
+  pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
+  depth = pressure_sensor.depth() - depth_error_at_zero_depth;
+  temperature = pressure_sensor.temperature();
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
