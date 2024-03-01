@@ -1,6 +1,7 @@
 #include "echo_pub.h"
 #include "leak_pub.h"
 #include "voltage_pub.h"
+#include <SoftwareSerial.h>
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
@@ -132,10 +133,11 @@ void setup() {
   // BTSerial.begin(9600);
 
   // set up the echosounder
-  // Serial5.begin(ECHO_RATE);
-  // while(!ping.initialize()) {
-  //   delay(1000);
-  // }
+  Serial5.begin(ECHO_RATE);
+  while(!ping.initialize()) {
+    // BTSerial.println("error setting up");
+    delay(1000);
+  }
   
   state = WAITING_AGENT;
 }
@@ -143,10 +145,10 @@ void setup() {
 void loop() {
 
   // update the global echosounder values
-  // if (ping->update()) {
-  //   distance = ping->distance();
-  //   conf_level = ping->confidence();
-  // }
+  if (ping.update()) {
+    distance = ping.distance();
+    conf_level = ping.confidence();
+  }
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
