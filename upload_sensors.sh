@@ -5,6 +5,8 @@ python3 toggle_on_sensors.py
 python3 toggle_off_control.py
 
 cd ~/teensy_ws/sensors/.pio/build/teensy41
+# cd ~/teensy_ws/test_ros/.pio/build/teensy41
+# cd ~/teensy_ws/test/.pio/build/teensy41
 timeout 10s tycmd upload firmware.hex
 
 exit_status=$?

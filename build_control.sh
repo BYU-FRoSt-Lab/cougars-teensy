@@ -1,4 +1,6 @@
 #!/bin/bash
 
 cd ~/teensy_ws/control
+# cd ~/teensy_ws/test_ros
+# cd ~/teensy_ws/test
 pio run
