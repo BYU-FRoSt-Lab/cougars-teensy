@@ -11,7 +11,7 @@ if toggle_state == 'OFF':
 
     toggle_state = 'ON'
 
-    # open the gpio chip and set the LED pin as output
+    # open the gpio chip and set the control on/off pin as output
     h = lgpio.gpiochip_open(0)
     lgpio.gpio_claim_output(h, CONTROL_PIN)
 
