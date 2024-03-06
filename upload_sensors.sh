@@ -15,8 +15,9 @@ if [[ $exit_status -eq 124 ]];
 
     then
     echo ""
-    echo "ERROR: 'tycmd upload firmware.hex' timed out"
-    echo "ALERT: You should probably run 'bash restart.sh'"
+    echo -e "\033[0;31mERROR: 'tycmd upload firmware.hex' timed out\e[0m"
+    echo -e "\e[38;5;6mALERT: You should probably run 'bash restart.sh'\e[0m"
+    echo -e "\e[38;5;6mALERT: You might need to upload a different .hex file before trying again\e[0m"
     cd ~/teensy_ws/gpio
     python3 toggle_on_control.py
 
