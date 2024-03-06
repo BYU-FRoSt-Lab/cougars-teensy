@@ -1,3 +1,3 @@
 std_msgs/Header header
-float64 voltage
-float64 current
+int64 voltage
+int64 current

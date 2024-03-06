@@ -27,6 +27,6 @@ if toggle_state == 'ON':
         f.write(str(toggle_state))
 
     print("Control Teensy is turning %s..." %(toggle_state))
-    time.sleep(3)
+    time.sleep(5)
 
 print("COMPLETE: Control Teensy is %s" %(toggle_state))

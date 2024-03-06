@@ -13,9 +13,8 @@ exit_status=$?
 if [[ $exit_status -eq 124 ]]; 
 
     then
-    echo "ERROR: 'tycmd upload firmware.hex' timed out: rebooting both teensy's"
+    echo "ERROR: 'tycmd upload firmware.hex' timed out"
     cd ~/teensy_ws
-    bash reset.sh
 
     else
     cd ~/teensy_ws/gpio
