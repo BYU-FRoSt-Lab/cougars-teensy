@@ -7,12 +7,12 @@ CONTROL_PROGRAM_PIN = 24
 h = lgpio.gpiochip_open(0)
 lgpio.gpio_claim_output(h, CONTROL_PROGRAM_PIN)
 
-# Turn the GPIO pin on
-lgpio.gpio_write(h, CONTROL_PROGRAM_PIN, 1)
+# Set the GPIO pin low
+lgpio.gpio_write(h, CONTROL_PROGRAM_PIN, 0)
 time.sleep(2)
 
-# Turn the GPIO pin off
-lgpio.gpio_write(h, CONTROL_PROGRAM_PIN, 0)
+# Set the GPIO pin high
+lgpio.gpio_write(h, CONTROL_PROGRAM_PIN, 1)
 
 print("Entering program mode on the Control Teensy...")
 time.sleep(5)
