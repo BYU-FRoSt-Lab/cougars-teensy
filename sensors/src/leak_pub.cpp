@@ -1,10 +1,6 @@
 #include "leak_pub.h"
 
-#define LEAK_PIN 16
-
 void LeakPub::setup(rcl_node_t node) {
-
-  pinMode(LEAK_PIN, INPUT);
 
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
@@ -12,13 +8,9 @@ void LeakPub::setup(rcl_node_t node) {
       "leak_detected"));
 }
 
-void LeakPub::update(int pin) {
+void LeakPub::update(bool leak) {
 
-  if (digitalRead(pin)) {
-    msg.leak_detected = true;
-  } else {
-    msg.leak_detected = false;
-  }
+  msg.leak_detected = leak;
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
 }
 

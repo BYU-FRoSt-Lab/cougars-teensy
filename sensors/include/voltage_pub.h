@@ -10,7 +10,7 @@ class VoltagePub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update();
+  void update(float voltage, float current);
   void publish();
   using Publisher::destroy;
 

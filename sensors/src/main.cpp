@@ -21,6 +21,8 @@
 #define SYNC_TIMEOUT 1000
 
 #define LEAK_PIN 16
+#define CURRENT_PIN 17
+#define VOLT_PIN 18
 #define ECHO_RATE 115200
 
 // bluetooth serial
@@ -41,6 +43,9 @@ EchoPub echo_pub;
 // global sensor variables
 float distance = 0.0;
 float conf_level = 0.0;
+bool leak_detected = false;
+float voltage = 0.0;
+float current = 0.0;
 
 // sensor objects
 Ping1D ping { Serial5 };
@@ -66,9 +71,9 @@ void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
   (void)last_call_time;
   if (timer != NULL) {
 
-    voltage_pub.update();
+    voltage_pub.update(voltage, current);
     voltage_pub.publish();
-    leak_pub.update(LEAK_PIN);
+    leak_pub.update(leak_detected);
     leak_pub.publish();
     echo_pub.update(distance, conf_level);
     echo_pub.publish();
@@ -132,23 +137,36 @@ void setup() {
   set_microros_serial_transports(Serial);
   // BTSerial.begin(9600);
 
+  pinMode(LEAK_PIN, INPUT);
+  pinMode(CURRENT_PIN, INPUT);
+  pinMode(VOLT_PIN, INPUT);
+
   // set up the echosounder
-  Serial5.begin(ECHO_RATE);
-  while(!ping.initialize()) {
-    // BTSerial.println("error setting up");
-    delay(1000);
-  }
+  // Serial5.begin(ECHO_RATE);
+  // while(!ping.initialize()) {
+  //   // BTSerial.println("error setting up");
+  //   delay(1000);
+  // }
   
   state = WAITING_AGENT;
 }
 
 void loop() {
 
-  // update the global echosounder values
-  if (ping.update()) {
-    distance = ping.distance();
-    conf_level = ping.confidence();
+  if (digitalRead(LEAK_PIN)) {
+    leak_detected = true;
+  } else {
+    leak_detected = false;
   }
+
+  voltage = (analogRead(VOLT_PIN) * 0.03437) + 0.68;
+  current = (analogRead(CURRENT_PIN) * 0.122) - 11.95;
+
+  // update the global echosounder values
+  // if (ping.update()) {
+  //   distance = ping.distance();
+  //   conf_level = ping.confidence();
+  // }
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
