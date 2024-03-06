@@ -1,6 +1,8 @@
 #include "echo_pub.h"
 #include "leak_pub.h"
 #include "voltage_pub.h"
+#include "gps_pub.h"
+
 #include <SoftwareSerial.h>
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
@@ -39,8 +41,11 @@ rcl_timer_t timer_pub;
 VoltagePub voltage_pub;
 LeakPub leak_pub;
 EchoPub echo_pub;
+GPSPub gps_pub;
 
 // global sensor variables
+float latitude = 0.0;
+float longitude = 0.0;
 float distance = 0.0;
 float conf_level = 0.0;
 bool leak_detected = false;
@@ -49,6 +54,8 @@ float current = 0.0;
 
 // sensor objects
 Ping1D ping { Serial5 };
+SFE_UBLOX_GNSS myGNSS;
+long lastTime = 0;
 
 // states for state machine in loop function
 enum states {
@@ -71,6 +78,8 @@ void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
   (void)last_call_time;
   if (timer != NULL) {
 
+    gps_pub.update(latitude, longitude);
+    gps_pub.publish();
     voltage_pub.update(voltage, current);
     voltage_pub.publish();
     leak_pub.update(leak_detected);
@@ -96,6 +105,7 @@ bool create_entities() {
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
+  gps_pub.setup(node);
   voltage_pub.setup(node);
   leak_pub.setup(node);
   echo_pub.setup(node);
@@ -120,6 +130,7 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
+  gps_pub.destroy(node);
   voltage_pub.destroy(node);
   leak_pub.destroy(node);
   echo_pub.destroy(node);
@@ -137,9 +148,37 @@ void setup() {
   set_microros_serial_transports(Serial);
   // BTSerial.begin(9600);
 
+  // set up the leak detector
   pinMode(LEAK_PIN, INPUT);
+
+  // set up the voltage sensor
   pinMode(CURRENT_PIN, INPUT);
   pinMode(VOLT_PIN, INPUT);
+
+  // set up the GPS
+  do {
+    // BTSerial.println("GNSS: trying 38400 baud");
+    Serial7.begin(38400);
+    if (myGNSS.begin(Serial7) == true) break;
+
+    delay(100);
+    // BTSerial.println("GNSS: trying 9600 baud");
+    Serial7.begin(9600);
+    if (myGNSS.begin(Serial7) == true) {
+        // BTSerial.println("GNSS: connected at 9600 baud, switching to 38400");
+        myGNSS.setSerialRate(38400);
+        delay(100);
+    } else {
+        // myGNSS.factoryReset();
+        // BTSerial.println("ERROR: GPS serial connection not found");
+        delay(2000); //Wait a bit before trying again to limit the Serial output
+    }
+
+  } while(1);
+
+  myGNSS.setUART1Output(COM_TYPE_UBX); // Set the UART port to output UBX only
+  myGNSS.setI2COutput(COM_TYPE_UBX); // Set the I2C port to output UBX only (turn off NMEA noise)
+  myGNSS.saveConfiguration(); // Save the current settings to flash and BBR
 
   // set up the echosounder
   // Serial5.begin(ECHO_RATE);
@@ -153,14 +192,25 @@ void setup() {
 
 void loop() {
 
+  // update the global leak values
   if (digitalRead(LEAK_PIN)) {
     leak_detected = true;
   } else {
     leak_detected = false;
   }
 
+  // update the global voltage values
   voltage = (analogRead(VOLT_PIN) * 0.03437) + 0.68;
   current = (analogRead(CURRENT_PIN) * 0.122) - 11.95;
+
+  // update the global GPS values
+  if (millis() - lastTime > 1000)
+  {
+    lastTime = millis(); // Update the timer
+    
+    latitude = myGNSS.getLatitude();
+    longitude = myGNSS.getLongitude();
+  }
 
   // update the global echosounder values
   // if (ping.update()) {

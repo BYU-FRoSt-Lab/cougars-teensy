@@ -17,4 +17,4 @@ lgpio.gpio_write(h, SENSORS_PROGRAM_PIN, 1)
 print("Entering program mode on the Sensors Teensy...")
 time.sleep(5)
 
-print("COMPLETE: Entered program mode on the Sensors Teensy...")
+print("COMPLETE: Entered program mode on the Sensors Teensy")

@@ -14,7 +14,9 @@ exit_status=$?
 if [[ $exit_status -eq 124 ]]; 
 
     then
+    echo ""
     echo "ERROR: 'tycmd upload firmware.hex' timed out"
+    echo "ALERT: You should probably run 'bash restart.sh'"
     cd ~/teensy_ws/gpio
     python3 toggle_on_sensors.py
 

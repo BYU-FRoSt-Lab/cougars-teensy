@@ -17,4 +17,4 @@ lgpio.gpio_write(h, CONTROL_PROGRAM_PIN, 1)
 print("Entering program mode on the Control Teensy...")
 time.sleep(5)
 
-print("COMPLETE: Entered program mode on the Control Teensy...")
+print("COMPLETE: Entered program mode on the Control Teensy")
