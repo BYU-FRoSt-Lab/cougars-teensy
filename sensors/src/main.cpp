@@ -146,7 +146,7 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
-  // BTSerial.begin(9600);
+  BTSerial.begin(9600);
 
   // set up the leak detector
   pinMode(LEAK_PIN, INPUT);
@@ -157,20 +157,23 @@ void setup() {
 
   // set up the GPS
   do {
-    // BTSerial.println("GNSS: trying 38400 baud");
+    BTSerial.println("GNSS: trying 38400 baud");
     Serial7.begin(38400);
-    if (myGNSS.begin(Serial7) == true) break;
-
+    if (myGNSS.begin(Serial7) == true) {
+       BTSerial.println("Success");
+       break;
+    }
+     
     delay(100);
-    // BTSerial.println("GNSS: trying 9600 baud");
+    BTSerial.println("GNSS: trying 9600 baud");
     Serial7.begin(9600);
     if (myGNSS.begin(Serial7) == true) {
-        // BTSerial.println("GNSS: connected at 9600 baud, switching to 38400");
+        BTSerial.println("GNSS: connected at 9600 baud, switching to 38400");
         myGNSS.setSerialRate(38400);
         delay(100);
     } else {
         // myGNSS.factoryReset();
-        // BTSerial.println("ERROR: GPS serial connection not found");
+        BTSerial.println("ERROR: GPS serial connection not found");
         delay(2000); //Wait a bit before trying again to limit the Serial output
     }
 
@@ -180,12 +183,14 @@ void setup() {
   myGNSS.setI2COutput(COM_TYPE_UBX); // Set the I2C port to output UBX only (turn off NMEA noise)
   myGNSS.saveConfiguration(); // Save the current settings to flash and BBR
 
+
   // set up the echosounder
   // Serial5.begin(ECHO_RATE);
   // while(!ping.initialize()) {
   //   // BTSerial.println("error setting up");
   //   delay(1000);
   // }
+
   
   state = WAITING_AGENT;
 }

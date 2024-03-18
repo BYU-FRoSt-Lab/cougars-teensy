@@ -213,7 +213,7 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
-  // BTSerial.begin(9600);
+  BTSerial.begin(9600);
   
   // set up the servo and thruster pins
   pinMode(SERVO_PIN1, OUTPUT);
@@ -238,19 +238,19 @@ void setup() {
 
   // set up the IMU
   while (!myIMU.begin(0x4A, Wire)) {
-    // BTSerial.println("ERROR: Could not connect to IMU over I2C");
+    BTSerial.println("ERROR: Could not connect to IMU over I2C");
     delay(1000);
   }
   if (myIMU.enableLinearAccelerometer(10) == false) { // send data update every 10ms (100 Hz)
-    // BTSerial.println("ERROR: Could not enable linear accelerometer reports");
+    BTSerial.println("ERROR: Could not enable linear accelerometer reports");
   }
   if (myIMU.enableRotationVector(10) == false) { // send data update every 10ms (100 Hz)
-    // BTSerial.println("ERROR: Could not enable rotation vector reports");
+    BTSerial.println("ERROR: Could not enable rotation vector reports");
   }
 
   // set up the pressure sensor
   while (!pressure_sensor.init()) {
-    // BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
+    BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
     delay(1000);
   }
   pressure_sensor.setFluidDensity(FLUID_DENSITY);
@@ -273,14 +273,14 @@ void loop() {
 
   // update the global IMU values
   if (myIMU.wasReset()) {
-    // BTSerial.println("ALERT: IMU sensor was reset");
+    BTSerial.println("ALERT: IMU sensor was reset");
 
     // set reports again
     if (myIMU.enableLinearAccelerometer(50) == false) { // send data update every 50ms
-      // BTSerial.println("ERROR: Could not enable linear accelerometer reports");
+      BTSerial.println("ERROR: Could not enable linear accelerometer reports");
     }
     if (myIMU.enableRotationVector(50) == false) { // send data update every 50ms
-      // BTSerial.println("ERROR: Could not enable rotation vector reports");
+      BTSerial.println("ERROR: Could not enable rotation vector reports");
     }
   }
 

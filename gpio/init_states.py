@@ -3,15 +3,21 @@
 
 import lgpio
 
+CONTROL_PIN = 27
+SENSORS_PIN = 22
 CONTROL_PROGRAM_PIN = 24
 SENSORS_PROGRAM_PIN = 21
 
 # open the GPIO chip
 h = lgpio.gpiochip_open(0)
+lgpio.gpio_claim_output(h, CONTROL_PIN)
+lgpio.gpio_claim_output(h, SENSORS_PIN)
 lgpio.gpio_claim_output(h, CONTROL_PROGRAM_PIN)
 lgpio.gpio_claim_output(h, SENSORS_PROGRAM_PIN)
 
 # set the GPIO pins high
+lgpio.gpio_write(h, CONTROL_PIN, 1)
+lgpio.gpio_write(h, SENSORS_PIN, 1)
 lgpio.gpio_write(h, CONTROL_PROGRAM_PIN, 1)
 lgpio.gpio_write(h, SENSORS_PROGRAM_PIN, 1)
 
