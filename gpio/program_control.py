@@ -19,3 +19,4 @@ print("Entering program mode on the Control Teensy...")
 time.sleep(5)
 
 print("COMPLETE: Entered program mode on the Control Teensy")
+control_prog_line.release()
