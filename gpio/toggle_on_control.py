@@ -1,5 +1,5 @@
 import time
-import lgpio
+import gpiod
 
 CONTROL_PIN = 27
 
@@ -12,15 +12,16 @@ if toggle_state == 'OFF':
     toggle_state = 'ON'
 
     # open the gpio chip and set the control on/off pin as output
-    h = lgpio.gpiochip_open(0)
-    lgpio.gpio_claim_output(h, CONTROL_PIN)
-
-    # Turn the GPIO pin on
-    lgpio.gpio_write(h, CONTROL_PIN, 0)
-    time.sleep(2)
+    chip = gpiod.Chip('gpiochip4')
+    control_line = chip.get_line(CONTROL_PIN)
+    control_line.request(consumer="CONTROL", type=gpiod.LINE_REQ_DIR_OUT)
 
     # Turn the GPIO pin off
-    lgpio.gpio_write(h, CONTROL_PIN, 1)
+    control_line.set_value(0)
+    time.sleep(2)
+
+    # Turn the GPIO pin on
+    control_line.set_value(1)
 
     # Write updated value back to file
     with open('control_state.txt', 'w') as f:
