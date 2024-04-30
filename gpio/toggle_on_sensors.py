@@ -1,5 +1,5 @@
 import time
-import lgpio
+import gpiod
 
 SENSORS_PIN = 22
 
@@ -16,11 +16,11 @@ if toggle_state == 'OFF':
     sensors_line = chip.get_line(SENSORS_PIN)
     sensors_line.request(consumer="SENSORS", type=gpiod.LINE_REQ_DIR_OUT)
 
-    # Turn the GPIO pin off
+    # Set the GPIO pin low
     sensors_line.set_value(0)
     time.sleep(2)
 
-    # Turn the GPIO pin on
+    # Set the GPIO pin high
     sensors_line.set_value(1)
 
     # Write updated value back to file
