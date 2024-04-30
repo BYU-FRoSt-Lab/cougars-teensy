@@ -16,11 +16,11 @@ if toggle_state == 'OFF':
     control_line = chip.get_line(CONTROL_PIN)
     control_line.request(consumer="CONTROL", type=gpiod.LINE_REQ_DIR_OUT)
 
-    # Turn the GPIO pin off
+    # Set the GPIO pin low
     control_line.set_value(0)
     time.sleep(2)
 
-    # Turn the GPIO pin on
+    # Set the GPIO pin high
     control_line.set_value(1)
 
     # Write updated value back to file
