@@ -1,7 +1,7 @@
 import time
 import gpiod
 
-CONTROL_PROGRAM_PIN = 24
+CONTROL_PROGRAM_PIN = 23
 
 # open the gpio chip and set the control program pin as output
 chip = gpiod.Chip('gpiochip4')
