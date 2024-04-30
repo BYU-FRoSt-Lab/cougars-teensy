@@ -30,4 +30,5 @@ if toggle_state == 'ON':
     print("Sensors Teensy is turning %s..." %(toggle_state))
     time.sleep(5)
 
+sensors_line.release()
 print("COMPLETE: Sensors Teensy is %s" %(toggle_state))
