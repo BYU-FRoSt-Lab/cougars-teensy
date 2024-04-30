@@ -18,7 +18,7 @@ if toggle_state == 'ON':
 
     # Set the GPIO pin low
     sensors_line.set_value(0)
-    time.sleep(2)
+    time.sleep(5)
 
     # Set the GPIO pin high
     sensors_line.set_value(1)
