@@ -1,18 +1,19 @@
 import time
-import lgpio
+import gpiod
 
 CONTROL_PROGRAM_PIN = 24
 
 # open the gpio chip and set the control program pin as output
-h = lgpio.gpiochip_open(0)
-lgpio.gpio_claim_output(h, CONTROL_PROGRAM_PIN)
+chip = gpiod.Chip('gpiochip4')
+control_prog_line = chip.get_line(CONTROL_PROGRAM_PIN)
+control_prog_line.request(consumer="CONTROL_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 
 # Set the GPIO pin low
-lgpio.gpio_write(h, CONTROL_PROGRAM_PIN, 0)
+control_prog_line.set_value(0)
 time.sleep(2)
 
 # Set the GPIO pin high
-lgpio.gpio_write(h, CONTROL_PROGRAM_PIN, 1)
+control_prog_line.set_value(1)
 
 print("Entering program mode on the Control Teensy...")
 time.sleep(5)
