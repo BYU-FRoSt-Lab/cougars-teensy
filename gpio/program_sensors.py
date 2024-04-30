@@ -1,18 +1,19 @@
 import time
-import lgpio
+import gpiod
 
 SENSORS_PROGRAM_PIN = 21
 
 # open the gpio chip and set the sensors program pin as output
-h = lgpio.gpiochip_open(0)
-lgpio.gpio_claim_output(h, SENSORS_PROGRAM_PIN)
+chip = gpiod.Chip('gpiochip4')
+sensors_prog_line = chip.get_line(SENSORS_PROGRAM_PIN)
+sensors_prog_line.request(consumer="SENSORS_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 
 # Set the GPIO pin low
-lgpio.gpio_write(h, SENSORS_PROGRAM_PIN, 0)
+sensors_prog_line.set_value(0)
 time.sleep(2)
 
 # Set the GPIO pin high
-lgpio.gpio_write(h, SENSORS_PROGRAM_PIN, 1)
+sensors_prog_line.set_value(1)
 
 print("Entering program mode on the Sensors Teensy...")
 time.sleep(5)
