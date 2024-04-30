@@ -18,4 +18,5 @@ sensors_prog_line.set_value(1)
 print("Entering program mode on the Sensors Teensy...")
 time.sleep(5)
 
+sensors_prog_line.release()
 print("COMPLETE: Entered program mode on the Sensors Teensy")
