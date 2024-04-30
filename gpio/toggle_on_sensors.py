@@ -12,15 +12,16 @@ if toggle_state == 'OFF':
     toggle_state = 'ON'
 
     # open the gpio chip and set the sensors on/off pin as output
-    h = lgpio.gpiochip_open(0)
-    lgpio.gpio_claim_output(h, SENSORS_PIN)
-
-    # Turn the GPIO pin on
-    lgpio.gpio_write(h, SENSORS_PIN, 0)
-    time.sleep(2)
+    chip = gpiod.Chip('gpiochip4')
+    sensors_line = chip.get_line(SENSORS_PIN)
+    sensors_line.request(consumer="SENSORS", type=gpiod.LINE_REQ_DIR_OUT)
 
     # Turn the GPIO pin off
-    lgpio.gpio_write(h, SENSORS_PIN, 1)
+    sensors_line.set_value(0)
+    time.sleep(2)
+
+    # Turn the GPIO pin on
+    sensors_line.set_value(1)
 
     # Write updated value back to file
     with open('sensors_state.txt', 'w') as f:
