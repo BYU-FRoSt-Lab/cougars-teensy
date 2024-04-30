@@ -30,4 +30,5 @@ if toggle_state == 'ON':
     print("Control Teensy is turning %s..." %(toggle_state))
     time.sleep(5)
 
+control_line.release()
 print("COMPLETE: Control Teensy is %s" %(toggle_state))
