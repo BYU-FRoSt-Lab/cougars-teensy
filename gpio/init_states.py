@@ -33,3 +33,8 @@ with open('sensors_state.txt', 'w') as f:
 
 with open('control_state.txt', 'w') as f:
     f.write('OFF')
+
+control_line.release()
+sensors_line.release()
+control_prog_line.release()
+sensors_prog_line.release()
