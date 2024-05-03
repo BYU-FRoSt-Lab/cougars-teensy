@@ -22,25 +22,32 @@
     }                                                                          \
   } while (0)
 
-// microROS config values
+// micro-ROS config values
 #define BAUD_RATE 6000000
 #define CALLBACK_TOTAL 3
 #define TIMER_PUB_PERIOD 3000
 #define TIMER_PID_PERIOD 10 // 100 Hz
 #define SYNC_TIMEOUT 1000
 
+// hardware pin values
+#define BT_MC_RX 34
+#define BT_MC_TX 35
+#define SERVO_PIN1 9
+#define SERVO_PIN2 10
+#define SERVO_PIN3 11
+#define THRUSTER_PIN 12
+
+// default actuator positions
+#define DEFAULT_SERVO 90
+#define DEFAULT_THRUSTER 1500
+
 // pressure sensor calibration values
 #define AVG_COUNT 10
 #define AVG_DEC 0.1
 #define FLUID_DENSITY 997
 
-// sensor and actuator pins
-#define SERVO_PIN1 9
-#define SERVO_PIN2 10
-#define SERVO_PIN3 11
-#define THRUSTER_PIN 12
-#define DEFAULT_SERVO 90
-#define DEFAULT_THRUSTER 1500
+// sensor serial baud rates
+#define BT_DEBUG_RATE 9600
 
 // micro-ROS objects
 rclc_support_t support;
@@ -54,16 +61,16 @@ frost_interfaces__msg__PID msg;
 frost_interfaces__msg__PID *pid_request_msg =
     new frost_interfaces__msg__PID;
 
-// sensor objects
-SoftwareSerial BTSerial(34, 35);
-BNO08x myIMU;
-MS5837 pressure_sensor;
-
 // publisher objects
-DepthPub depth_pub;
 IMUPub imu_pub;
+DepthPub depth_pub;
 
-// servo, thruster objects
+// sensor objects
+SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
+BNO08x myIMU;
+MS5837 myDepth;
+
+// actuator objects
 Servo my_servo1;
 Servo my_servo2;
 Servo my_servo3;
@@ -101,16 +108,15 @@ void error_loop() {
   }
 }
 
-// micro-ROS timer function that publishes all the data to their topics
+// micro-ROS timer function that publishes topic data
 void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
   (void)last_call_time;
   if (timer != NULL) {
-
-    depth_pub.update(pressure, depth, temperature);
-    depth_pub.publish();
     imu_pub.update(roll, pitch, yaw, accel_x, accel_y, accel_z);
     imu_pub.publish();
+    depth_pub.update(pressure, depth, temperature);
+    depth_pub.publish();
   }
 }
 
@@ -122,14 +128,13 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
     //////////////////////////////////////////////////////////
     // LOW-LEVEL CONTROLLER CODE STARTS HERE
+    // - Reference wanted values using
+    //   pid_request_msg->velocity, pid_request_msg->yaw, etc
     //////////////////////////////////////////////////////////
 
     if (pid_request_msg->stop == false) {
 
       // TODO: add PID stuff here
-
-      // reference wanted values using pid_request_msg->velocity,
-      // pid_request_msg->yaw, etc
 
     } else {
 
@@ -166,8 +171,8 @@ bool create_entities() {
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
-  depth_pub.setup(node);
   imu_pub.setup(node);
+  depth_pub.setup(node);
 
   // create subscriber
   RCCHECK(rclc_subscription_init_default(
@@ -202,8 +207,8 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
-  depth_pub.destroy(node);
   imu_pub.destroy(node);
+  depth_pub.destroy(node);
 
   // destroy everything else
   rcl_subscription_fini(&subscriber, &node);
@@ -219,10 +224,6 @@ void setup() {
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
 
-  #ifdef ENABLE_BT_DEBUG
-  BTSerial.begin(9600);
-  #endif
-  
   // set up the servo and thruster pins
   pinMode(SERVO_PIN1, OUTPUT);
   pinMode(SERVO_PIN2, OUTPUT);
@@ -244,63 +245,90 @@ void setup() {
   Wire.begin();
   Wire.setClock(400000);
 
-  // set up the IMU
+  //////////////////////////////////////////////////////////
+  // SENSOR SETUP CODE STARTS HERE
+  // - Use the #define statements at the top of this file to
+  //   enable and disable each sensor
+  //////////////////////////////////////////////////////////
+
+  #ifdef ENABLE_BT_DEBUG
+  BTSerial.begin(BT_DEBUG_RATE);
+  #endif
+
   #ifdef ENABLE_IMU
   while (!myIMU.begin(0x4A, Wire)) {
+
     #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not connect to IMU over I2C");
     #endif
+
     delay(1000);
   }
   if (myIMU.enableLinearAccelerometer(10) == false) { // send data update every 10ms (100 Hz)
+
     #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not enable linear accelerometer reports");
     #endif
   }
   if (myIMU.enableRotationVector(10) == false) { // send data update every 10ms (100 Hz)
+
     #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not enable rotation vector reports");
     #endif
   }
   #endif
 
-  // set up the pressure sensor
   #ifdef ENABLE_DEPTH
-  while (!pressure_sensor.init()) {
+  while (!myDepth.init()) {
+
     #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
     #endif
+
     delay(1000);
   }
-  pressure_sensor.setFluidDensity(FLUID_DENSITY);
+  myDepth.setFluidDensity(FLUID_DENSITY);
 
   // calibrate the pressure sensor
   for (int i = 0; i < AVG_COUNT; i++) {
-    pressure_sensor.read();
-    sum_pressure_at_zero_depth += pressure_sensor.pressure();
-    sum_depth_error_at_zero_depth += pressure_sensor.depth();
+    myDepth.read();
+    sum_pressure_at_zero_depth += myDepth.pressure();
+    sum_depth_error_at_zero_depth += myDepth.depth();
   }
   pressure_at_zero_depth = sum_pressure_at_zero_depth * AVG_DEC;
   depth_error_at_zero_depth = sum_depth_error_at_zero_depth * AVG_DEC;
   #endif
+
+  //////////////////////////////////////////////////////////
+  // SENSOR SETUP CODE ENDS HERE
+  //////////////////////////////////////////////////////////
 
   state = WAITING_AGENT;
 }
 
 void loop() {
 
-  #ifdef ENABLE_IMU
-  // update the global IMU values
-  if (myIMU.wasReset()) {
-    BTSerial.println("ALERT: IMU sensor was reset");
+  //////////////////////////////////////////////////////////
+  // SENSOR VARIABLE UPDATE CODE STARTS HERE
+  // - Use the #define statements at the top of this file to
+  //   enable and disable each sensor
+  //////////////////////////////////////////////////////////
 
+  #ifdef ENABLE_IMU
+  if (myIMU.wasReset()) {
+
+    #ifdef ENABLE_BT_DEBUG
+    BTSerial.println("ALERT: IMU sensor was reset");
+    #endif
     // set reports again
     if (myIMU.enableLinearAccelerometer(50) == false) { // send data update every 50ms
+
       #ifdef ENABLE_BT_DEBUG
       BTSerial.println("ERROR: Could not enable linear accelerometer reports");
       #endif
     }
     if (myIMU.enableRotationVector(50) == false) { // send data update every 50ms
+
       #ifdef ENABLE_BT_DEBUG
       BTSerial.println("ERROR: Could not enable rotation vector reports");
       #endif
@@ -308,16 +336,12 @@ void loop() {
   }
 
   if (myIMU.getSensorEvent() == true) {
-
     if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-
       roll = myIMU.getRoll();
       pitch = myIMU.getPitch();
       yaw = myIMU.getYaw();
     }
-
     if (myIMU.getSensorEventID() == SENSOR_REPORTID_LINEAR_ACCELERATION) {
-
       accel_x = myIMU.getLinAccelX();
       accel_y = myIMU.getLinAccelY();
       accel_z = myIMU.getLinAccelZ();
@@ -326,12 +350,15 @@ void loop() {
   #endif
 
   #ifdef ENABLE_DEPTH
-  // update the global pressure values
-  pressure_sensor.read();
-  pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
-  depth = pressure_sensor.depth() - depth_error_at_zero_depth;
-  temperature = pressure_sensor.temperature();
+  myDepth.read();
+  pressure = myDepth.pressure() - pressure_at_zero_depth;
+  depth = myDepth.depth() - depth_error_at_zero_depth;
+  temperature = myDepth.temperature();
   #endif
+
+  //////////////////////////////////////////////////////////
+  // SENSOR VARIABLE UPDATE CODE ENDS HERE
+  //////////////////////////////////////////////////////////
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {

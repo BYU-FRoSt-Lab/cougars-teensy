@@ -23,14 +23,23 @@
     }                                                                          \
   } while (0)
 
+// micro-ROS config values
 #define BAUD_RATE 6000000
 #define CALLBACK_TOTAL 1
 #define TIMER_PERIOD 3000
 #define SYNC_TIMEOUT 1000
 
-#define LEAK_PIN 16
-#define CURRENT_PIN 17
+// hardware pin values
+#define BT_MC_RX 34
+#define BT_MC_TX 35
 #define VOLT_PIN 18
+#define CURRENT_PIN 17
+#define LEAK_PIN 16
+
+// sensor serial baud rates
+#define BT_DEBUG_RATE 9600
+#define GPS_RATE 38400
+#define GPS_FALLBACK_RATE 9600
 #define ECHO_RATE 115200
 
 // micro-ROS objects
@@ -43,22 +52,22 @@ rcl_timer_t timer_pub;
 // publisher objects
 VoltagePub voltage_pub;
 LeakPub leak_pub;
-EchoPub echo_pub;
 GPSPub gps_pub;
+EchoPub echo_pub;
 
 // sensor objects
-Ping1D ping { Serial5 };
+SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
+Ping1D myPing { Serial5 };
 SFE_UBLOX_GNSS myGNSS;
-SoftwareSerial BTSerial(34, 35);
 
 // global sensor variables
+float voltage = 0.0;
+float current = 0.0;
+bool leak_detected = false;
 float latitude = 0.0;
 float longitude = 0.0;
 float distance = 0.0;
 float conf_level = 0.0;
-bool leak_detected = false;
-float voltage = 0.0;
-float current = 0.0;
 
 // sensor update timer variables
 long lastTime = 0;
@@ -78,18 +87,18 @@ void error_loop() {
   }
 }
 
-// micro-ROS function that publishes all the data to their topics
+// micro-ROS function that publishes topic data
 void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
   (void)last_call_time;
   if (timer != NULL) {
 
-    gps_pub.update(latitude, longitude);
-    gps_pub.publish();
     voltage_pub.update(voltage, current);
     voltage_pub.publish();
     leak_pub.update(leak_detected);
     leak_pub.publish();
+    gps_pub.update(latitude, longitude);
+    gps_pub.publish();
     echo_pub.update(distance, conf_level);
     echo_pub.publish();
   }
@@ -111,9 +120,9 @@ bool create_entities() {
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
-  gps_pub.setup(node);
   voltage_pub.setup(node);
   leak_pub.setup(node);
+  gps_pub.setup(node);
   echo_pub.setup(node);
 
   // create timer (handles periodic publications)
@@ -136,9 +145,9 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
-  gps_pub.destroy(node);
   voltage_pub.destroy(node);
   leak_pub.destroy(node);
+  gps_pub.destroy(node);
   echo_pub.destroy(node);
 
   // destroy everything else
@@ -153,30 +162,33 @@ void setup() {
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
 
+  //////////////////////////////////////////////////////////
+  // SENSOR SETUP CODE STARTS HERE
+  // - Use the #define statements at the top of this file to
+  //   enable and disable each sensor
+  //////////////////////////////////////////////////////////
+
   #ifdef ENABLE_BT_DEBUG
-  BTSerial.begin(9600);
+  BTSerial.begin(BT_DEBUG_RATE);
   #endif
 
-  // set up the leak detector
-  #ifdef ENABLE_LEAK
-  pinMode(LEAK_PIN, INPUT);
-  #endif
-
-  // set up the voltage sensor
   #ifdef ENABLE_VOLT
   pinMode(CURRENT_PIN, INPUT);
   pinMode(VOLT_PIN, INPUT);
   #endif
 
-  // set up the GPS
+  #ifdef ENABLE_LEAK
+  pinMode(LEAK_PIN, INPUT);
+  #endif
+
   #ifdef ENABLE_GPS
   do {
 
     #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("GNSS: trying 38400 baud");
+    BTSerial.println("GNSS: trying higher baud rate");
     #endif
 
-    Serial7.begin(38400);
+    Serial7.begin(GPS_RATE);
     if (myGNSS.begin(Serial7) == true) {
 
       #ifdef ENABLE_BT_DEBUG
@@ -189,17 +201,17 @@ void setup() {
     delay(100);
 
     #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("GNSS: trying 9600 baud");
+    BTSerial.println("GNSS: trying fallback baud rate");
     #endif
 
-    Serial7.begin(9600);
+    Serial7.begin(GPS_FALLBACK_RATE);
     if (myGNSS.begin(Serial7) == true) {
 
         #ifdef ENABLE_BT_DEBUG
-        BTSerial.println("GNSS: connected at 9600 baud, switching to 38400");
+        BTSerial.println("GNSS: connected at fallback baud rate, switching to higher rate");
         #endif
 
-        myGNSS.setSerialRate(38400);
+        myGNSS.setSerialRate(GPS_RATE);
         delay(100);
     } else {
         // myGNSS.factoryReset();
@@ -210,41 +222,50 @@ void setup() {
 
         delay(2000);
     }
-
   } while(1);
-
   myGNSS.setUART1Output(COM_TYPE_UBX);
   myGNSS.setI2COutput(COM_TYPE_UBX);
   myGNSS.saveConfiguration();
   #endif
 
-
-  // set up the echosounder
   #ifdef ENABLE_ECHO
   Serial5.begin(ECHO_RATE);
-  while(!ping.initialize()) {
-    // BTSerial.println("error setting up");
+  while(!myPing.initialize()) {
+
+    #ifdef ENABLE_BT_DEBUG
+    BTSerial.println("ERROR: Could not initial ping echosounder");
+    #endif
+
     delay(1000);
   }
   #endif
+
+  //////////////////////////////////////////////////////////
+  // SENSOR SETUP CODE ENDS HERE
+  //////////////////////////////////////////////////////////
   
   state = WAITING_AGENT;
 }
 
 void loop() {
 
-  // update the global leak variables
-  #ifdef ENABLE_LEAK
-  leak_detected = digitalRead(LEAK_PIN);
-  #endif
+  //////////////////////////////////////////////////////////
+  // SENSOR VARIABLE UPDATE CODE STARTS HERE
+  // - Use the #define statements at the top of this file to
+  //   enable and disable each sensor
+  //////////////////////////////////////////////////////////
 
-  // update the global voltage variables
   #ifdef ENABLE_VOLT
+  // we did some testing to determine the below values, but
+  // it's possible they are not completely accurate
   voltage = (analogRead(VOLT_PIN) * 0.03437) + 0.68;
   current = (analogRead(CURRENT_PIN) * 0.122) - 11.95;
   #endif
 
-  // update the global GPS variables
+  #ifdef ENABLE_LEAK
+  leak_detected = digitalRead(LEAK_PIN);
+  #endif
+
   #ifdef ENABLE_GPS
   if (millis() - lastTime > 1000)
   {
@@ -254,13 +275,16 @@ void loop() {
   }
   #endif
 
-  // update the global echosounder variables
   #ifdef ENABLE_ECHO
-  if (ping.update()) {
-    distance = ping.distance();
-    conf_level = ping.confidence();
+  if (myPing.update()) {
+    distance = myPing.distance();
+    conf_level = myPing.confidence();
   }
   #endif
+
+  //////////////////////////////////////////////////////////
+  // SENSOR VARIABLE UPDATE CODE ENDS HERE
+  //////////////////////////////////////////////////////////
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
