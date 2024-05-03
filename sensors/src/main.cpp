@@ -5,6 +5,12 @@
 
 #include <SoftwareSerial.h>
 
+#define ENABLE_VOLT
+#define ENABLE_LEAK
+// #define ENABLE_GPS
+// #define ENABLE_ECHO
+#define ENABLE_BT_DEBUG
+
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
     static volatile int64_t init = -1;                                         \
@@ -26,9 +32,6 @@
 #define CURRENT_PIN 17
 #define VOLT_PIN 18
 #define ECHO_RATE 115200
-
-// bluetooth serial
-SoftwareSerial BTSerial(34, 35);
 
 // micro-ROS objects
 rclc_support_t support;
@@ -56,6 +59,7 @@ float current = 0.0;
 Ping1D ping { Serial5 };
 SFE_UBLOX_GNSS myGNSS;
 long lastTime = 0;
+SoftwareSerial BTSerial(34, 35);
 
 // states for state machine in loop function
 enum states {
@@ -156,6 +160,7 @@ void setup() {
   pinMode(VOLT_PIN, INPUT);
 
   // set up the GPS
+  #ifdef ENABLE_GPS
   do {
     BTSerial.println("GNSS: trying 38400 baud");
     Serial7.begin(38400);
@@ -182,6 +187,7 @@ void setup() {
   myGNSS.setUART1Output(COM_TYPE_UBX); // Set the UART port to output UBX only
   myGNSS.setI2COutput(COM_TYPE_UBX); // Set the I2C port to output UBX only (turn off NMEA noise)
   myGNSS.saveConfiguration(); // Save the current settings to flash and BBR
+  #endif
 
 
   // set up the echosounder
@@ -208,6 +214,7 @@ void loop() {
   voltage = (analogRead(VOLT_PIN) * 0.03437) + 0.68;
   current = (analogRead(CURRENT_PIN) * 0.122) - 11.95;
 
+  #ifdef ENABLE_GPS
   // update the global GPS values
   if (millis() - lastTime > 1000)
   {
@@ -216,6 +223,7 @@ void loop() {
     latitude = myGNSS.getLatitude();
     longitude = myGNSS.getLongitude();
   }
+  #endif
 
   // update the global echosounder values
   // if (ping.update()) {
