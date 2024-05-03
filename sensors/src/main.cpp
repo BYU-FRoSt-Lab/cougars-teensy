@@ -46,6 +46,11 @@ LeakPub leak_pub;
 EchoPub echo_pub;
 GPSPub gps_pub;
 
+// sensor objects
+Ping1D ping { Serial5 };
+SFE_UBLOX_GNSS myGNSS;
+SoftwareSerial BTSerial(34, 35);
+
 // global sensor variables
 float latitude = 0.0;
 float longitude = 0.0;
@@ -55,11 +60,8 @@ bool leak_detected = false;
 float voltage = 0.0;
 float current = 0.0;
 
-// sensor objects
-Ping1D ping { Serial5 };
-SFE_UBLOX_GNSS myGNSS;
+// sensor update timer variables
 long lastTime = 0;
-SoftwareSerial BTSerial(34, 35);
 
 // states for state machine in loop function
 enum states {
@@ -233,7 +235,7 @@ void loop() {
 
   // update the global leak variables
   #ifdef ENABLE_LEAK
-  leak_detected = digitalRead(LEAK_PIN)
+  leak_detected = digitalRead(LEAK_PIN);
   #endif
 
   // update the global voltage variables
