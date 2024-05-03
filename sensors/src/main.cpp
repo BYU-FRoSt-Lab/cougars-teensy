@@ -169,31 +169,51 @@ void setup() {
   // set up the GPS
   #ifdef ENABLE_GPS
   do {
+
+    #ifdef ENABLE_BT_DEBUG
     BTSerial.println("GNSS: trying 38400 baud");
+    #endif
+
     Serial7.begin(38400);
     if (myGNSS.begin(Serial7) == true) {
-       BTSerial.println("Success");
-       break;
+
+      #ifdef ENABLE_BT_DEBUG
+      BTSerial.println("Success");
+      #endif
+
+      break;
     }
      
     delay(100);
+
+    #ifdef ENABLE_BT_DEBUG
     BTSerial.println("GNSS: trying 9600 baud");
+    #endif
+
     Serial7.begin(9600);
     if (myGNSS.begin(Serial7) == true) {
+
+        #ifdef ENABLE_BT_DEBUG
         BTSerial.println("GNSS: connected at 9600 baud, switching to 38400");
+        #endif
+
         myGNSS.setSerialRate(38400);
         delay(100);
     } else {
         // myGNSS.factoryReset();
+
+        #ifdef ENABLE_BT_DEBUG
         BTSerial.println("ERROR: GPS serial connection not found");
-        delay(2000); //Wait a bit before trying again to limit the Serial output
+        #endif
+
+        delay(2000);
     }
 
   } while(1);
 
-  myGNSS.setUART1Output(COM_TYPE_UBX); // Set the UART port to output UBX only
-  myGNSS.setI2COutput(COM_TYPE_UBX); // Set the I2C port to output UBX only (turn off NMEA noise)
-  myGNSS.saveConfiguration(); // Save the current settings to flash and BBR
+  myGNSS.setUART1Output(COM_TYPE_UBX);
+  myGNSS.setI2COutput(COM_TYPE_UBX);
+  myGNSS.saveConfiguration();
   #endif
 
 
@@ -213,11 +233,7 @@ void loop() {
 
   // update the global leak variables
   #ifdef ENABLE_LEAK
-  if (digitalRead(LEAK_PIN)) {
-    leak_detected = true;
-  } else {
-    leak_detected = false;
-  }
+  leak_detected = digitalRead(LEAK_PIN)
   #endif
 
   // update the global voltage variables
