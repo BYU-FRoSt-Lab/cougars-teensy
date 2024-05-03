@@ -150,14 +150,21 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
+
+  #ifdef ENABLE_BT_DEBUG
   BTSerial.begin(9600);
+  #endif
 
   // set up the leak detector
+  #ifdef ENABLE_LEAK
   pinMode(LEAK_PIN, INPUT);
+  #endif
 
   // set up the voltage sensor
+  #ifdef ENABLE_VOLT
   pinMode(CURRENT_PIN, INPUT);
   pinMode(VOLT_PIN, INPUT);
+  #endif
 
   // set up the GPS
   #ifdef ENABLE_GPS
@@ -191,45 +198,51 @@ void setup() {
 
 
   // set up the echosounder
-  // Serial5.begin(ECHO_RATE);
-  // while(!ping.initialize()) {
-  //   // BTSerial.println("error setting up");
-  //   delay(1000);
-  // }
-
+  #ifdef ENABLE_ECHO
+  Serial5.begin(ECHO_RATE);
+  while(!ping.initialize()) {
+    // BTSerial.println("error setting up");
+    delay(1000);
+  }
+  #endif
   
   state = WAITING_AGENT;
 }
 
 void loop() {
 
-  // update the global leak values
+  // update the global leak variables
+  #ifdef ENABLE_LEAK
   if (digitalRead(LEAK_PIN)) {
     leak_detected = true;
   } else {
     leak_detected = false;
   }
+  #endif
 
-  // update the global voltage values
+  // update the global voltage variables
+  #ifdef ENABLE_VOLT
   voltage = (analogRead(VOLT_PIN) * 0.03437) + 0.68;
   current = (analogRead(CURRENT_PIN) * 0.122) - 11.95;
+  #endif
 
+  // update the global GPS variables
   #ifdef ENABLE_GPS
-  // update the global GPS values
   if (millis() - lastTime > 1000)
   {
-    lastTime = millis(); // Update the timer
-    
+    lastTime = millis();
     latitude = myGNSS.getLatitude();
     longitude = myGNSS.getLongitude();
   }
   #endif
 
-  // update the global echosounder values
-  // if (ping.update()) {
-  //   distance = ping.distance();
-  //   conf_level = ping.confidence();
-  // }
+  // update the global echosounder variables
+  #ifdef ENABLE_ECHO
+  if (ping.update()) {
+    distance = ping.distance();
+    conf_level = ping.confidence();
+  }
+  #endif
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
