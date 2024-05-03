@@ -7,7 +7,8 @@
 #include <frost_interfaces/msg/pid.h>
 
 // #define ENABLE_IMU
-#define ENABLE_DEPTH
+// #define ENABLE_DEPTH
+// #define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
@@ -28,19 +29,18 @@
 #define TIMER_PID_PERIOD 10 // 100 Hz
 #define SYNC_TIMEOUT 1000
 
+// pressure sensor calibration values
 #define AVG_COUNT 10
 #define AVG_DEC 0.1
 #define FLUID_DENSITY 997
 
+// sensor and actuator pins
 #define SERVO_PIN1 9
 #define SERVO_PIN2 10
 #define SERVO_PIN3 11
 #define THRUSTER_PIN 12
 #define DEFAULT_SERVO 90
 #define DEFAULT_THRUSTER 1500
-
-// bluetooth serial
-SoftwareSerial BTSerial(34, 35);
 
 // micro-ROS objects
 rclc_support_t support;
@@ -55,6 +55,7 @@ frost_interfaces__msg__PID *pid_request_msg =
     new frost_interfaces__msg__PID;
 
 // sensor objects
+SoftwareSerial BTSerial(34, 35);
 BNO08x myIMU;
 MS5837 pressure_sensor;
 
@@ -79,7 +80,7 @@ float pressure = 0.0;
 float depth = 0.0;
 float temperature = 0.0;
 
-// calibration variables
+// pressure sensor calibration variables
 float sum_pressure_at_zero_depth = 0.0;
 float sum_depth_error_at_zero_depth = 0.0;
 float pressure_at_zero_depth = 0.0;
@@ -173,7 +174,7 @@ bool create_entities() {
       &subscriber, &node,
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, PID), "pid_request"));
 
-  // create timer (handles periodic publications)
+  // create timers (handles periodic publications and PID execution)
   RCCHECK(rclc_timer_init_default(
       &timer_pub, &support, RCL_MS_TO_NS(TIMER_PUB_PERIOD), timer_pub_callback));
   RCCHECK(rclc_timer_init_default(&timer_pid, &support,
@@ -190,7 +191,7 @@ bool create_entities() {
   RCSOFTCHECK(rclc_executor_add_subscription(
       &executor, &subscriber, &msg, &subscription_callback, ON_NEW_DATA));
 
-  // wait for first new data to arrive from pid_request topic
+  // wait for first message to arrive from pid_request topic
   pid_request_msg->stop = true;
 
   return true;
@@ -217,7 +218,10 @@ void setup() {
 
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
+
+  #ifdef ENABLE_BT_DEBUG
   BTSerial.begin(9600);
+  #endif
   
   // set up the servo and thruster pins
   pinMode(SERVO_PIN1, OUTPUT);
@@ -243,21 +247,29 @@ void setup() {
   // set up the IMU
   #ifdef ENABLE_IMU
   while (!myIMU.begin(0x4A, Wire)) {
+    #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not connect to IMU over I2C");
+    #endif
     delay(1000);
   }
   if (myIMU.enableLinearAccelerometer(10) == false) { // send data update every 10ms (100 Hz)
+    #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not enable linear accelerometer reports");
+    #endif
   }
   if (myIMU.enableRotationVector(10) == false) { // send data update every 10ms (100 Hz)
+    #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not enable rotation vector reports");
+    #endif
   }
   #endif
 
-  #ifdef ENABLE_DEPTH
   // set up the pressure sensor
+  #ifdef ENABLE_DEPTH
   while (!pressure_sensor.init()) {
+    #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
+    #endif
     delay(1000);
   }
   pressure_sensor.setFluidDensity(FLUID_DENSITY);
@@ -267,9 +279,7 @@ void setup() {
     pressure_sensor.read();
     sum_pressure_at_zero_depth += pressure_sensor.pressure();
     sum_depth_error_at_zero_depth += pressure_sensor.depth();
-    // the read function takes ~ 40 ms according to documentation
   }
-
   pressure_at_zero_depth = sum_pressure_at_zero_depth * AVG_DEC;
   depth_error_at_zero_depth = sum_depth_error_at_zero_depth * AVG_DEC;
   #endif
@@ -286,10 +296,14 @@ void loop() {
 
     // set reports again
     if (myIMU.enableLinearAccelerometer(50) == false) { // send data update every 50ms
+      #ifdef ENABLE_BT_DEBUG
       BTSerial.println("ERROR: Could not enable linear accelerometer reports");
+      #endif
     }
     if (myIMU.enableRotationVector(50) == false) { // send data update every 50ms
+      #ifdef ENABLE_BT_DEBUG
       BTSerial.println("ERROR: Could not enable rotation vector reports");
+      #endif
     }
   }
 
