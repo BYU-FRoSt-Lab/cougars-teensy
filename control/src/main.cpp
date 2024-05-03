@@ -74,7 +74,7 @@ MS5837 myDepth;
 Servo my_servo1;
 Servo my_servo2;
 Servo my_servo3;
-Servo thruster;
+Servo my_thruster;
 
 // global sensor variables
 float roll = 0.0;
@@ -141,7 +141,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
       my_servo1.write(DEFAULT_SERVO);
       my_servo2.write(DEFAULT_SERVO);
       my_servo3.write(DEFAULT_SERVO);
-      thruster.writeMicroseconds(DEFAULT_THRUSTER);
+      my_thruster.writeMicroseconds(DEFAULT_THRUSTER);
     }
 
     //////////////////////////////////////////////////////////
@@ -233,12 +233,12 @@ void setup() {
   my_servo1.attach(SERVO_PIN1);
   my_servo2.attach(SERVO_PIN2);
   my_servo3.attach(SERVO_PIN3);
-  thruster.attach(THRUSTER_PIN);
+  my_thruster.attach(THRUSTER_PIN);
 
   my_servo1.write(DEFAULT_SERVO);
   my_servo2.write(DEFAULT_SERVO);
   my_servo3.write(DEFAULT_SERVO);
-  thruster.writeMicroseconds(DEFAULT_THRUSTER);
+  my_thruster.writeMicroseconds(DEFAULT_THRUSTER);
   delay(7000);
 
   // set up the I2C
