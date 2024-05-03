@@ -6,6 +6,9 @@
 #include <SoftwareSerial.h>
 #include <frost_interfaces/msg/pid.h>
 
+// #define ENABLE_IMU
+#define ENABLE_DEPTH
+
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
     static volatile int64_t init = -1;                                         \
@@ -18,6 +21,7 @@
     }                                                                          \
   } while (0)
 
+// microROS config values
 #define BAUD_RATE 6000000
 #define CALLBACK_TOTAL 3
 #define TIMER_PUB_PERIOD 3000
@@ -237,6 +241,7 @@ void setup() {
   Wire.setClock(400000);
 
   // set up the IMU
+  #ifdef ENABLE_IMU
   while (!myIMU.begin(0x4A, Wire)) {
     BTSerial.println("ERROR: Could not connect to IMU over I2C");
     delay(1000);
@@ -247,7 +252,9 @@ void setup() {
   if (myIMU.enableRotationVector(10) == false) { // send data update every 10ms (100 Hz)
     BTSerial.println("ERROR: Could not enable rotation vector reports");
   }
+  #endif
 
+  #ifdef ENABLE_DEPTH
   // set up the pressure sensor
   while (!pressure_sensor.init()) {
     BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
@@ -265,12 +272,14 @@ void setup() {
 
   pressure_at_zero_depth = sum_pressure_at_zero_depth * AVG_DEC;
   depth_error_at_zero_depth = sum_depth_error_at_zero_depth * AVG_DEC;
+  #endif
 
   state = WAITING_AGENT;
 }
 
 void loop() {
 
+  #ifdef ENABLE_IMU
   // update the global IMU values
   if (myIMU.wasReset()) {
     BTSerial.println("ALERT: IMU sensor was reset");
@@ -300,12 +309,15 @@ void loop() {
       accel_z = myIMU.getLinAccelZ();
     }
   }
+  #endif
 
+  #ifdef ENABLE_DEPTH
   // update the global pressure values
   pressure_sensor.read();
   pressure = pressure_sensor.pressure() - pressure_at_zero_depth;
   depth = pressure_sensor.depth() - depth_error_at_zero_depth;
   temperature = pressure_sensor.temperature();
+  #endif
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
