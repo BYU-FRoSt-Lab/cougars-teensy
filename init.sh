@@ -1,7 +1,6 @@
 #!/bin/sh
 
-# Crontab runs this script on boot! Be very careful editing it.
-# Run-time errors are logged to ~/logs/crontab
+# The docker container runs this script on boot! Be careful editing it.
 
 cd /
 cd home/frostlab/teensy_ws/gpio
