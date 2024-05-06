@@ -1,5 +1,9 @@
 #!/bin/bash
 
+##########################################################
+# RESTARTS BOTH CONTROL AND SENSORS
+##########################################################
+
 cd ~/teensy_ws/gpio
 python3 toggle_off_control.py
 python3 toggle_off_sensors.py
