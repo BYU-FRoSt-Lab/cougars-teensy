@@ -6,7 +6,7 @@ A quick high-level overview of the repo:
 - **control/** - PlatformIO dev environment for the control Teensy (runs low-level controller).
 Source code and header files are included in "control/src/" and "control/include/", and dependencies can be imported by modifying the "control/platformio.ini" file.
 Different sensors can be enabled/disabled by commenting out the #define statements at the top of "control/src/main.cpp" and rebuilding.
-- **gpio/** - Python scripts for GPIO hardware control.
+- **gpio/** - python scripts for GPIO hardware control.
 The current state of each Teensy is recorded virtually as .txt files inside of this folder.
 We'd recommend not running these scripts directly; instead, use the bash scripts in the top-level directory.
 - **sensors/** - PlatformIO dev environment for the sensors Teensy.
