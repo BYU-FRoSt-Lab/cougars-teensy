@@ -15,4 +15,5 @@ Different sensors can be enabled/disabled by commenting out the #define statemen
 - **scripts (build_control.sh, restart.sh, etc)** - automates helpful software tasks on the AUV.
 For example, running "bash msg_update.sh" will remove the microROS library from both workspaces and rebuild them using updated message and service declarations from frost_interfaces.
 A description of what each script does is included as a header comment in the file.
-A quick note: our custom docker container runs "init.sh" automatically on startup, and running it manually may mess up the virtual power states, requiring a reboot of the RPi.
+A quick note: our custom Docker image runs "init.sh" automatically on startup, and running it manually may mess up the virtual power states, requiring a reboot of the RPi.
+So probably don't do that.
