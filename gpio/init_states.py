@@ -1,6 +1,8 @@
-# Crontab runs this script on boot! Be very careful editing it.
-# Run-time errors are logged to ~/logs/crontab
-# THE ABOVE MIGHT BE OUTDATED
+##########################################################
+# SETS CURRENT POWER STATES TO "OFF"
+# - The docker container runs this script on startup!
+#   Be careful editing it
+##########################################################
 
 import gpiod
 

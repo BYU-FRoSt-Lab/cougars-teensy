@@ -1,3 +1,9 @@
+##########################################################
+# TOGGLES THE CONTROL PROGRAM PIN
+# - If control is on, a red light should light up on the
+#   board after running this script
+##########################################################
+
 import time
 import gpiod
 
