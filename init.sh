@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# The docker container runs this script on boot! Be careful editing it.
-
 ##########################################################
 # SETS CURRENT POWER STATES TO "OFF"
 # - The docker container runs this script on startup!
