@@ -2,6 +2,8 @@
 
 ##########################################################
 # UPLOADS CURRENT FIRMWARE.HEX FILE TO SENSORS
+# - If this fails, check the USB connections and the
+#   current virtual teensy states in ~/teensy_ws/gpio
 ##########################################################
 
 cd ~/teensy_ws/gpio
