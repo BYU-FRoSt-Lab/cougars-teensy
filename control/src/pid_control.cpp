@@ -1,6 +1,7 @@
 #include "pid_control.h"
 
 PID_Control::PID_Control(float p, float i, float d, int min, int max, float timer_speed, int adjust = 0) {
+
     kp = p;
     ki = i;
     kd = d;
@@ -25,11 +26,9 @@ PID_Control::PID_Control(float p, float i, float d, int min, int max, float time
 float PID_Control::compute(float desired, float actual) {
 
     // PROPORTIONAL CALCULATIONS
-
     error = desired - actual;
 
     // INTEGRAL CALCULATIONS
-
     // add the new error to the integral sum and subtract the oldest
     integral = integral_prior + (error * interval) - integralArray[integral_index];
     integralArray[integral_index] = error;
@@ -46,12 +45,10 @@ float PID_Control::compute(float desired, float actual) {
     // }
 
     // DERIVATIVE CALCULATIONS
-
     derivative = (error - error_prior) / interval;
     error_prior = error;
 
     // SUM IT ALL TOGETHER
-
     float output = error * kp + integral * ki + derivative * kd + bias;
 
     // clamp the output so we don't exceed the limit
