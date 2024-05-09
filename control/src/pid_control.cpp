@@ -6,8 +6,8 @@ PID_Control::PID_Control(float p, float i, float d, int min, int max, float time
     kd = d;
     min_output = min;
     max_output = max;
-    bias = adjust;
     interval = timer_speed;
+    bias = adjust;
 
     error = 0;
     error_prior = 0;
@@ -34,7 +34,6 @@ float PID_Control::compute(float desired, float actual) {
     integral = integral_prior + (error * interval) - integralArray[integral_index];
     integralArray[integral_index] = error;
     integral_index = (integral_index + 1) % INTEGRAL_ARRAY_SIZE;
-
     integral_prior = integral;
 
     // cap the integral term
@@ -49,7 +48,6 @@ float PID_Control::compute(float desired, float actual) {
     // DERIVATIVE CALCULATIONS
 
     derivative = (error - error_prior) / interval;
-
     error_prior = error;
 
     // SUM IT ALL TOGETHER
