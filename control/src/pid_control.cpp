@@ -15,8 +15,8 @@ PID_Control::PID_Control(float p, float i, float d, int min, int max, float time
     integral = 0;
     integral_prior = 0;
     derivative = 0;
-    integral_index = 0;
 
+    integral_index = 0;
     // initialize the integral array with zeros
     for (int i = 0; i < INTEGRAL_ARRAY_SIZE; i++) {
         integralArray[i] = 0;
@@ -34,15 +34,6 @@ float PID_Control::compute(float desired, float actual) {
     integralArray[integral_index] = error;
     integral_index = (integral_index + 1) % INTEGRAL_ARRAY_SIZE;
     integral_prior = integral;
-
-    // cap the integral term
-    // TO DO: ask Braden about this
-    // if (integral > ((max_output - bias) * INTEGRAL_CAP)) {
-    //     integral = (max_output - bias) * INTEGRAL_CAP;
-    // }
-    // if (integral < ((min_output - bias) * INTEGRAL_CAP)) {
-    //     integral = (min_output - bias) * INTEGRAL_CAP;
-    // }
 
     // DERIVATIVE CALCULATIONS
     derivative = (error - error_prior) / interval;

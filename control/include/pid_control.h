@@ -2,7 +2,6 @@
 #define PID_CONTROL
 
 #define INTEGRAL_ARRAY_SIZE 20 // memory size of integral term
-#define INTEGRAL_CAP 5         // 4 times the max output
 
 class PID_Control {
 
@@ -24,6 +23,7 @@ private:
     float error;
     float error_prior;
     float derivative;
+
     int integral_index;
     float integralArray[INTEGRAL_ARRAY_SIZE];
 };
