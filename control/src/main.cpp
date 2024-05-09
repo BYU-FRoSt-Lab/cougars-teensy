@@ -1,5 +1,6 @@
 #include "imu_pub.h"
 #include "depth_pub.h"
+#include "pid_control.h"
 
 #include <Wire.h>
 #include <Servo.h>
