@@ -7,7 +7,7 @@
 class PID_Control {
 
 public:
-    PID_Control(float p, float i, int min, int max, float timer_speed, int adjust = 0);
+    PID_Control(float p, float i, float d, int min, int max, float timer_speed, int adjust = 0);
     float compute(float desired, float actual);
 
 private:

@@ -1,4 +1,4 @@
-#include "pid_control.hpp"
+#include "pid_control.h"
 
 PID_Control::PID_Control(float p, float i, float d, int min, int max, float timer_speed, int adjust = 0) {
     kp = p;
@@ -31,11 +31,11 @@ float PID_Control::compute(float desired, float actual) {
     // INTEGRAL CALCULATIONS
 
     // add the new error to the integral sum and subtract the oldest
-    integral = integral_prior + (error * interval) - integralArray[integral_index]
+    integral = integral_prior + (error * interval) - integralArray[integral_index];
     integralArray[integral_index] = error;
     integral_index = (integral_index + 1) % INTEGRAL_ARRAY_SIZE;
 
-    integral_prior = integral
+    integral_prior = integral;
 
     // cap the integral term
     // TO DO: ask Braden about this
