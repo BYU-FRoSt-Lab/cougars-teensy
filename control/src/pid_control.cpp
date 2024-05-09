@@ -7,7 +7,7 @@ PID_Control::PID_Control(float p, float i, float d, int min, int max, float time
     kd = d;
     min_output = min;
     max_output = max;
-    interval = timer_speed;
+    interval = timer_interval;
     bias = adjust;
 
     error = 0;
