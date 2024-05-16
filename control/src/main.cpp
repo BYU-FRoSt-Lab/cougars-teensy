@@ -91,6 +91,8 @@ float accel_z = 0.0;
 float pressure = 0.0;
 float depth = 0.0;
 float temperature = 0.0;
+int depth_pos;
+int heading_pos;
 
 // pressure sensor calibration variables
 float sum_pressure_at_zero_depth = 0.0;
@@ -140,6 +142,12 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
     if (pid_request_msg->stop == false) {
 
       // TODO: add PID stuff here
+      depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
+      heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
+
+      my_servo1.write(heading_pos);
+      my_servo2.write(depth_pos);
+      my_servo3.write(depth_pos);
 
     } else {
 
