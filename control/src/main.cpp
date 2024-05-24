@@ -362,6 +362,7 @@ void loop() {
   #ifdef ENABLE_DVL
   // dvl data processing
   if (Serial7.available()) {
+    BTSerial.println("Checking");
     char incomingByte = Serial7.read();
     if (incomingByte != '\n') {
       dataString += (char)incomingByte;
