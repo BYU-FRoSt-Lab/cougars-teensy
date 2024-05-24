@@ -7,7 +7,7 @@ void DVLPub::setup(rcl_node_t node) {
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, DVL), "dvl_data"));
 }
 
-void DVLPub::update(__cpp_raw_strings wrz, __cpp_raw_strings wrp, __cpp_raw_strings wru) {
+void DVLPub::update(String wrz, String wrp, String wru) {
 
     msg.wrz = wrz;
     msg.wrp = wrp;

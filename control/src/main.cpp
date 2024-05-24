@@ -68,6 +68,7 @@ frost_interfaces__msg__PID *pid_request_msg =
 
 // publisher objects
 IMUPub imu_pub;
+DVLPub dvl_pub;
 DepthPub depth_pub;
 
 // sensor objects
@@ -146,8 +147,8 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
     if (pid_request_msg->stop == false) {
 
       // TODO: add PID stuff here
-      depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
-      heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
+      // depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
+      // heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
 
       my_servo1.write(heading_pos);
       my_servo2.write(depth_pos);

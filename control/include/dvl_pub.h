@@ -3,13 +3,12 @@
 
 #include "publisher.h"
 #include <frost_interfaces/msg/dvl.h>
-// ADD DRIVER
 
 class DVLPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update(__cpp_raw_strings wrz, __cpp_raw_strings wrp, __cpp_raw_strings wru);
+  void update(String wrz, String wrp, String wru);
   void publish();
   using Publisher::destroy;
 
