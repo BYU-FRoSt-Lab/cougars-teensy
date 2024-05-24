@@ -295,7 +295,7 @@ void setup() {
   #ifdef ENABLE_DVL
   BTSerial.println("Setting up DVL");
   Serial7.begin(115200);
-  while (1) {BTSerial.println("DVL setup complete");}
+  BTSerial.println("DVL setup complete");
   #endif
 
   #ifdef ENABLE_DEPTH
