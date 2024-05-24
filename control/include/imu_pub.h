@@ -9,7 +9,7 @@ class IMUPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update(float roll, float pitch, float yaw, float accel_x, float accel_y, float accel_z);
+  void update(float roll, float pitch, float yaw);
   void publish();
   using Publisher::destroy;
 
