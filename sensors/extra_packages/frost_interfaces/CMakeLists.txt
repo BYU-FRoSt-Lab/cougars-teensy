@@ -18,6 +18,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Echo.msg"
   "msg/Modem.msg"
   "msg/GPS.msg"
+  "msg/DVL.msg"
   "msg/IMU.msg"
   "msg/Depth.msg"
   "msg/Volt.msg"

@@ -9,9 +9,9 @@ void IMUPub::setup(rcl_node_t node) {
 
 void IMUPub::update(float roll, float pitch, float yaw) {
 
-    msg.gyro_x = roll * 180.0 / PI; // convert roll to degrees
-    msg.gyro_y = pitch * 180.0 / PI; // convert pitch to degrees
-    msg.gyro_z = yaw * 180.0 / PI; // convert yaw to degrees
+    msg.roll = roll;
+    msg.pitch = pitch;
+    msg.yaw = yaw;
 }
 
 void IMUPub::publish() {
