@@ -72,7 +72,6 @@ DepthPub depth_pub;
 // sensor objects
 SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
 BNO08x myIMU;
-DVL myDVL;
 MS5837 myDepth;
 
 // actuator objects
