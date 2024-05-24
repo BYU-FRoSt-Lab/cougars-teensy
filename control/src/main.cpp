@@ -84,8 +84,8 @@ Servo my_servo3;
 Servo my_thruster;
 
 // control objects
-PID_Control myHeadingPID = new PID_Control(0.1, 0, 0, 0, 180, TIMER_PID_PERIOD, -90);
-PID_Control myDepthPID = new PID_Control(0.1, 0, 0, 0, 180, TIMER_PID_PERIOD, -90);
+// PID_Control myHeadingPID = new PID_Control(0.1, 0, 0, 0, 180, TIMER_PID_PERIOD, -90);
+// PID_Control myDepthPID = new PID_Control(0.1, 0, 0, 0, 180, TIMER_PID_PERIOD, -90);
 
 // global sensor variables
 float roll = 0.0;
