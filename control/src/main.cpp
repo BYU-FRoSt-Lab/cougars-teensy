@@ -3,8 +3,6 @@
 #include "depth_pub.h"
 #include "pid_control.h"
 
-#include "dvl_driver.h"
-
 #include <Wire.h>
 #include <Servo.h>
 #include <SoftwareSerial.h>
