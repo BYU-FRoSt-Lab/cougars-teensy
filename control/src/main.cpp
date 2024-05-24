@@ -10,8 +10,8 @@
 
 // #define ENABLE_IMU
 #define ENABLE_DVL
-// #define ENABLE_DEPTH
-#define ENABLE_BT_DEBUG
+#define ENABLE_DEPTH
+// #define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
