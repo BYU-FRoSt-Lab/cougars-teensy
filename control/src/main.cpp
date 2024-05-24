@@ -91,11 +91,17 @@ Servo my_thruster;
 float roll = 0.0;
 float pitch = 0.0;
 float yaw = 0.0;
+String wrz = "";
+String wrp = "";
+String wru = "";
 float pressure = 0.0;
 float depth = 0.0;
 float temperature = 0.0;
 int depth_pos;
 int heading_pos;
+
+// dvl processing values
+String dataString = "";
 
 // pressure sensor calibration variables
 float sum_pressure_at_zero_depth = 0.0;
@@ -125,9 +131,9 @@ void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
   if (timer != NULL) {
     imu_pub.update(roll, pitch, yaw);
     imu_pub.publish();
-    dvl_pub.update(myDVL.wrz, myDVL.wrp, myDVL.wru);
+    dvl_pub.update(wrz, wrp, wru);
     dvl_pub.publish();
-    depth_pub.update(pressure, depth, myDepth.temperature());
+    depth_pub.update(pressure, depth, temperature);
     depth_pub.publish();
   }
 }
@@ -293,9 +299,7 @@ void setup() {
   #endif
 
   #ifdef ENABLE_DVL
-  BTSerial.println("Setting up DVL");
   Serial7.begin(115200);
-  BTSerial.println("DVL setup complete");
   #endif
 
   #ifdef ENABLE_DEPTH
@@ -359,22 +363,48 @@ void loop() {
   #endif
 
   #ifdef ENABLE_DVL
-  BTSerial.println("Updating DVL");
-  myDVL.dvl_update();
-  while (1) {BTSerial.println("DVL updated");}
-  roll = myDVL.roll;
-  pitch = myDVL.pitch;
-  yaw = myDVL.yaw;
-  BTSerial.println("DVL variables updated");
-  BTSerial.println(roll);
-  BTSerial.println(pitch);
-  BTSerial.println(yaw);
+  // dvl data processing
+  if (Serial7.available()) {
+    char incomingByte = Serial7.read();
+    if (incomingByte != '\n') {
+      dataString += (char)incomingByte;
+    } else {
+      char identifier = dataString[2];
+      if (identifier == 'p') {
+        wrp = dataString;
+
+        // parse the data for roll, pitch, and yaw
+        int numFields = 0;
+        int startIndex = 3;
+        for (int i = startIndex; i < dataString.length(); i++) {
+          if (dataString[i] == ',') {
+            numFields++;
+            if (numFields == 7) {
+              roll = dataString.substring(startIndex, i).toFloat();
+            } else if (numFields == 8) {
+              pitch = dataString.substring(startIndex, i).toFloat();
+            } else if (numFields == 9) {
+              yaw = dataString.substring(startIndex, i).toFloat();
+            }
+            startIndex = i + 1;
+          }
+        }
+      } else if (identifier == 'z') {
+        wrz = dataString;
+      } else if (identifier == 'u') {
+        wru = dataString;
+      }
+
+      dataString = "";
+    }
+  }
   #endif
 
   #ifdef ENABLE_DEPTH
   myDepth.read();
   pressure = myDepth.pressure() - pressure_at_zero_depth;
   depth = myDepth.depth() - depth_error_at_zero_depth;
+  temperature = myDepth.temperature();
   #endif
 
   //////////////////////////////////////////////////////////
