@@ -273,9 +273,6 @@ void setup() {
 
   #ifdef ENABLE_BT_DEBUG
   BTSerial.begin(BT_DEBUG_RATE);
-  while (1) {
-    BTSerial.println("Setting up DVL");
-  }
   #endif
 
   #ifdef ENABLE_IMU
@@ -298,7 +295,7 @@ void setup() {
   #ifdef ENABLE_DVL
   BTSerial.println("Setting up DVL");
   myDVL.dvl_setup();
-  BTSerial.println("DVL setup complete");
+  while (1) {BTSerial.println("DVL setup complete");}
   #endif
 
   #ifdef ENABLE_DEPTH
