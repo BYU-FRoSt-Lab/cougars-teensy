@@ -362,14 +362,17 @@ void loop() {
   #ifdef ENABLE_DVL
   // dvl data processing
   if (Serial7.available()) {
-    BTSerial.println("Checking");
     char incomingByte = Serial7.read();
     if (incomingByte != '\n') {
       dataString += (char)incomingByte;
     } else {
+
+      #ifdef ENABLE_BT_DEBUG
+      BTSerial.println("ALERT: Got DVL message");
+      #endif
+
       char identifier = dataString[2];
       if (identifier == 'p') {
-        BTSerial.println("Got message");
         wrp = dataString;
 
         // parse the data for roll, pitch, and yaw
@@ -380,7 +383,6 @@ void loop() {
             numFields++;
             if (numFields == 7) {
               roll = dataString.substring(startIndex, i).toFloat();
-              BTSerial.println(roll);
             } else if (numFields == 8) {
               pitch = dataString.substring(startIndex, i).toFloat();
             } else if (numFields == 9) {
