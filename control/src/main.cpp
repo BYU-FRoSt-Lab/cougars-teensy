@@ -1,6 +1,9 @@
 #include "imu_pub.h"
+#include "dvl_pub.h"
 #include "depth_pub.h"
 #include "pid_control.h"
+
+#include "dvl_driver.h"
 
 #include <Wire.h>
 #include <Servo.h>
@@ -8,6 +11,7 @@
 #include <frost_interfaces/msg/pid.h>
 
 // #define ENABLE_IMU
+#define ENABLE_DVL
 // #define ENABLE_DEPTH
 // #define ENABLE_BT_DEBUG
 
@@ -69,6 +73,7 @@ DepthPub depth_pub;
 // sensor objects
 SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
 BNO08x myIMU;
+DVL myDVL;
 MS5837 myDepth;
 
 // actuator objects
@@ -85,9 +90,6 @@ PID_Control myDepthPID = new PID_Control(0.1, 0, 0, 0, 180, TIMER_PID_PERIOD, -9
 float roll = 0.0;
 float pitch = 0.0;
 float yaw = 0.0;
-float accel_x = 0.0;
-float accel_y = 0.0;
-float accel_z = 0.0;
 float pressure = 0.0;
 float depth = 0.0;
 float temperature = 0.0;
@@ -120,9 +122,11 @@ void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
   (void)last_call_time;
   if (timer != NULL) {
-    imu_pub.update(roll, pitch, yaw, accel_x, accel_y, accel_z);
+    imu_pub.update(roll, pitch, yaw);
     imu_pub.publish();
-    depth_pub.update(pressure, depth, temperature);
+    dvl_pub.update(myDVL.wrz, myDVL.wrp, myDVL.wru);
+    dvl_pub.publish();
+    depth_pub.update(pressure, depth, myDepth.temperature());
     depth_pub.publish();
   }
 }
@@ -185,6 +189,7 @@ bool create_entities() {
 
   // create publishers
   imu_pub.setup(node);
+  dvl_pub.setup(node);
   depth_pub.setup(node);
 
   // create subscriber
@@ -221,6 +226,7 @@ void destroy_entities() {
 
   // destroy publishers
   imu_pub.destroy(node);
+  dvl_pub.destroy(node);
   depth_pub.destroy(node);
 
   // destroy everything else
@@ -277,18 +283,16 @@ void setup() {
 
     delay(1000);
   }
-  if (myIMU.enableLinearAccelerometer(10) == false) { // send data update every 10ms (100 Hz)
-
-    #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("ERROR: Could not enable linear accelerometer reports");
-    #endif
-  }
   if (myIMU.enableRotationVector(10) == false) { // send data update every 10ms (100 Hz)
 
     #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not enable rotation vector reports");
     #endif
   }
+  #endif
+
+  #ifdef ENABLE_DVL
+  myDVL.setup();
   #endif
 
   #ifdef ENABLE_DEPTH
@@ -334,12 +338,6 @@ void loop() {
     BTSerial.println("ALERT: IMU sensor was reset");
     #endif
     // set reports again
-    if (myIMU.enableLinearAccelerometer(50) == false) { // send data update every 50ms
-
-      #ifdef ENABLE_BT_DEBUG
-      BTSerial.println("ERROR: Could not enable linear accelerometer reports");
-      #endif
-    }
     if (myIMU.enableRotationVector(50) == false) { // send data update every 50ms
 
       #ifdef ENABLE_BT_DEBUG
@@ -354,19 +352,20 @@ void loop() {
       pitch = myIMU.getPitch();
       yaw = myIMU.getYaw();
     }
-    if (myIMU.getSensorEventID() == SENSOR_REPORTID_LINEAR_ACCELERATION) {
-      accel_x = myIMU.getLinAccelX();
-      accel_y = myIMU.getLinAccelY();
-      accel_z = myIMU.getLinAccelZ();
-    }
   }
+  #endif
+
+  #ifdef ENABLE_DVL
+  myDVL.update();
+  roll = myDVL.roll;
+  pitch = myDVL.pitch;
+  yaw = myDVL.yaw;
   #endif
 
   #ifdef ENABLE_DEPTH
   myDepth.read();
   pressure = myDepth.pressure() - pressure_at_zero_depth;
   depth = myDepth.depth() - depth_error_at_zero_depth;
-  temperature = myDepth.temperature();
   #endif
 
   //////////////////////////////////////////////////////////
