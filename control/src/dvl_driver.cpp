@@ -12,7 +12,7 @@ DVL::DVL() {
 
 DVL::dvl_setup() {
 
-    dvlSerial.begin(115200);
+    Serial7.begin(115200);
 }
 
 DVL::dvl_update() {
