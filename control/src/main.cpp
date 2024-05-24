@@ -273,6 +273,9 @@ void setup() {
 
   #ifdef ENABLE_BT_DEBUG
   BTSerial.begin(BT_DEBUG_RATE);
+  while (1) {
+    BTSerial.println("Setting up DVL");
+  }
   #endif
 
   #ifdef ENABLE_IMU
