@@ -10,12 +10,12 @@ DVL::DVL() {
     this->wru = "";
 }
 
-DVL::setup() {
+DVL::dvl_setup() {
 
     dvlSerial.begin(115200);
 }
 
-DVL::update() {
+DVL::dvl_update() {
 
     String dataString;
     char incomingByte;

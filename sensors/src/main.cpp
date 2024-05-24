@@ -233,7 +233,7 @@ void setup() {
   while(!myPing.initialize()) {
 
     #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("ERROR: Could not initial ping echosounder");
+    BTSerial.println("ERROR: Could not initialize ping echosounder");
     #endif
 
     delay(1000);

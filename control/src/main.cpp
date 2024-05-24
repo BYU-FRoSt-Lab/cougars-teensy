@@ -294,7 +294,7 @@ void setup() {
 
   #ifdef ENABLE_DVL
   BTSerial.println("Setting up DVL");
-  myDVL.setup();
+  myDVL.dvl_setup();
   BTSerial.println("DVL setup complete");
   #endif
 
@@ -360,7 +360,7 @@ void loop() {
 
   #ifdef ENABLE_DVL
   BTSerial.println("Updating DVL");
-  myDVL.update();
+  myDVL.dvl_update();
   BTSerial.println("DVL updated");
   roll = myDVL.roll;
   pitch = myDVL.pitch;

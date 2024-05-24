@@ -9,8 +9,8 @@ class DVL {
 
 public:
     DVL();
-    setup();
-    update();
+    dvl_setup();
+    dvl_update();
     float roll;
     float pitch;
     float yaw;
