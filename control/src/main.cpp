@@ -13,7 +13,7 @@
 // #define ENABLE_IMU
 #define ENABLE_DVL
 // #define ENABLE_DEPTH
-// #define ENABLE_BT_DEBUG
+#define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
@@ -293,7 +293,9 @@ void setup() {
   #endif
 
   #ifdef ENABLE_DVL
+  BTSerial.println("Setting up DVL");
   myDVL.setup();
+  BTSerial.println("DVL setup complete");
   #endif
 
   #ifdef ENABLE_DEPTH
@@ -357,10 +359,16 @@ void loop() {
   #endif
 
   #ifdef ENABLE_DVL
+  BTSerial.println("Updating DVL");
   myDVL.update();
+  BTSerial.println("DVL updated");
   roll = myDVL.roll;
   pitch = myDVL.pitch;
   yaw = myDVL.yaw;
+  BTSerial.println("DVL variables updated");
+  BTSerial.println(roll);
+  BTSerial.println(pitch);
+  BTSerial.println(yaw);
   #endif
 
   #ifdef ENABLE_DEPTH
