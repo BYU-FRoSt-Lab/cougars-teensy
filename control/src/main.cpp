@@ -359,7 +359,7 @@ void loop() {
   #endif
 
   #ifdef ENABLE_DVL
-  BTSerial.println("Updating DVL");
+  while (1) {BTSerial.println("Updating DVL");}
   myDVL.dvl_update();
   BTSerial.println("DVL updated");
   roll = myDVL.roll;
