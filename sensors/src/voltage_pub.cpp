@@ -4,7 +4,7 @@ void VoltagePub::setup(rcl_node_t node) {
 
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Volt), "voltage"));
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Volt), "volt_data"));
 }
 
 void VoltagePub::update(float voltage, float current) {
