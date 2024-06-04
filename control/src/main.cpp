@@ -82,8 +82,8 @@ Servo my_servo3;
 Servo my_thruster;
 
 // control objects
-// PID_Control myHeadingPID = new PID_Control(0.1, 0, 0, 0, 180, TIMER_PID_PERIOD, -90);
-// PID_Control myDepthPID = new PID_Control(0.1, 0, 0, 0, 180, TIMER_PID_PERIOD, -90);
+PID_Control myHeadingPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
+PID_Control myDepthPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
 
 // global sensor variables
 float roll = 0.0;
@@ -150,9 +150,8 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
     if (pid_request_msg->stop == false) {
 
-      // TODO: add PID stuff here
-      // depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
-      // heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
+      depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
+      heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
 
       my_servo1.write(heading_pos);
       my_servo2.write(depth_pos);
