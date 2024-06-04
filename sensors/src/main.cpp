@@ -35,6 +35,7 @@
 #define VOLT_PIN 18
 #define CURRENT_PIN 17
 #define LEAK_PIN 16
+#define LED_PIN 13
 
 // sensor serial baud rates
 #define BT_DEBUG_RATE 9600
@@ -162,6 +163,10 @@ void setup() {
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
 
+  // set up the indicator light
+  pinMode(LED_PIN, OUTPUT);
+
+
   //////////////////////////////////////////////////////////
   // SENSOR SETUP CODE STARTS HERE
   // - Use the #define statements at the top of this file to
@@ -248,6 +253,13 @@ void setup() {
 }
 
 void loop() {
+
+  // blink the indicator light
+  if (millis() % 1000 < 500) {
+    digitalWrite(LED_PIN, LOW);
+  } else {
+    digitalWrite(LED_PIN, HIGH);
+  }
 
   //////////////////////////////////////////////////////////
   // SENSOR VARIABLE UPDATE CODE STARTS HERE

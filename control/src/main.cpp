@@ -39,6 +39,7 @@
 #define SERVO_PIN2 10
 #define SERVO_PIN3 11
 #define THRUSTER_PIN 12
+#define LED_PIN 13
 
 // default actuator positions
 #define DEFAULT_SERVO 90
@@ -247,6 +248,9 @@ void setup() {
   Serial.begin(BAUD_RATE);
   set_microros_serial_transports(Serial);
 
+  // set up the indicator light
+  pinMode(LED_PIN, OUTPUT);
+
   // set up the servo and thruster pins
   pinMode(SERVO_PIN1, OUTPUT);
   pinMode(SERVO_PIN2, OUTPUT);
@@ -328,6 +332,13 @@ void setup() {
 }
 
 void loop() {
+
+  // blink the indicator light
+  if (millis() % 1000 < 500) {
+    digitalWrite(LED_PIN, LOW);
+  } else {
+    digitalWrite(LED_PIN, HIGH);
+  }
 
   //////////////////////////////////////////////////////////
   // SENSOR VARIABLE UPDATE CODE STARTS HERE
