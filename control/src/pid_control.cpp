@@ -23,7 +23,7 @@ PID_Control::PID_Control(float p, float i, float d, int min, int max, float time
     }
 }
 
-float PID_Control::compute(float desired, float actual) {
+int PID_Control::compute(float desired, float actual) {
 
     // PROPORTIONAL CALCULATIONS
     error = desired - actual;
@@ -48,5 +48,5 @@ float PID_Control::compute(float desired, float actual) {
     } else if (output < min_output) {
         output = min_output;
     }
-    return output;
+    return (int)output;
 }

@@ -84,11 +84,13 @@ Servo my_thruster;
 // control objects
 PID_Control myHeadingPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
 PID_Control myDepthPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
+PID_Control myVelocityPID(0.1, 0, 0, 1500, 2000, TIMER_PID_PERIOD, 1500);
 
 // global sensor variables
 float roll = 0.0;
 float pitch = 0.0;
 float yaw = 0.0;
+float x_velocity = 0.0;
 String wrz = "";
 String wrp = "";
 String wru = "";
@@ -97,6 +99,7 @@ float depth = 0.0;
 float temperature = 0.0;
 int depth_pos;
 int heading_pos;
+int velocity_level;
 
 // dvl processing values
 String dataString = "";
@@ -152,10 +155,12 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
       depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
       heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
+      velocity_level = myVelocityPID.compute(pid_request_msg->velocity, 0); // TODO: add x velocity from DVL
 
       my_servo1.write(heading_pos);
       my_servo2.write(depth_pos);
       my_servo3.write(depth_pos);
+      // my_thruster.writeMicroseconds(velocity_level);
 
     } else {
 
@@ -403,6 +408,9 @@ void loop() {
         }
       } else if (identifier == 'z') {
         wrz = dataString;
+
+        // TO DO: Parse x_velocity from the DVL
+
       } else if (identifier == 'u') {
         wru = dataString;
       }
