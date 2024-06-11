@@ -10,9 +10,8 @@ void DVLPub::setup(rcl_node_t node) {
 
 void DVLPub::update(String wrz, String wrp, String wru) {
 
-  std::string wrz_str = wrz.c_str();
-  msg.wrz.data = &wrz_str;
-  msg.wrp.data  = wrp;
+  strcpy(msg.wrz, wrz.c_str());
+  strcpy(msg.wrp.data, wrp.c_str());
   msg.wru = wru;
 }
 
