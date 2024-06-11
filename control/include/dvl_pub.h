@@ -3,6 +3,7 @@
 
 #include "publisher.h"
 #include <frost_interfaces/msg/dvl.h>
+#include <string>
 
 class DVLPub : Publisher {
 
