@@ -9,9 +9,9 @@ void DVLPub::setup(rcl_node_t node) {
 
 void DVLPub::update(String wrz, String wrp, String wru) {
 
-  msg.wrz = wrz;
-  msg.wrp = wrp;
-  msg.wru = wru;
+  msg.wrz = wrz.toStdString();
+  msg.wrp = wrp.toStdString();
+  msg.wru = wru.toStdString();
 }
 
 void DVLPub::publish() {
