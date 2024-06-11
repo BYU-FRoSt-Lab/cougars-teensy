@@ -92,9 +92,9 @@ float pitch = 0.0;
 float yaw = 0.0;
 float x_velocity = 0.0;
 char valid = 'n';
-string wrz = "";
-string wrp = "";
-string wru = "";
+std::string wrz = "";
+std::string wrp = "";
+std::string wru = "";
 float pressure = 0.0;
 float depth = 0.0;
 float temperature = 0.0;
@@ -104,7 +104,7 @@ int velocity_level;
 
 // dvl processing values
 bool reset_dead_reckoning = true;
-string data_string = "";
+std::string data_string = "";
 
 // pressure sensor calibration variables
 float sum_pressure_at_zero_depth = 0.0;
