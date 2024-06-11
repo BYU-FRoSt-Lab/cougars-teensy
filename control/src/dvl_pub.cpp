@@ -9,16 +9,9 @@ void DVLPub::setup(rcl_node_t node) {
 
 void DVLPub::update(String wrz, String wrp, String wru) {
 
-  // can't copy the strings directly
-  for (int i = 0; i < wrz.length(); i++) {
-    msg.wrz[i] = wrz[i];
-  }
-  for (int i = 0; i < wrp.length(); i++) {
-    msg.wrp[i] = wrp[i];
-  }
-  for (int i = 0; i < wru.length(); i++) {
-    msg.wru[i] = wru[i];
-  }
+  msg.wrz = wrz;
+  msg.wrp = wrp;
+  msg.wru = wru;
 }
 
 void DVLPub::publish() {

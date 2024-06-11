@@ -91,7 +91,7 @@ float roll = 0.0;
 float pitch = 0.0;
 float yaw = 0.0;
 float x_velocity = 0.0;
-char valid = 'n';
+String valid = "n";
 String wrz = "";
 String wrp = "";
 String wru = "";
@@ -165,7 +165,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
       heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
 
       // check if our velocity measurement is valid
-      if (valid == 'y') {
+      if (valid == "y") {
         velocity_level = myVelocityPID.compute(pid_request_msg->velocity, x_velocity);
       } else {
         velocity_level = DEFAULT_THRUSTER;
@@ -432,7 +432,7 @@ void loop() {
             if (num_fields == 2) {
               x_velocity = data_string.substring(start_index, i).toFloat();
             } else if (num_fields == 5) {
-              valid = data_string.substring(start_index, i).toChar();
+              valid = data_string.substring(start_index, i);
             }
             start_index = i + 1;
           }
