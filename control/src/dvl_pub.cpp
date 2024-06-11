@@ -1,5 +1,4 @@
 #include "dvl_pub.h"
-#include <string>
 
 void DVLPub::setup(rcl_node_t node) { 
 
@@ -10,9 +9,9 @@ void DVLPub::setup(rcl_node_t node) {
 
 void DVLPub::update(String wrz, String wrp, String wru) {
 
-  strcpy(msg.wrz, wrz.c_str());
-  strcpy(msg.wrp, wrp.c_str());
-  strcpy(msg.wru, wru.c_str());
+  msg.wrz.data = wrz.c_str();
+  msg.wrp.data = wrp.c_str();
+  msg.wru.data = wru;
 }
 
 void DVLPub::publish() {
