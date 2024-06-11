@@ -76,10 +76,10 @@ BNO08x myIMU;
 MS5837 myDepth;
 
 // actuator objects
-Servo my_servo1;
-Servo my_servo2;
-Servo my_servo3;
-Servo my_thruster;
+Servo myServo1;
+Servo myServo2;
+Servo myServo3;
+Servo myThruster;
 
 // control objects
 PID_Control myHeadingPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
@@ -91,9 +91,10 @@ float roll = 0.0;
 float pitch = 0.0;
 float yaw = 0.0;
 float x_velocity = 0.0;
-String wrz = "";
-String wrp = "";
-String wru = "";
+char valid = 'n';
+string wrz = "";
+string wrp = "";
+string wru = "";
 float pressure = 0.0;
 float depth = 0.0;
 float temperature = 0.0;
@@ -102,7 +103,8 @@ int heading_pos;
 int velocity_level;
 
 // dvl processing values
-String dataString = "";
+bool reset_dead_reckoning = true;
+string data_string = "";
 
 // pressure sensor calibration variables
 float sum_pressure_at_zero_depth = 0.0;
@@ -153,21 +155,33 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
     if (pid_request_msg->stop == false) {
 
-      depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
-      heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
-      velocity_level = myVelocityPID.compute(pid_request_msg->velocity, 0); // TODO: add x velocity from DVL
+      // reset the dead reckoning on the dvl
+      if (reset_dead_reckoning) {
+        Serial7.write("wcr\n");
+        reset_dead_reckoning = false;
+      }
 
-      my_servo1.write(heading_pos);
-      my_servo2.write(depth_pos);
-      my_servo3.write(depth_pos);
-      // my_thruster.writeMicroseconds(velocity_level);
+      depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
+      heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw); // in degrees
+
+      // check if our velocity measurement is valid
+      if (valid == 'y') {
+        velocity_level = myVelocityPID.compute(pid_request_msg->velocity, x_velocity);
+      } else {
+        velocity_level = DEFAULT_THRUSTER;
+      }
+
+      myServo1.write(heading_pos);
+      myServo2.write(depth_pos);
+      myServo3.write(depth_pos);
+      // myThruster.writeMicroseconds(velocity_level);
 
     } else {
 
-      my_servo1.write(DEFAULT_SERVO);
-      my_servo2.write(DEFAULT_SERVO);
-      my_servo3.write(DEFAULT_SERVO);
-      my_thruster.writeMicroseconds(DEFAULT_THRUSTER);
+      myServo1.write(DEFAULT_SERVO);
+      myServo2.write(DEFAULT_SERVO);
+      myServo3.write(DEFAULT_SERVO);
+      myThruster.writeMicroseconds(DEFAULT_THRUSTER);
     }
 
     //////////////////////////////////////////////////////////
@@ -261,15 +275,15 @@ void setup() {
   pinMode(SERVO_PIN3, OUTPUT);
   pinMode(THRUSTER_PIN, OUTPUT);
 
-  my_servo1.attach(SERVO_PIN1);
-  my_servo2.attach(SERVO_PIN2);
-  my_servo3.attach(SERVO_PIN3);
-  my_thruster.attach(THRUSTER_PIN);
+  myServo1.attach(SERVO_PIN1);
+  myServo2.attach(SERVO_PIN2);
+  myServo3.attach(SERVO_PIN3);
+  myThruster.attach(THRUSTER_PIN);
 
-  my_servo1.write(DEFAULT_SERVO);
-  my_servo2.write(DEFAULT_SERVO);
-  my_servo3.write(DEFAULT_SERVO);
-  my_thruster.writeMicroseconds(DEFAULT_THRUSTER);
+  myServo1.write(DEFAULT_SERVO);
+  myServo2.write(DEFAULT_SERVO);
+  myServo3.write(DEFAULT_SERVO);
+  myThruster.writeMicroseconds(DEFAULT_THRUSTER);
   delay(7000);
 
   // set up the I2C
@@ -377,45 +391,57 @@ void loop() {
   #ifdef ENABLE_DVL
   // dvl data processing
   if (Serial7.available()) {
-    char incomingByte = Serial7.read();
-    if (incomingByte != '\n') {
-      dataString += (char)incomingByte;
+    char incoming_byte = Serial7.read();
+    if (incoming_byte != '\n') {
+      data_string += (char)incoming_byte;
     } else {
 
       #ifdef ENABLE_BT_DEBUG
       BTSerial.println("ALERT: Got DVL message");
       #endif
 
-      char identifier = dataString[2];
+      char identifier = data_string[2];
       if (identifier == 'p') {
-        wrp = dataString;
+        wrp = data_string;
 
         // parse the data for roll, pitch, and yaw
-        int numFields = 0;
-        int startIndex = 3;
-        for (int i = startIndex; i < dataString.length(); i++) {
-          if (dataString[i] == ',') {
-            numFields++;
-            if (numFields == 7) {
-              roll = dataString.substring(startIndex, i).toFloat();
-            } else if (numFields == 8) {
-              pitch = dataString.substring(startIndex, i).toFloat();
-            } else if (numFields == 9) {
-              yaw = dataString.substring(startIndex, i).toFloat();
+        int num_fields = 0;
+        int start_index = 3;
+        for (int i = start_index; i < data_string.length(); i++) {
+          if (data_string[i] == ',') {
+            num_fields++;
+            if (num_fields == 7) {
+              roll = data_string.substring(start_index, i).toFloat(); // in degrees
+            } else if (num_fields == 8) {
+              pitch = data_string.substring(start_index, i).toFloat(); // in degrees
+            } else if (num_fields == 9) {
+              yaw = data_string.substring(start_index, i).toFloat(); // in degrees
             }
-            startIndex = i + 1;
+            start_index = i + 1;
           }
         }
       } else if (identifier == 'z') {
-        wrz = dataString;
+        wrz = data_string;
 
-        // TO DO: Parse x_velocity from the DVL
-
+        // parse the data for x velocity
+        int num_fields = 0;
+        int start_index = 3;
+        for (int i = start_index; i < data_string.length(); i++) {
+          if (data_string[i] == ',') {
+            num_fields++;
+            if (num_fields == 2) {
+              x_velocity = data_string.substring(start_index, i).toFloat();
+            } else if (num_fields == 5) {
+              valid = data_string.substring(start_index, i).toChar();
+            }
+            start_index = i + 1;
+          }
+        }
       } else if (identifier == 'u') {
-        wru = dataString;
+        wru = data_string;
       }
 
-      dataString = "";
+      data_string = "";
     }
   }
   #endif

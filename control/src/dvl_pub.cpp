@@ -7,11 +7,11 @@ void DVLPub::setup(rcl_node_t node) {
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, DVL), "dvl_data"));
 }
 
-void DVLPub::update(String wrz, String wrp, String wru) {
+void DVLPub::update(string wrz, string wrp, string wru) {
 
-    // msg.wrz = wrz; TODO: this is broken and needs to be fixed
-    // msg.wrp = wrp;
-    // msg.wru = wru;
+    msg.wrz = wrz;
+    msg.wrp = wrp;
+    msg.wru = wru;
 }
 
 void DVLPub::publish() {

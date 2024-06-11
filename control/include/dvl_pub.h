@@ -8,7 +8,7 @@ class DVLPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update(String wrz, String wrp, String wru);
+  void update(string wrz, string wrp, string wru);
   void publish();
   using Publisher::destroy;
 
