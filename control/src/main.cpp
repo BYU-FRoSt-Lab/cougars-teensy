@@ -411,11 +411,13 @@ void loop() {
           if (data_string[i] == ',') {
             num_fields++;
             if (num_fields == 7) {
-              roll = data_string.substring(start_index, i).toFloat(); // in degrees
+              // fix the below
+              roll = data_string.substr(start_index, i).toFloat(); // in degrees
+              roll = data
             } else if (num_fields == 8) {
-              pitch = data_string.substring(start_index, i).toFloat(); // in degrees
+              pitch = data_string.substr(start_index, i).toFloat(); // in degrees
             } else if (num_fields == 9) {
-              yaw = data_string.substring(start_index, i).toFloat(); // in degrees
+              yaw = data_string.substr(start_index, i).toFloat(); // in degrees
             }
             start_index = i + 1;
           }
@@ -430,9 +432,9 @@ void loop() {
           if (data_string[i] == ',') {
             num_fields++;
             if (num_fields == 2) {
-              x_velocity = data_string.substring(start_index, i).toFloat();
+              x_velocity = data_string.substr(start_index, i).toFloat();
             } else if (num_fields == 5) {
-              valid = data_string.substring(start_index, i).toChar();
+              valid = data_string.substr(start_index, i).toChar();
             }
             start_index = i + 1;
           }
