@@ -3,13 +3,12 @@
 
 #include "publisher.h"
 #include <frost_interfaces/msg/dvl.h>
-#include <string>
 
 class DVLPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update(std::string wrz, std::string wrp, std::string wru);
+  void update(String wrz, String wrp, String wru);
   void publish();
   using Publisher::destroy;
 

@@ -92,9 +92,9 @@ float pitch = 0.0;
 float yaw = 0.0;
 float x_velocity = 0.0;
 char valid = 'n';
-std::string wrz = "";
-std::string wrp = "";
-std::string wru = "";
+String wrz = "";
+String wrp = "";
+String wru = "";
 float pressure = 0.0;
 float depth = 0.0;
 float temperature = 0.0;
@@ -104,7 +104,7 @@ int velocity_level;
 
 // dvl processing values
 bool reset_dead_reckoning = true;
-std::string data_string = "";
+String data_string = "";
 
 // pressure sensor calibration variables
 float sum_pressure_at_zero_depth = 0.0;
@@ -155,14 +155,14 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
     if (pid_request_msg->stop == false) {
 
-      // reset the dead reckoning on the dvl
+      // reset the dead reckoning on the dvl as soon as we start moving
       if (reset_dead_reckoning) {
         Serial7.write("wcr\n");
         reset_dead_reckoning = false;
       }
 
       depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
-      heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw); // in degrees
+      heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
 
       // check if our velocity measurement is valid
       if (valid == 'y') {
@@ -411,13 +411,11 @@ void loop() {
           if (data_string[i] == ',') {
             num_fields++;
             if (num_fields == 7) {
-              // fix the below
-              roll = data_string.substr(start_index, i).toFloat(); // in degrees
-              roll = data
+              roll = data_string.substring(start_index, i).toFloat(); // in degrees
             } else if (num_fields == 8) {
-              pitch = data_string.substr(start_index, i).toFloat(); // in degrees
+              pitch = data_string.substring(start_index, i).toFloat(); // in degrees
             } else if (num_fields == 9) {
-              yaw = data_string.substr(start_index, i).toFloat(); // in degrees
+              yaw = data_string.substring(start_index, i).toFloat(); // in degrees
             }
             start_index = i + 1;
           }
@@ -432,9 +430,9 @@ void loop() {
           if (data_string[i] == ',') {
             num_fields++;
             if (num_fields == 2) {
-              x_velocity = data_string.substr(start_index, i).toFloat();
+              x_velocity = data_string.substring(start_index, i).toFloat();
             } else if (num_fields == 5) {
-              valid = data_string.substr(start_index, i).toChar();
+              valid = data_string.substring(start_index, i).toChar();
             }
             start_index = i + 1;
           }
