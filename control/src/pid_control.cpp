@@ -1,6 +1,6 @@
 #include "pid_control.h"
 
-PID_Control::PID_Control(float p, float i, float d, int min, int max, float timer_interval = 1, int adjust = 0) {
+PID_Control::PID_Control(float p, float i, float d, int min, int max, float timer_interval, int adjust) {
 
     kp = p;
     ki = i;

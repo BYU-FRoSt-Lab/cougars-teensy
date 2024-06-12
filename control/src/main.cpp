@@ -407,7 +407,7 @@ void loop() {
         // parse the data for roll, pitch, and yaw
         int num_fields = 0;
         int start_index = 3;
-        for (int i = start_index; i < data_string.length(); i++) {
+        for (uint i = start_index; i < data_string.length(); i++) {
           if (data_string[i] == ',') {
             num_fields++;
             if (num_fields == 7) {
@@ -426,7 +426,7 @@ void loop() {
         // parse the data for x velocity
         int num_fields = 0;
         int start_index = 3;
-        for (int i = start_index; i < data_string.length(); i++) {
+        for (uint i = start_index; i < data_string.length(); i++) {
           if (data_string[i] == ',') {
             num_fields++;
             if (num_fields == 2) {
