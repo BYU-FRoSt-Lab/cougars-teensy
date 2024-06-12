@@ -1,4 +1,5 @@
 #include "dvl_pub.h"
+#include "std_msgs/msg/string.hpp"
 
 void DVLPub::setup(rcl_node_t node) { 
 
@@ -9,7 +10,10 @@ void DVLPub::setup(rcl_node_t node) {
 
 void DVLPub::update(String wrz, String wrp, String wru) {
 
-  msg.wrz.data = wrz.c_str();
+  auto wrz_msg = std_msgs::msg::String();
+  wrz_msg.data = wrz.c_str();
+  msg.wrz = wrz_msg;
+  
   strcopy(msg.wrp.data, wrp.c_str());
   msg.wru.data = wru;
 }
