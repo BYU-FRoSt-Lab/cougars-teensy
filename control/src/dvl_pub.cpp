@@ -1,5 +1,5 @@
 #include "dvl_pub.h"
-#include <std_msgs/msg/string.hpp>
+#include <std_msgs/msg/string.h>
 
 void DVLPub::setup(rcl_node_t node) { 
 
@@ -10,7 +10,10 @@ void DVLPub::setup(rcl_node_t node) {
 
 void DVLPub::update(String wrz, String wrp, String wru) {
 
-  auto wrz_msg = std_msgs::msg::String();
+  std_msgs__msg__String wrz_msg;
+  sprintf(msg.data.data, wrz.c_str());
+  msg.data.size = strlen(msg.data.data);
+  
   wrz_msg.data = wrz.c_str();
   msg.wrz = wrz_msg;
 
