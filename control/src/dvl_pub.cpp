@@ -11,8 +11,8 @@ void DVLPub::setup(rcl_node_t node) {
 void DVLPub::update(String wrz, String wrp, String wru) {
 
   std_msgs__msg__String wrz_msg;
-  sprintf(msg.data.data, wrz.c_str());
-  msg.data.size = strlen(msg.data.data);
+  sprintf(msg.wrz.data.data, wrz.c_str());
+  msg.wrz.data.size = strlen(msg.wrz.data.data);
   
   wrz_msg.data = wrz.c_str();
   msg.wrz = wrz_msg;
