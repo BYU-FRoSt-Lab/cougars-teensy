@@ -82,9 +82,9 @@ Servo myServo3;
 Servo myThruster;
 
 // control objects
-PID_Control myHeadingPID(0.1, 0.0, 0.0, 30, 150, TIMER_PID_PERIOD, 90);
-PID_Control myDepthPID(0.1, 0.0, 0.0, 30, 150, TIMER_PID_PERIOD, 90);
-PID_Control myVelocityPID(0.1, 0.0, 0.0, 1500, 2000, TIMER_PID_PERIOD, 1500);
+PID_Control myHeadingPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
+PID_Control myDepthPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
+PID_Control myVelocityPID(0.1, 0, 0, 1500, 2000, TIMER_PID_PERIOD, 1500);
 
 // global sensor variables
 float roll = 0.0;
