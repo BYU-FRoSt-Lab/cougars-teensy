@@ -43,7 +43,7 @@
 
 // default actuator positions
 #define DEFAULT_SERVO 90
-#define DEFAULT_THRUSTER 1500
+#define THRUSTER_OFF 1500
 
 // pressure sensor calibration values
 #define AVG_COUNT 10
@@ -82,9 +82,9 @@ Servo myServo3;
 Servo myThruster;
 
 // control objects
-PID_Control myHeadingPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
-PID_Control myDepthPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
-PID_Control myVelocityPID(0.1, 0, 0, 1500, 2000, TIMER_PID_PERIOD, 1500);
+PID_Control myHeadingPID(0.1, 0.0, 0.0, 30, 150, TIMER_PID_PERIOD, 90);
+PID_Control myDepthPID(0.1, 0.0, 0.0, 30, 150, TIMER_PID_PERIOD, 90);
+PID_Control myVelocityPID(0.1, 0.0, 0.0, 1500, 2000, TIMER_PID_PERIOD, 1500);
 
 // global sensor variables
 float roll = 0.0;
@@ -168,7 +168,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
       if (valid == "y") {
         velocity_level = myVelocityPID.compute(pid_request_msg->velocity, x_velocity);
       } else {
-        velocity_level = DEFAULT_THRUSTER;
+        velocity_level = THRUSTER_OFF;
       }
 
       myServo1.write(heading_pos);
@@ -181,7 +181,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
       myServo1.write(DEFAULT_SERVO);
       myServo2.write(DEFAULT_SERVO);
       myServo3.write(DEFAULT_SERVO);
-      myThruster.writeMicroseconds(DEFAULT_THRUSTER);
+      myThruster.writeMicroseconds(THRUSTER_OFF);
     }
 
     //////////////////////////////////////////////////////////
@@ -283,7 +283,7 @@ void setup() {
   myServo1.write(DEFAULT_SERVO);
   myServo2.write(DEFAULT_SERVO);
   myServo3.write(DEFAULT_SERVO);
-  myThruster.writeMicroseconds(DEFAULT_THRUSTER);
+  myThruster.writeMicroseconds(THRUSTER_OFF);
   delay(7000);
 
   // set up the I2C
@@ -439,6 +439,12 @@ void loop() {
         }
       } else if (identifier == 'u') {
         wru = data_string;
+      } else if (identifier == 'a') {
+        
+        #ifdef ENABLE_BT_DEBUG
+        BTSerial.println("ALERT: DVL Dead Reckoning Reset Successful");
+        #endif
+
       }
 
       data_string = "";
