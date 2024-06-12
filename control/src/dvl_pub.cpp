@@ -10,15 +10,14 @@ void DVLPub::setup(rcl_node_t node) {
 
 void DVLPub::update(String wrz, String wrp, String wru) {
 
-  std_msgs__msg__String wrz_msg;
   sprintf(msg.wrz.data.data, wrz.c_str());
   msg.wrz.data.size = strlen(msg.wrz.data.data);
-  
-  wrz_msg.data = wrz.c_str();
-  msg.wrz = wrz_msg;
 
-  strcopy(msg.wrp.data, wrp.c_str());
-  msg.wru.data = wru;
+  sprintf(msg.wrp.data.data, wrp.c_str());
+  msg.wrp.data.size = strlen(msg.wrp.data.data);
+
+  sprintf(msg.wru.data.data, wru.c_str());
+  msg.wru.data.size = strlen(msg.wru.data.data);
 }
 
 void DVLPub::publish() {
