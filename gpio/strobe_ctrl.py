@@ -21,7 +21,7 @@ def blink_func(toggle):
     else:
         toggle = 0
 
-toggle = sys.argv[1]
+toggle = sys.argv[0]
 if toggle == 1:
     x = threading.Thread(target=blink_func, args = toggle)
     x.start()
