@@ -15,7 +15,8 @@ def blink():
             time.sleep(1)
     finally:
         led_line.release()
+        
 
 x = threading.Thread(target=blink)
-
-
+x.start()
+x.join()
