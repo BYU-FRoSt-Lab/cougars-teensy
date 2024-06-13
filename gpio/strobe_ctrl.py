@@ -19,4 +19,4 @@ def blink():
 
 x = threading.Thread(target=blink)
 x.start()
-x.join()
+# x.join()
