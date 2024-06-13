@@ -11,11 +11,15 @@ led_line.request(consumer="LED", type=gpiod.LINE_REQ_DIR_OUT)
 
 def blink():
     try:
-        while not os.path.exists(stop):
-            led_line.set_value(1)
-            time.sleep(1)
-            led_line.set_value(0)
-            time.sleep(1)
+        while True:
+            if not os.path.exists(stop):
+                led_line.set_value(1)
+                time.sleep(1)
+                led_line.set_value(0)
+                time.sleep(1)
+            else:
+                led_line.set_value(0)
+                break
     finally:
         led_line.release()
         
