@@ -1,6 +1,5 @@
 import gpiod
 import time
-import threading
 LED_PIN = 15 #RX pin of pi
 chip = gpiod.Chip('gpiochip4')
 led_line = chip.get_line(LED_PIN)
@@ -20,3 +19,4 @@ def blink():
 # x = threading.Thread(target=blink)
 # x.start()
 # # x.join()
+blink()
