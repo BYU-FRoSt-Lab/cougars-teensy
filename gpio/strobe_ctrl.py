@@ -17,6 +17,6 @@ def blink():
         led_line.release()
         
 
-x = threading.Thread(target=blink)
-x.start()
-# x.join()
+# x = threading.Thread(target=blink)
+# x.start()
+# # x.join()
