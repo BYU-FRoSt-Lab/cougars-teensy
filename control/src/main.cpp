@@ -50,8 +50,10 @@
 #define AVG_DEC 0.1
 #define FLUID_DENSITY 997
 
-// sensor serial baud rates
+// sensor baud rates
 #define BT_DEBUG_RATE 9600
+#define DVL_RATE 115200
+#define I2C_RATE 400000
 
 // micro-ROS objects
 rclc_support_t support;
@@ -169,6 +171,11 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
         velocity_level = myVelocityPID.compute(pid_request_msg->velocity, x_velocity);
       } else {
         velocity_level = THRUSTER_OFF;
+
+        #ifdef ENABLE_BT_DEBUG
+        BTSerial.println("ERROR: DVL velocity measurement is invalid");
+        #endif
+        
       }
 
       myServo1.write(heading_pos);
@@ -288,7 +295,7 @@ void setup() {
 
   // set up the I2C
   Wire.begin();
-  Wire.setClock(400000);
+  Wire.setClock(I2C_RATE);
 
   //////////////////////////////////////////////////////////
   // SENSOR SETUP CODE STARTS HERE
@@ -318,7 +325,7 @@ void setup() {
   #endif
 
   #ifdef ENABLE_DVL
-  Serial7.begin(115200);
+  Serial7.begin(DVL_RATE);
   #endif
 
   #ifdef ENABLE_DEPTH
