@@ -9,6 +9,7 @@ void DVLPub::setup(rcl_node_t node) {
 
 void DVLPub::update(String wrz, String wrp, String wru) {
 
+  // TO DO: This compiles, but is broken for some reason
   // sprintf(msg.wrz.data, wrz.c_str());
   // msg.wrz.size = strlen(msg.wrz.data);
 
