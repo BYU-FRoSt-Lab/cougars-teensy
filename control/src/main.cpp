@@ -28,7 +28,7 @@
 // micro-ROS config values
 #define BAUD_RATE 6000000
 #define CALLBACK_TOTAL 3
-#define TIMER_PUB_PERIOD 3000 // TODO: Check how fast everything updates
+#define TIMER_PUB_PERIOD 1000 // TODO: Change this for PID testing
 #define TIMER_PID_PERIOD 10   // 100 Hz
 #define SYNC_TIMEOUT 1000
 
