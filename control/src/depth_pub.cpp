@@ -4,8 +4,7 @@ void DepthPub::setup(rcl_node_t node) {
 
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Depth),
-      "depth_data"));
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Depth), "depth_data"));
 }
 
 void DepthPub::update(float pressure, float depth, float temperature) {

@@ -2,8 +2,8 @@
 #define GPS_PUB
 
 #include "publisher.h"
-#include <frost_interfaces/msg/gps.h>
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>
+#include <frost_interfaces/msg/gps.h>
 
 class GPSPub : Publisher {
 

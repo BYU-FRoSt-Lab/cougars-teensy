@@ -1,11 +1,11 @@
-#include "imu_pub.h"
-#include "dvl_pub.h"
 #include "depth_pub.h"
+#include "dvl_pub.h"
+#include "imu_pub.h"
 #include "pid_control.h"
 
-#include <Wire.h>
 #include <Servo.h>
 #include <SoftwareSerial.h>
+#include <Wire.h>
 #include <frost_interfaces/msg/pid.h>
 
 // #define ENABLE_IMU
@@ -28,8 +28,8 @@
 // micro-ROS config values
 #define BAUD_RATE 6000000
 #define CALLBACK_TOTAL 3
-#define TIMER_PUB_PERIOD 3000
-#define TIMER_PID_PERIOD 10 // 100 Hz
+#define TIMER_PUB_PERIOD 3000 // TODO: Check how fast everything updates
+#define TIMER_PID_PERIOD 10   // 100 Hz
 #define SYNC_TIMEOUT 1000
 
 // hardware pin values
@@ -55,6 +55,11 @@
 #define DVL_RATE 115200
 #define I2C_RATE 400000
 
+// sensor update rates
+#define IMU_MS 50
+#define DVL_MS 66    // fastest update speed is 15 Hz
+#define DEPTH_MS 100 // fastest update speed is 10 Hz (?)
+
 // micro-ROS objects
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -64,8 +69,7 @@ rcl_subscription_t subscriber;
 rcl_timer_t timer_pub;
 rcl_timer_t timer_pid;
 frost_interfaces__msg__PID msg;
-frost_interfaces__msg__PID *pid_request_msg =
-    new frost_interfaces__msg__PID;
+frost_interfaces__msg__PID *pid_request_msg = new frost_interfaces__msg__PID;
 
 // publisher objects
 IMUPub imu_pub;
@@ -168,21 +172,20 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
 
       // check if our velocity measurement is valid
       if (valid == "y") {
-        velocity_level = myVelocityPID.compute(pid_request_msg->velocity, x_velocity);
+        velocity_level =
+            myVelocityPID.compute(pid_request_msg->velocity, x_velocity);
       } else {
         velocity_level = THRUSTER_OFF;
 
-        #ifdef ENABLE_BT_DEBUG
+#ifdef ENABLE_BT_DEBUG
         BTSerial.println("ERROR: DVL velocity measurement is invalid");
-        #endif
-        
+#endif
       }
 
       myServo1.write(heading_pos);
       myServo2.write(depth_pos);
       myServo3.write(depth_pos);
       // myThruster.writeMicroseconds(velocity_level);
-
     } else {
 
       myServo1.write(DEFAULT_SERVO);
@@ -228,8 +231,9 @@ bool create_entities() {
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, PID), "pid_request"));
 
   // create timers (handles periodic publications and PID execution)
-  RCCHECK(rclc_timer_init_default(
-      &timer_pub, &support, RCL_MS_TO_NS(TIMER_PUB_PERIOD), timer_pub_callback));
+  RCCHECK(rclc_timer_init_default(&timer_pub, &support,
+                                  RCL_MS_TO_NS(TIMER_PUB_PERIOD),
+                                  timer_pub_callback));
   RCCHECK(rclc_timer_init_default(&timer_pid, &support,
                                   RCL_MS_TO_NS(TIMER_PID_PERIOD),
                                   timer_pid_callback));
@@ -303,37 +307,37 @@ void setup() {
   //   enable and disable each sensor
   //////////////////////////////////////////////////////////
 
-  #ifdef ENABLE_BT_DEBUG
+#ifdef ENABLE_BT_DEBUG
   BTSerial.begin(BT_DEBUG_RATE);
-  #endif
+#endif
 
-  #ifdef ENABLE_IMU
+#ifdef ENABLE_IMU
   while (!myIMU.begin(0x4A, Wire)) {
 
-    #ifdef ENABLE_BT_DEBUG
+#ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not connect to IMU over I2C");
-    #endif
+#endif
 
     delay(1000);
   }
-  if (myIMU.enableRotationVector(10) == false) { // send data update every 10ms (100 Hz)
+  if (myIMU.enableRotationVector(IMU_MS) == false) {
 
-    #ifdef ENABLE_BT_DEBUG
+#ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not enable rotation vector reports");
-    #endif
+#endif
   }
-  #endif
+#endif
 
-  #ifdef ENABLE_DVL
+#ifdef ENABLE_DVL
   Serial7.begin(DVL_RATE);
-  #endif
+#endif
 
-  #ifdef ENABLE_DEPTH
+#ifdef ENABLE_DEPTH
   while (!myDepth.init()) {
 
-    #ifdef ENABLE_BT_DEBUG
+#ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
-    #endif
+#endif
 
     delay(1000);
   }
@@ -347,7 +351,7 @@ void setup() {
   }
   pressure_at_zero_depth = sum_pressure_at_zero_depth * AVG_DEC;
   depth_error_at_zero_depth = sum_depth_error_at_zero_depth * AVG_DEC;
-  #endif
+#endif
 
   //////////////////////////////////////////////////////////
   // SENSOR SETUP CODE ENDS HERE
@@ -356,33 +360,19 @@ void setup() {
   state = WAITING_AGENT;
 }
 
-void loop() {
+// read and update the IMU sensor values
+void read_imu() {
 
-  // blink the indicator light
-  if (millis() % 1000 < 500) {
-    digitalWrite(LED_PIN, LOW);
-  } else {
-    digitalWrite(LED_PIN, HIGH);
-  }
-
-  //////////////////////////////////////////////////////////
-  // SENSOR VARIABLE UPDATE CODE STARTS HERE
-  // - Use the #define statements at the top of this file to
-  //   enable and disable each sensor
-  //////////////////////////////////////////////////////////
-
-  #ifdef ENABLE_IMU
   if (myIMU.wasReset()) {
 
-    #ifdef ENABLE_BT_DEBUG
+#ifdef ENABLE_BT_DEBUG
     BTSerial.println("ALERT: IMU sensor was reset");
-    #endif
-    // set reports again
-    if (myIMU.enableRotationVector(50) == false) { // send data update every 50ms
+#endif
+    if (myIMU.enableRotationVector(IMU_MS) == false) {
 
-      #ifdef ENABLE_BT_DEBUG
+#ifdef ENABLE_BT_DEBUG
       BTSerial.println("ERROR: Could not enable rotation vector reports");
-      #endif
+#endif
     }
   }
 
@@ -393,21 +383,24 @@ void loop() {
       yaw = myIMU.getYaw();
     }
   }
-  #endif
+}
 
-  #ifdef ENABLE_DVL
-  // dvl data processing
+// read and update the DVL sensor values
+void read_dvl() {
+
   if (Serial7.available()) {
     char incoming_byte = Serial7.read();
     if (incoming_byte != '\n') {
       data_string += (char)incoming_byte;
     } else {
 
-      #ifdef ENABLE_BT_DEBUG
+#ifdef ENABLE_BT_DEBUG
       BTSerial.println("ALERT: Got DVL message");
-      #endif
+#endif
 
       char identifier = data_string[2];
+
+      // check dead reckoning report
       if (identifier == 'p') {
         wrp = data_string;
 
@@ -418,15 +411,20 @@ void loop() {
           if (data_string[i] == ',') {
             num_fields++;
             if (num_fields == 7) {
-              roll = data_string.substring(start_index, i).toFloat(); // in degrees
+              roll =
+                  data_string.substring(start_index, i).toFloat(); // in degrees
             } else if (num_fields == 8) {
-              pitch = data_string.substring(start_index, i).toFloat(); // in degrees
+              pitch =
+                  data_string.substring(start_index, i).toFloat(); // in degrees
             } else if (num_fields == 9) {
-              yaw = data_string.substring(start_index, i).toFloat(); // in degrees
+              yaw =
+                  data_string.substring(start_index, i).toFloat(); // in degrees
             }
             start_index = i + 1;
           }
         }
+
+        // check velocity report
       } else if (identifier == 'z') {
         wrz = data_string;
 
@@ -444,27 +442,57 @@ void loop() {
             start_index = i + 1;
           }
         }
+
+        // check transducer report
       } else if (identifier == 'u') {
         wru = data_string;
       } else if (identifier == 'a') {
-        
-        #ifdef ENABLE_BT_DEBUG
-        BTSerial.println("ALERT: DVL Dead Reckoning Reset Successful");
-        #endif
 
+#ifdef ENABLE_BT_DEBUG
+        BTSerial.println("ALERT: DVL Dead Reckoning Reset Successful");
+#endif
       }
 
       data_string = "";
     }
   }
-  #endif
+}
 
-  #ifdef ENABLE_DEPTH
+// read and update the depth sensor values
+void read_depth() {
+
   myDepth.read();
   pressure = myDepth.pressure() - pressure_at_zero_depth;
   depth = myDepth.depth() - depth_error_at_zero_depth;
   temperature = myDepth.temperature();
-  #endif
+}
+
+void loop() {
+
+  // blink the indicator light
+  if (millis() % 1000 < 500) {
+    digitalWrite(LED_PIN, LOW);
+  } else {
+    digitalWrite(LED_PIN, HIGH);
+  }
+
+  //////////////////////////////////////////////////////////
+  // SENSOR VARIABLE UPDATE CODE STARTS HERE
+  // - Use the #define statements at the top of this file to
+  //   enable and disable each sensor
+  //////////////////////////////////////////////////////////
+
+#ifdef ENABLE_IMU
+  EXECUTE_EVERY_N_MS(IMU_MS, read_imu());
+#endif
+
+#ifdef ENABLE_DVL
+  EXECUTE_EVERY_N_MS(DVL_MS, read_dvl());
+#endif
+
+#ifdef ENABLE_DEPTH
+  EXECUTE_EVERY_N_MS(DEPTH_MS, read_depth());
+#endif
 
   //////////////////////////////////////////////////////////
   // SENSOR VARIABLE UPDATE CODE ENDS HERE

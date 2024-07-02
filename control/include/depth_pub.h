@@ -2,9 +2,8 @@
 #define DEPTH_PUB
 
 #include "publisher.h"
-#include <frost_interfaces/msg/depth.h>
-#include <std_msgs/msg/float64.h>
 #include <MS5837.h>
+#include <frost_interfaces/msg/depth.h>
 
 class DepthPub : Publisher {
 

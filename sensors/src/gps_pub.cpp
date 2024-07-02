@@ -14,7 +14,4 @@ void GPSPub::update(float latitude, float longitude) {
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
 }
 
-void GPSPub::publish() {
-
-  RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
-}
+void GPSPub::publish() { RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL)); }

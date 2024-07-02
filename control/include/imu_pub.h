@@ -1,9 +1,9 @@
 #ifndef IMU_PUB
 #define IMU_PUB
 
+#include "SparkFun_BNO08x_Arduino_Library.h"
 #include "publisher.h"
 #include <frost_interfaces/msg/imu.h>
-#include "SparkFun_BNO08x_Arduino_Library.h"
 
 class IMUPub : Publisher {
 

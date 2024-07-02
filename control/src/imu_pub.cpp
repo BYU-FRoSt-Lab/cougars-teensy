@@ -1,6 +1,6 @@
 #include "imu_pub.h"
 
-void IMUPub::setup(rcl_node_t node) { 
+void IMUPub::setup(rcl_node_t node) {
 
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
@@ -9,9 +9,9 @@ void IMUPub::setup(rcl_node_t node) {
 
 void IMUPub::update(float roll, float pitch, float yaw) {
 
-    msg.roll = roll;
-    msg.pitch = pitch;
-    msg.yaw = yaw;
+  msg.roll = roll;
+  msg.pitch = pitch;
+  msg.yaw = yaw;
 }
 
 void IMUPub::publish() {

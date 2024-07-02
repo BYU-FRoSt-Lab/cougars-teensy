@@ -14,7 +14,4 @@ void EchoPub::update(float distance, float conf_level) {
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
 }
 
-void EchoPub::publish() {
-
-  RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
-}
+void EchoPub::publish() { RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL)); }

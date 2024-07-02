@@ -1,6 +1,6 @@
 #include "dvl_pub.h"
 
-void DVLPub::setup(rcl_node_t node) { 
+void DVLPub::setup(rcl_node_t node) {
 
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
@@ -9,7 +9,7 @@ void DVLPub::setup(rcl_node_t node) {
 
 void DVLPub::update(String wrz, String wrp, String wru) {
 
-  // TO DO: This compiles, but is broken for some reason
+  // TODO: This compiles, but is still broken for some reason
   // sprintf(msg.wrz.data, wrz.c_str());
   // msg.wrz.size = strlen(msg.wrz.data);
 
