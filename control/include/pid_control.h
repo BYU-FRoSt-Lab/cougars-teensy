@@ -6,7 +6,8 @@
 class PID_Control {
 
 public:
-  PID_Control(float p, float i, float d, int min, int max, float timer_interval,
+  PID_Control();
+  void calibrate(float p, float i, float d, int min, int max, float timer_interval,
               int adjust);
   int compute(float desired, float actual);
 

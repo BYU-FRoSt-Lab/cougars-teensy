@@ -7,6 +7,7 @@
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <frost_interfaces/msg/pid.h>
+#include <frost_interfaces/msg/calibration.h>
 
 // #define ENABLE_IMU
 #define ENABLE_DVL
@@ -65,11 +66,14 @@ rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
 rclc_executor_t executor;
-rcl_subscription_t subscriber;
 rcl_timer_t timer_pub;
 rcl_timer_t timer_pid;
 frost_interfaces__msg__PID msg;
 frost_interfaces__msg__PID *pid_request_msg = new frost_interfaces__msg__PID;
+
+// subscriber objects
+rcl_subscription_t pid_sub;
+rcl_subscription_t calibration_sub;
 
 // publisher objects
 IMUPub imu_pub;
@@ -88,9 +92,9 @@ Servo myServo3;
 Servo myThruster;
 
 // control objects
-PID_Control myHeadingPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
-PID_Control myDepthPID(0.1, 0, 0, 30, 150, TIMER_PID_PERIOD, 90);
-PID_Control myVelocityPID(0.1, 0, 0, 1500, 2000, TIMER_PID_PERIOD, 1500);
+PID_Control myHeadingPID();
+PID_Control myDepthPID();
+PID_Control myVelocityPID();
 
 // global sensor variables
 float roll = 0.0;
@@ -108,7 +112,7 @@ int depth_pos;
 int heading_pos;
 int velocity_level;
 
-// dvl processing values
+// dvl processing variables
 bool reset_dead_reckoning = true;
 String data_string = "";
 
@@ -117,6 +121,31 @@ float sum_pressure_at_zero_depth = 0.0;
 float sum_depth_error_at_zero_depth = 0.0;
 float pressure_at_zero_depth = 0.0;
 float depth_error_at_zero_depth = 0.0;
+
+// pid calibration variables
+float heading_kp = 0.0;
+float heading_ki = 0.0;
+float heading_kd = 0.0;
+int heading_min_output = 0;
+int heading_max_output = 0;
+int heading_bias = 0;
+
+float depth_kp = 0.0;
+float depth_ki = 0.0;
+float depth_kd = 0.0;
+int depth_min_output = 0;
+int depth_max_output = 0;
+int depth_bias = 0;
+
+float velocity_kp = 0.0;
+float velocity_ki = 0.0;
+float velocity_kd = 0.0;
+int velocity_min_output = 0;
+int velocity_max_output = 0;
+int velocity_bias = 0;
+
+// calibration flag
+bool calibrated = false;
 
 // states for state machine in loop function
 enum states {
@@ -153,56 +182,96 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
   (void)last_call_time;
   if (timer != NULL) {
 
-    //////////////////////////////////////////////////////////
-    // LOW-LEVEL CONTROLLER CODE STARTS HERE
-    // - Reference wanted values using
-    //   pid_request_msg->velocity, pid_request_msg->yaw, etc
-    //////////////////////////////////////////////////////////
+    if (calibrated) {
 
-    if (pid_request_msg->stop == false) {
+      //////////////////////////////////////////////////////////
+      // LOW-LEVEL CONTROLLER CODE STARTS HERE
+      // - Reference wanted values using
+      //   pid_request_msg->velocity, pid_request_msg->yaw, etc
+      //////////////////////////////////////////////////////////
 
-      // reset the dead reckoning on the dvl as soon as we start moving
-      if (reset_dead_reckoning) {
-        Serial7.write("wcr\n");
-        reset_dead_reckoning = false;
-      }
+      if (pid_request_msg->stop == false) {
 
-      depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
-      heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
+        // reset the dead reckoning on the dvl as soon as we start moving
+        if (reset_dead_reckoning) {
+          Serial7.write("wcr\n");
+          reset_dead_reckoning = false;
+        }
 
-      // check if our velocity measurement is valid
-      if (valid == "y") {
-        velocity_level =
-            myVelocityPID.compute(pid_request_msg->velocity, x_velocity);
+        depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
+        heading_pos = myHeadingPID.compute(pid_request_msg->yaw, yaw);
+
+        // check if our velocity measurement is valid
+        if (valid == "y") {
+          velocity_level =
+              myVelocityPID.compute(pid_request_msg->velocity, x_velocity);
+        } else {
+          velocity_level = THRUSTER_OFF;
+
+  #ifdef ENABLE_BT_DEBUG
+          BTSerial.println("ERROR: DVL velocity measurement is invalid");
+  #endif
+        }
+
+        myServo1.write(heading_pos);
+        myServo2.write(depth_pos);
+        myServo3.write(depth_pos);
+        // myThruster.writeMicroseconds(velocity_level);
       } else {
-        velocity_level = THRUSTER_OFF;
 
-#ifdef ENABLE_BT_DEBUG
-        BTSerial.println("ERROR: DVL velocity measurement is invalid");
-#endif
+        myServo1.write(DEFAULT_SERVO);
+        myServo2.write(DEFAULT_SERVO);
+        myServo3.write(DEFAULT_SERVO);
+        myThruster.writeMicroseconds(THRUSTER_OFF);
       }
 
-      myServo1.write(heading_pos);
-      myServo2.write(depth_pos);
-      myServo3.write(depth_pos);
-      // myThruster.writeMicroseconds(velocity_level);
-    } else {
-
-      myServo1.write(DEFAULT_SERVO);
-      myServo2.write(DEFAULT_SERVO);
-      myServo3.write(DEFAULT_SERVO);
-      myThruster.writeMicroseconds(THRUSTER_OFF);
+      //////////////////////////////////////////////////////////
+      // LOW-LEVEL CONTROLLER CODE ENDS HERE
+      //////////////////////////////////////////////////////////
     }
-
-    //////////////////////////////////////////////////////////
-    // LOW-LEVEL CONTROLLER CODE ENDS HERE
-    //////////////////////////////////////////////////////////
   }
 }
 
 // micro-ROS function that subscribes to requested PID values
-void subscription_callback(const void *pid_msgin) {
+void pid_sub_callback(const void *pid_msgin) {
   pid_request_msg = (frost_interfaces__msg__PID *)pid_msgin;
+}
+
+// micro-ROS function that subscribes to requested calibration values
+void calibration_sub_callback(const void *calibration_msgin) {
+
+  // calibrate the depth PID controller
+  depth_kp = calibration_msgin->depth_kp;
+  depth_ki = calibration_msgin->depth_ki;
+  depth_kd = calibration_msgin->depth_kd;
+  depth_min_output = calibration_msgin->depth_min_output;
+  depth_max_output = calibration_msgin->depth_max_output;
+  depth_bias = calibration_msgin->depth_bias;
+  myDepthPID.calibrate(depth_kp, depth_ki, depth_kd, depth_min_output,
+                       depth_max_output, TIMER_PID_PERIOD, depth_bias);
+
+  // calibrate the heading PID controller
+  heading_kp = calibration_msgin->heading_kp;
+  heading_ki = calibration_msgin->heading_ki;
+  heading_kd = calibration_msgin->heading_kd;
+  heading_min_output = calibration_msgin->heading_min_output;
+  heading_max_output = calibration_msgin->heading_max_output;
+  heading_bias = calibration_msgin->heading_bias;
+  myHeadingPID.calibrate(heading_kp, heading_ki, heading_kd, heading_min_output,
+                         heading_max_output, TIMER_PID_PERIOD, heading_bias);
+
+  // calibrate the velocity PID controller
+  velocity_kp = calibration_msgin->velocity_kp;
+  velocity_ki = calibration_msgin->velocity_ki;
+  velocity_kd = calibration_msgin->velocity_kd;
+  velocity_min_output = calibration_msgin->velocity_min_output;
+  velocity_max_output = calibration_msgin->velocity_max_output;
+  velocity_bias = calibration_msgin->velocity_bias;
+  myVelocityPID.calibrate(velocity_kp, velocity_ki, velocity_kd,
+                          velocity_min_output, velocity_max_output, TIMER_PID_PERIOD,
+                          velocity_bias);
+
+  calibrated = true;
 }
 
 bool create_entities() {
@@ -225,10 +294,14 @@ bool create_entities() {
   dvl_pub.setup(node);
   depth_pub.setup(node);
 
-  // create subscriber
+  // create subscribers
   RCCHECK(rclc_subscription_init_default(
-      &subscriber, &node,
+      &pid_sub, &node,
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, PID), "pid_request"));
+
+  RCCHECK(rclc_subscription_init_default(
+      &calibration_sub, &node,
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Calibration), "calibration"));
 
   // create timers (handles periodic publications and PID execution)
   RCCHECK(rclc_timer_init_default(&timer_pub, &support,
@@ -246,7 +319,9 @@ bool create_entities() {
   RCSOFTCHECK(rclc_executor_add_timer(&executor, &timer_pub));
   RCSOFTCHECK(rclc_executor_add_timer(&executor, &timer_pid));
   RCSOFTCHECK(rclc_executor_add_subscription(
-      &executor, &subscriber, &msg, &subscription_callback, ON_NEW_DATA));
+      &executor, &pid_sub, &msg, &pid_sub_callback, ON_NEW_DATA));
+  RCSOFTCHECK(rclc_executor_add_subscription(
+      &executor, &calibration_sub, &msg, &calibration_sub_callback, ON_NEW_DATA));
 
   // wait for first message to arrive from pid_request topic
   pid_request_msg->stop = true;
@@ -264,7 +339,8 @@ void destroy_entities() {
   depth_pub.destroy(node);
 
   // destroy everything else
-  rcl_subscription_fini(&subscriber, &node);
+  rcl_subscription_fini(&pid_sub, &node);
+  rcl_subscription_fini(&calibration_sub, &node);
   rcl_timer_fini(&timer_pub);
   rcl_timer_fini(&timer_pid);
   rclc_executor_fini(&executor);
