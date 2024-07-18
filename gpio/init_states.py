@@ -1,5 +1,5 @@
 ##########################################################
-# SETS CURRENT POWER STATES TO "OFF"
+# SETS CURRENT POWER STATES TO "ON"
 # - The docker container runs this script on startup!
 #   Be careful editing it
 ##########################################################
@@ -28,13 +28,6 @@ control_line.set_value(1)
 sensors_line.set_value(1)
 control_prog_line.set_value(1)
 sensors_prog_line.set_value(1)
-
-# set the .txt files to start OFF
-with open('sensors_state.txt', 'w') as f:
-    f.write('OFF')
-
-with open('control_state.txt', 'w') as f:
-    f.write('OFF')
 
 control_line.release()
 sensors_line.release()
