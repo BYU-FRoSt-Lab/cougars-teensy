@@ -1,10 +1,11 @@
 ##########################################################
-# SETS CURRENT POWER STATES TO "ON"
+# INITS PINS AND SETS CURRENT POWER STATES TO "ON"
 # - The docker container runs this script on startup!
 #   Be careful editing it
 ##########################################################
 
 import gpiod
+import time
 
 CONTROL_PIN = 27
 SENSORS_PIN = 22
@@ -28,6 +29,14 @@ control_line.set_value(1)
 sensors_line.set_value(1)
 control_prog_line.set_value(1)
 sensors_prog_line.set_value(1)
+
+# turn the Teensys on
+time.sleep(5)
+control_line.set_value(0)
+sensors_line.set_value(0)
+time.sleep(5)
+control_line.set_value(1)
+sensors_line.set_value(1)
 
 control_line.release()
 sensors_line.release()

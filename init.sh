@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ##########################################################
-# SETS CURRENT POWER STATES TO "OFF"
+# INITS PINS AND SETS CURRENT POWER STATES TO "ON"
 # - The docker container runs this script on startup!
 #   Be careful editing it
 ##########################################################
