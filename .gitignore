@@ -1,4 +1,2 @@
 sensors/.pio
 control/.pio
-gpio/control_state.txt
-gpio/sensors_state.txt
