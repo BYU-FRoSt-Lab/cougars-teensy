@@ -9,5 +9,5 @@
 cd ~/teensy_ws/gpio
 python3 program_sensors.py
 
-cd /config
+cd ~/config
 bash upload_sensors_helper.sh
