@@ -1,11 +1,11 @@
 #include "echo_pub.h"
 #include "gps_pub.h"
 #include "leak_pub.h"
-#include "voltage_pub.h"
+#include "battery_pub.h"
 
 #include <SoftwareSerial.h>
 
-#define ENABLE_VOLT
+#define ENABLE_BATTERY
 #define ENABLE_LEAK
 #define ENABLE_GPS
 // #define ENABLE_ECHO
@@ -42,7 +42,7 @@
 #define ECHO_RATE 115200
 
 // sensor update rates
-#define VOLT_MS 100
+#define BATTERY_MS 100
 #define LEAK_MS 100
 #define GPS_MS 1000 // fastest update speed is 1 Hz
 #define ECHO_MS 33  // fastest update speed is 30 Hz (?)
@@ -53,7 +53,7 @@ rcl_allocator_t allocator;
 rcl_node_t node;
 
 // publisher objects
-VoltagePub voltage_pub;
+BatteryPub battery_pub;
 LeakPub leak_pub;
 GPSPub gps_pub;
 EchoPub echo_pub;
@@ -87,7 +87,7 @@ bool create_entities() {
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
-  voltage_pub.setup(node);
+  battery_pub.setup(node);
   leak_pub.setup(node);
   gps_pub.setup(node);
   echo_pub.setup(node);
@@ -101,7 +101,7 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
-  voltage_pub.destroy(node);
+  battery_pub.destroy(node);
   leak_pub.destroy(node);
   gps_pub.destroy(node);
   echo_pub.destroy(node);
@@ -129,7 +129,7 @@ void setup() {
   BTSerial.begin(BT_DEBUG_RATE);
 #endif
 
-#ifdef ENABLE_VOLT
+#ifdef ENABLE_BATTERY
   pinMode(CURRENT_PIN, INPUT);
   pinMode(VOLT_PIN, INPUT);
 #endif
@@ -211,34 +211,39 @@ void setup() {
 //   enable and disable each sensor
 //////////////////////////////////////////////////////////
 
-void read_volt() {
+void read_battery() {
 
   // we did some testing to determine the below params, but
   // it's possible they are not completely accurate
   float voltage = (analogRead(VOLT_PIN) * 0.03437) + 0.68;
   float current = (analogRead(CURRENT_PIN) * 0.122) - 11.95;
 
-  // publish the voltage and current
-  voltage_pub.publish(voltage, current);
+  // publish the battery data
+  battery_pub.publish(voltage, current);
 }
 
 void read_leak() {
+
+  bool leak = digitalRead(LEAK_PIN);
   
-  // publish the leak boolean
-  leak_pub.publish(digitalRead(LEAK_PIN));
+  // publish the leak data
+  leak_pub.publish(leak);
 }
 
 void read_gps() {
 
+  float latitude = myGNSS.getLatitude();
+  float longitude = myGNSS.getLongitude();
+
   // publish the GPS data
-  gps_pub.publish(myGNSS.getLatitude(), myGNSS.getLongitude());
+  gps_pub.publish(latitude, longitude);
 }
 
 void read_echo() {
 
   if (myPing.update()) {
     // publish the echosounder data
-    echo_pub.publish(myPing.distance(), myPing.confidence());
+    echo_pub.publish();
   }
 }
 
@@ -281,8 +286,8 @@ void loop() {
       // EXECUTES WHEN THE AGENT IS CONNECTED
       //////////////////////////////////////////////////////////
 
-#ifdef ENABLE_VOLT
-      EXECUTE_EVERY_N_MS(VOLT_MS, read_volt());
+#ifdef ENABLE_BATTERY
+      EXECUTE_EVERY_N_MS(VOLT_MS, read_battery());
 #endif
 
 #ifdef ENABLE_LEAK

@@ -1,12 +1,12 @@
-#ifndef VOLTAGE_PUB
-#define VOLTAGE_PUB
+#ifndef BATTERY_PUB
+#define BATTERY_PUB
 
 #include "publisher.h"
 #include <Adafruit_INA260.h>
 #include <Wire.h>
-#include <frost_interfaces/msg/volt.h>
+#include <frost_interfaces/msg/batterystatus.h>
 
-class VoltagePub : Publisher {
+class BatteryPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
@@ -14,7 +14,7 @@ public:
   using Publisher::destroy;
 
 private:
-  frost_interfaces__msg__Volt msg;
+  frost_interfaces__msg__BatteryStatus msg;
 };
 
-#endif // VOLTAGE_PUB
+#endif // BATTERY_PUB

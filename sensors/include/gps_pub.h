@@ -3,7 +3,7 @@
 
 #include "publisher.h"
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>
-#include <frost_interfaces/msg/gps.h>
+#include <sensor_msgs/msg/navsatfix.h>
 
 class GPSPub : Publisher {
 
@@ -13,7 +13,7 @@ public:
   using Publisher::destroy;
 
 private:
-  frost_interfaces__msg__GPS msg;
+  sensor_msgs__msg__NavSatFix msg;
 };
 
 #endif // GPS_PUB

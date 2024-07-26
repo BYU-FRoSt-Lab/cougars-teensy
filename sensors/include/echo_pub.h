@@ -2,18 +2,18 @@
 #define ECHO_PUB
 
 #include "publisher.h"
-#include <frost_interfaces/msg/echo.h>
 #include <ping1d.h>
+#include <std_msgs/msg/float64.h>
 
 class EchoPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void publish(float distance, float conf_level);
+  void publish();
   using Publisher::destroy;
 
 private:
-  frost_interfaces__msg__Echo msg;
+  std_msgs__msg__Float64 msg;
 };
 
 #endif // ECHO_PUB

@@ -1,13 +1,13 @@
-#include "voltage_pub.h"
+#include "battery_pub.h"
 
-void VoltagePub::setup(rcl_node_t node) {
+void BatteryPub::setup(rcl_node_t node) {
 
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Volt), "volt_data"));
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, BatteryStatus), "battery_data"));
 }
 
-void VoltagePub::publish(float voltage, float current) { 
+void BatteryPub::publish(float voltage, float current) { 
   
   msg.voltage = voltage;
   msg.current = current;

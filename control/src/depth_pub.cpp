@@ -4,14 +4,12 @@ void DepthPub::setup(rcl_node_t node) {
 
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Depth), "depth_data"));
+      ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, FluidPressure), "depth_data"));
 }
 
-void DepthPub::publish(float pressure, float depth, float temperature) {
+void DepthPub::publish(float pressure) {
 
-  msg.pressure = pressure;
-  msg.depth = depth;
-  msg.temperature = temperature;
+  msg.fluid_pressure = pressure;
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
   RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
 }

@@ -3,17 +3,17 @@
 
 #include "publisher.h"
 #include <MS5837.h>
-#include <frost_interfaces/msg/depth.h>
+#include <sensor_msgs/msg/fluidpressure.h>
 
 class DepthPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void publish(float pressure, float depth, float temperature);
+  void publish(float pressure);
   using Publisher::destroy;
 
 private:
-  frost_interfaces__msg__Depth msg;
+  sensor_msgs__msg__FluidPressure msg;
 };
 
 #endif // DEPTH_PUB
