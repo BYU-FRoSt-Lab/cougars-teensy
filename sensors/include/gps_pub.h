@@ -9,8 +9,7 @@ class GPSPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update(float latitude, float longitude);
-  void publish();
+  void publish(float latitude, float longitude);
   using Publisher::destroy;
 
 private:

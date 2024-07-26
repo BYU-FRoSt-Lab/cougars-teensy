@@ -1,15 +1,13 @@
 #include "depth_pub.h"
 #include "dvl_pub.h"
-#include "imu_pub.h"
 #include "pid_control.h"
 
 #include <Servo.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
-#include <frost_interfaces/msg/pid.h>
 #include <frost_interfaces/msg/calibration.h>
+#include <frost_interfaces/msg/pid.h>
 
-// #define ENABLE_IMU
 #define ENABLE_DVL
 #define ENABLE_DEPTH
 // #define ENABLE_BT_DEBUG
@@ -29,8 +27,7 @@
 // micro-ROS config values
 #define BAUD_RATE 6000000
 #define CALLBACK_TOTAL 3
-#define TIMER_PUB_PERIOD 1000 // TODO: Change this for PID testing
-#define TIMER_PID_PERIOD 10   // 100 Hz
+#define TIMER_PID_PERIOD 10 // 100 Hz
 #define SYNC_TIMEOUT 1000
 
 // hardware pin values
@@ -57,7 +54,6 @@
 #define I2C_RATE 400000
 
 // sensor update rates
-#define IMU_MS 50
 #define DVL_MS 66    // fastest update speed is 15 Hz
 #define DEPTH_MS 100 // fastest update speed is 10 Hz (?)
 
@@ -66,7 +62,6 @@ rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
 rclc_executor_t executor;
-rcl_timer_t timer_pub;
 rcl_timer_t timer_pid;
 frost_interfaces__msg__PID msg;
 frost_interfaces__msg__PID *pid_request_msg = new frost_interfaces__msg__PID;
@@ -76,13 +71,11 @@ rcl_subscription_t pid_sub;
 rcl_subscription_t calibration_sub;
 
 // publisher objects
-IMUPub imu_pub;
 DVLPub dvl_pub;
 DepthPub depth_pub;
 
 // sensor objects
 SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
-BNO08x myIMU;
 MS5837 myDepth;
 
 // actuator objects
@@ -97,23 +90,24 @@ PID_Control myDepthPID();
 PID_Control myVelocityPID();
 
 // global sensor variables
-float roll = 0.0;
-float pitch = 0.0;
-float yaw = 0.0;
-float x_velocity = 0.0;
-String valid = "n";
-String wrz = "";
-String wrp = "";
-String wru = "";
-float pressure = 0.0;
-float depth = 0.0;
-float temperature = 0.0;
 int depth_pos;
 int heading_pos;
 int velocity_level;
 
-// dvl processing variables
-bool reset_dead_reckoning = true;
+float roll = 0.0;
+float pitch = 0.0;
+float yaw = 0.0;
+float x_velocity = 0.0;
+float pressure = 0.0;
+float depth = 0.0;
+float temperature = 0.0;
+
+String valid = "n";
+String wrz = "";
+String wrp = "";
+String wru = "";
+
+// dvl data string
 String data_string = "";
 
 // pressure sensor calibration variables
@@ -144,7 +138,8 @@ int velocity_min_output = 0;
 int velocity_max_output = 0;
 int velocity_bias = 0;
 
-// calibration flag
+// flags on start
+bool dead_reckoning_reset = false;
 bool calibrated = false;
 
 // states for state machine in loop function
@@ -154,27 +149,6 @@ enum states {
   AGENT_CONNECTED,
   AGENT_DISCONNECTED
 } static state;
-
-// responds to errors with micro-ROS functions
-void error_loop() {
-  while (1) {
-    delay(100);
-  }
-}
-
-// micro-ROS timer function that publishes topic data
-void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
-
-  (void)last_call_time;
-  if (timer != NULL) {
-    imu_pub.update(roll, pitch, yaw);
-    imu_pub.publish();
-    dvl_pub.update(wrz, wrp, wru);
-    dvl_pub.publish();
-    depth_pub.update(pressure, depth, temperature);
-    depth_pub.publish();
-  }
-}
 
 // micro-ROS timer function that runs the PID
 void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
@@ -195,7 +169,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
         // reset the dead reckoning on the dvl as soon as we start moving
         if (reset_dead_reckoning) {
           Serial7.write("wcr\n");
-          reset_dead_reckoning = false;
+          dead_reckoning_reset = true;
         }
 
         depth_pos = myDepthPID.compute(pid_request_msg->depth, depth);
@@ -208,9 +182,9 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
         } else {
           velocity_level = THRUSTER_OFF;
 
-  #ifdef ENABLE_BT_DEBUG
+#ifdef ENABLE_BT_DEBUG
           BTSerial.println("ERROR: DVL velocity measurement is invalid");
-  #endif
+#endif
         }
 
         myServo1.write(heading_pos);
@@ -268,8 +242,8 @@ void calibration_sub_callback(const void *calibration_msgin) {
   velocity_max_output = calibration_msgin->velocity_max_output;
   velocity_bias = calibration_msgin->velocity_bias;
   myVelocityPID.calibrate(velocity_kp, velocity_ki, velocity_kd,
-                          velocity_min_output, velocity_max_output, TIMER_PID_PERIOD,
-                          velocity_bias);
+                          velocity_min_output, velocity_max_output,
+                          TIMER_PID_PERIOD, velocity_bias);
 
   calibrated = true;
 }
@@ -290,23 +264,20 @@ bool create_entities() {
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
-  imu_pub.setup(node);
   dvl_pub.setup(node);
   depth_pub.setup(node);
 
   // create subscribers
   RCCHECK(rclc_subscription_init_default(
-      &pid_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, PID), "pid_request"));
+      &pid_sub, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, PID),
+      "pid_request"));
 
   RCCHECK(rclc_subscription_init_default(
       &calibration_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Calibration), "calibration"));
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Calibration),
+      "calibration"));
 
   // create timers (handles periodic publications and PID execution)
-  RCCHECK(rclc_timer_init_default(&timer_pub, &support,
-                                  RCL_MS_TO_NS(TIMER_PUB_PERIOD),
-                                  timer_pub_callback));
   RCCHECK(rclc_timer_init_default(&timer_pid, &support,
                                   RCL_MS_TO_NS(TIMER_PID_PERIOD),
                                   timer_pid_callback));
@@ -316,12 +287,12 @@ bool create_entities() {
                                  &allocator));
 
   // add callbacks to executor
-  RCSOFTCHECK(rclc_executor_add_timer(&executor, &timer_pub));
   RCSOFTCHECK(rclc_executor_add_timer(&executor, &timer_pid));
-  RCSOFTCHECK(rclc_executor_add_subscription(
-      &executor, &pid_sub, &msg, &pid_sub_callback, ON_NEW_DATA));
-  RCSOFTCHECK(rclc_executor_add_subscription(
-      &executor, &calibration_sub, &msg, &calibration_sub_callback, ON_NEW_DATA));
+  RCSOFTCHECK(rclc_executor_add_subscription(&executor, &pid_sub, &msg,
+                                             &pid_sub_callback, ON_NEW_DATA));
+  RCSOFTCHECK(rclc_executor_add_subscription(&executor, &calibration_sub, &msg,
+                                             &calibration_sub_callback,
+                                             ON_NEW_DATA));
 
   // wait for first message to arrive from pid_request topic
   pid_request_msg->stop = true;
@@ -334,14 +305,12 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
-  imu_pub.destroy(node);
   dvl_pub.destroy(node);
   depth_pub.destroy(node);
 
   // destroy everything else
   rcl_subscription_fini(&pid_sub, &node);
   rcl_subscription_fini(&calibration_sub, &node);
-  rcl_timer_fini(&timer_pub);
   rcl_timer_fini(&timer_pid);
   rclc_executor_fini(&executor);
   rcl_node_fini(&node);
@@ -387,23 +356,6 @@ void setup() {
   BTSerial.begin(BT_DEBUG_RATE);
 #endif
 
-#ifdef ENABLE_IMU
-  while (!myIMU.begin(0x4A, Wire)) {
-
-#ifdef ENABLE_BT_DEBUG
-    BTSerial.println("ERROR: Could not connect to IMU over I2C");
-#endif
-
-    delay(1000);
-  }
-  if (myIMU.enableRotationVector(IMU_MS) == false) {
-
-#ifdef ENABLE_BT_DEBUG
-    BTSerial.println("ERROR: Could not enable rotation vector reports");
-#endif
-  }
-#endif
-
 #ifdef ENABLE_DVL
   Serial7.begin(DVL_RATE);
 #endif
@@ -436,32 +388,12 @@ void setup() {
   state = WAITING_AGENT;
 }
 
-// read and update the IMU sensor values
-void read_imu() {
+//////////////////////////////////////////////////////////
+// SENSOR VARIABLE UPDATE CODE STARTS HERE
+// - Use the #define statements at the top of this file to
+//   enable and disable each sensor
+//////////////////////////////////////////////////////////
 
-  if (myIMU.wasReset()) {
-
-#ifdef ENABLE_BT_DEBUG
-    BTSerial.println("ALERT: IMU sensor was reset");
-#endif
-    if (myIMU.enableRotationVector(IMU_MS) == false) {
-
-#ifdef ENABLE_BT_DEBUG
-      BTSerial.println("ERROR: Could not enable rotation vector reports");
-#endif
-    }
-  }
-
-  if (myIMU.getSensorEvent() == true) {
-    if (myIMU.getSensorEventID() == SENSOR_REPORTID_ROTATION_VECTOR) {
-      roll = myIMU.getRoll();
-      pitch = myIMU.getPitch();
-      yaw = myIMU.getYaw();
-    }
-  }
-}
-
-// read and update the DVL sensor values
 void read_dvl() {
 
   if (Serial7.available()) {
@@ -529,19 +461,27 @@ void read_dvl() {
 #endif
       }
 
+      // publish the DVL data
+      dvl_pub.publish(wrz, wrp, wru);
       data_string = "";
     }
   }
 }
 
-// read and update the depth sensor values
 void read_depth() {
 
   myDepth.read();
   pressure = myDepth.pressure() - pressure_at_zero_depth;
   depth = myDepth.depth() - depth_error_at_zero_depth;
   temperature = myDepth.temperature();
+
+  // publish the depth data
+  depth_pub.publish(pressure, depth, temperature);
 }
+
+//////////////////////////////////////////////////////////
+// SENSOR VARIABLE UPDATE CODE ENDS HERE
+//////////////////////////////////////////////////////////
 
 void loop() {
 
@@ -551,28 +491,6 @@ void loop() {
   } else {
     digitalWrite(LED_PIN, HIGH);
   }
-
-  //////////////////////////////////////////////////////////
-  // SENSOR VARIABLE UPDATE CODE STARTS HERE
-  // - Use the #define statements at the top of this file to
-  //   enable and disable each sensor
-  //////////////////////////////////////////////////////////
-
-#ifdef ENABLE_IMU
-  EXECUTE_EVERY_N_MS(IMU_MS, read_imu());
-#endif
-
-#ifdef ENABLE_DVL
-  EXECUTE_EVERY_N_MS(DVL_MS, read_dvl());
-#endif
-
-#ifdef ENABLE_DEPTH
-  EXECUTE_EVERY_N_MS(DEPTH_MS, read_depth());
-#endif
-
-  //////////////////////////////////////////////////////////
-  // SENSOR VARIABLE UPDATE CODE ENDS HERE
-  //////////////////////////////////////////////////////////
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
@@ -594,7 +512,22 @@ void loop() {
                                         ? AGENT_CONNECTED
                                         : AGENT_DISCONNECTED;);
     if (state == AGENT_CONNECTED) {
+
+      //////////////////////////////////////////////////////////
+      // EXECUTES WHEN THE AGENT IS CONNECTED
+      //////////////////////////////////////////////////////////
+
+#ifdef ENABLE_DVL
+      EXECUTE_EVERY_N_MS(DVL_MS, read_dvl());
+#endif
+
+#ifdef ENABLE_DEPTH
+      EXECUTE_EVERY_N_MS(DEPTH_MS, read_depth());
+#endif
+
       rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
+
+      //////////////////////////////////////////////////////////
     }
     break;
 

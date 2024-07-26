@@ -7,7 +7,7 @@ void DVLPub::setup(rcl_node_t node) {
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, DVL), "dvl_data"));
 }
 
-void DVLPub::update(String wrz, String wrp, String wru) {
+void DVLPub::publish(String wrz, String wrp, String wru) {
 
   // TODO: This compiles, but is still broken for some reason
   // sprintf(msg.wrz.data, wrz.c_str());
@@ -18,9 +18,6 @@ void DVLPub::update(String wrz, String wrp, String wru) {
 
   // sprintf(msg.wru.data, wru.c_str());
   // msg.wru.size = strlen(msg.wru.data);
-}
-
-void DVLPub::publish() {
 
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
   RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));

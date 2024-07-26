@@ -25,9 +25,8 @@
 class Publisher {
 
 public:
-  // these need to be defined by each publisher
+  // this needs to be defined by each publisher
   virtual void setup(rcl_node_t node) = 0;
-  virtual void publish() = 0;
 
   void destroy(rcl_node_t node) {
     RCCHECK(rcl_publisher_fini(&publisher, &node));

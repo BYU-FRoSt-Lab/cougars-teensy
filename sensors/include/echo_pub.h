@@ -9,8 +9,7 @@ class EchoPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update(float distance, float conf_level);
-  void publish();
+  void publish(float distance, float conf_level);
   using Publisher::destroy;
 
 private:

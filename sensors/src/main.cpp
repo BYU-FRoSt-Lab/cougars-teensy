@@ -25,8 +25,6 @@
 
 // micro-ROS config values
 #define BAUD_RATE 6000000
-#define CALLBACK_TOTAL 1
-#define TIMER_PERIOD 3000
 #define SYNC_TIMEOUT 1000
 
 // hardware pin values
@@ -53,8 +51,6 @@
 rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
-rclc_executor_t executor;
-rcl_timer_t timer_pub;
 
 // publisher objects
 VoltagePub voltage_pub;
@@ -67,18 +63,6 @@ SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
 Ping1D myPing{Serial5};
 SFE_UBLOX_GNSS myGNSS;
 
-// global sensor variables
-float voltage = 0.0;
-float current = 0.0;
-bool leak_detected = false;
-float latitude = 0.0;
-float longitude = 0.0;
-float distance = 0.0;
-float conf_level = 0.0;
-
-// sensor update timer variables
-long lastTime = 0;
-
 // states for state machine in loop function
 enum states {
   WAITING_AGENT,
@@ -86,30 +70,6 @@ enum states {
   AGENT_CONNECTED,
   AGENT_DISCONNECTED
 } static state;
-
-// responds to errors with micro-ROS functions
-void error_loop() {
-  while (1) {
-    delay(100);
-  }
-}
-
-// micro-ROS function that publishes topic data
-void timer_pub_callback(rcl_timer_t *timer, int64_t last_call_time) {
-
-  (void)last_call_time;
-  if (timer != NULL) {
-
-    voltage_pub.update(voltage, current);
-    voltage_pub.publish();
-    leak_pub.update(leak_detected);
-    leak_pub.publish();
-    gps_pub.update(latitude, longitude);
-    gps_pub.publish();
-    echo_pub.update(distance, conf_level);
-    echo_pub.publish();
-  }
-}
 
 bool create_entities() {
 
@@ -132,17 +92,6 @@ bool create_entities() {
   gps_pub.setup(node);
   echo_pub.setup(node);
 
-  // create timer (handles periodic publications)
-  RCCHECK(rclc_timer_init_default(
-      &timer_pub, &support, RCL_MS_TO_NS(TIMER_PERIOD), timer_pub_callback));
-
-  // create executor
-  RCSOFTCHECK(rclc_executor_init(&executor, &support.context, CALLBACK_TOTAL,
-                                 &allocator));
-
-  // add callbacks to executor
-  RCSOFTCHECK(rclc_executor_add_timer(&executor, &timer_pub));
-
   return true;
 }
 
@@ -158,8 +107,6 @@ void destroy_entities() {
   echo_pub.destroy(node);
 
   // destroy everything else
-  rcl_timer_fini(&timer_pub);
-  rclc_executor_fini(&executor);
   rcl_node_fini(&node);
   rclc_support_fini(&support);
 }
@@ -258,33 +205,46 @@ void setup() {
   state = WAITING_AGENT;
 }
 
-// read and update the voltage and current sensor values
+//////////////////////////////////////////////////////////
+// SENSOR VARIABLE UPDATE CODE STARTS HERE
+// - Use the #define statements at the top of this file to
+//   enable and disable each sensor
+//////////////////////////////////////////////////////////
+
 void read_volt() {
 
   // we did some testing to determine the below params, but
   // it's possible they are not completely accurate
-  voltage = (analogRead(VOLT_PIN) * 0.03437) + 0.68;
-  current = (analogRead(CURRENT_PIN) * 0.122) - 11.95;
+  float voltage = (analogRead(VOLT_PIN) * 0.03437) + 0.68;
+  float current = (analogRead(CURRENT_PIN) * 0.122) - 11.95;
+
+  // publish the voltage and current
+  voltage_pub.publish(voltage, current);
 }
 
-// read and update the leak sensor value
-void read_leak() { leak_detected = digitalRead(LEAK_PIN); }
+void read_leak() {
+  
+  // publish the leak boolean
+  leak_pub.publish(digitalRead(LEAK_PIN));
+}
 
-// read and update the GPS sensor values
 void read_gps() {
 
-  latitude = myGNSS.getLatitude();
-  longitude = myGNSS.getLongitude();
+  // publish the GPS data
+  gps_pub.publish(myGNSS.getLatitude(), myGNSS.getLongitude());
 }
 
-// read and update the echo sensor values
 void read_echo() {
 
   if (myPing.update()) {
-    distance = myPing.distance();
-    conf_level = myPing.confidence();
+    // publish the echosounder data
+    echo_pub.publish(myPing.distance(), myPing.confidence());
   }
 }
+
+//////////////////////////////////////////////////////////
+// SENSOR VARIABLE UPDATE CODE ENDS HERE
+//////////////////////////////////////////////////////////
 
 void loop() {
 
@@ -294,32 +254,6 @@ void loop() {
   } else {
     digitalWrite(LED_PIN, HIGH);
   }
-
-  //////////////////////////////////////////////////////////
-  // SENSOR VARIABLE UPDATE CODE STARTS HERE
-  // - Use the #define statements at the top of this file to
-  //   enable and disable each sensor
-  //////////////////////////////////////////////////////////
-
-#ifdef ENABLE_VOLT
-  EXECUTE_EVERY_N_MS(VOLT_MS, read_volt());
-#endif
-
-#ifdef ENABLE_LEAK
-  EXECUTE_EVERY_N_MS(LEAK_MS, read_leak());
-#endif
-
-#ifdef ENABLE_GPS
-  EXECUTE_EVERY_N_MS(GPS_MS, read_gps());
-#endif
-
-#ifdef ENABLE_ECHO
-  EXECUTE_EVERY_N_MS(ECHO_MS, read_echo());
-#endif
-
-  //////////////////////////////////////////////////////////
-  // SENSOR VARIABLE UPDATE CODE ENDS HERE
-  //////////////////////////////////////////////////////////
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
@@ -342,7 +276,28 @@ void loop() {
                                         : AGENT_DISCONNECTED;);
 
     if (state == AGENT_CONNECTED) {
-      rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
+
+      //////////////////////////////////////////////////////////
+      // EXECUTES WHEN THE AGENT IS CONNECTED
+      //////////////////////////////////////////////////////////
+
+#ifdef ENABLE_VOLT
+      EXECUTE_EVERY_N_MS(VOLT_MS, read_volt());
+#endif
+
+#ifdef ENABLE_LEAK
+      EXECUTE_EVERY_N_MS(LEAK_MS, read_leak());
+#endif
+
+#ifdef ENABLE_GPS
+      EXECUTE_EVERY_N_MS(GPS_MS, read_gps());
+#endif
+
+#ifdef ENABLE_ECHO
+      EXECUTE_EVERY_N_MS(ECHO_MS, read_echo());
+#endif
+
+      //////////////////////////////////////////////////////////
     }
     break;
 

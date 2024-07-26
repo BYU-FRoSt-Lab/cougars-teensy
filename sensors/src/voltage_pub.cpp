@@ -7,11 +7,10 @@ void VoltagePub::setup(rcl_node_t node) {
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Volt), "volt_data"));
 }
 
-void VoltagePub::update(float voltage, float current) {
-
+void VoltagePub::publish(float voltage, float current) { 
+  
   msg.voltage = voltage;
   msg.current = current;
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
+  RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL)); 
 }
-
-void VoltagePub::publish() { RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL)); }

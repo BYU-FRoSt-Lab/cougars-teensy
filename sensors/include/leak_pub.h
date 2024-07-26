@@ -9,8 +9,7 @@ class LeakPub : Publisher {
 
 public:
   void setup(rcl_node_t node);
-  void update(bool leak);
-  void publish();
+  void publish(bool leak);
   using Publisher::destroy;
 
 private:
