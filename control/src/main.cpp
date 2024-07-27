@@ -199,6 +199,10 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
       // myThruster.writeMicroseconds(velocity_level);
     } else {
 
+#ifdef ENABLE_BT_DEBUG
+      BTSerial.println("ALERT: Control config values are not calibrated");
+#endif
+
       myServo1.write(DEFAULT_SERVO);
       myServo2.write(DEFAULT_SERVO);
       myServo3.write(DEFAULT_SERVO);
