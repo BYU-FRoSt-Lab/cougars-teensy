@@ -14,7 +14,7 @@ bash upload_control_helper.sh
 
 # Prompt the user for input
 echo "1) CoUGARs Control (control)"
-echo "2) HoloOcean Demo (holocean_demo)"
+echo "2) HoloOcean Demo (demo)"
 echo "3) Custom Hex (firmware_options)"
 read -p "Select an upload source (1, 2, or 3): " choice
 
@@ -26,8 +26,8 @@ case $choice in
         tycmd upload --board $CONTROL_ID firmware.hex
         ;;
     2)
-        # Option 2 (holoocean_demo)
-        cd ~/teensy_ws/holoocean_demo/.pio/build/teensy41
+        # Option 2 (demo)
+        cd ~/teensy_ws/demo/.pio/build/teensy41
         tycmd upload --board $CONTROL_ID firmware.hex
         ;;
     3)
