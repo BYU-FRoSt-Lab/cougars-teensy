@@ -145,7 +145,7 @@ int velocity_bias = 0;
 
 // flags on start
 bool dead_reckoning_reset = false;
-bool calibrated = false;
+bool configured = false;
 
 // states for state machine in loop function
 enum states {
@@ -161,7 +161,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
   (void)last_call_time;
   if (timer != NULL) {
 
-    if (calibrated) {
+    if (configured) {
 
       //////////////////////////////////////////////////////////
       // LOW-LEVEL CONTROLLER CODE STARTS HERE
@@ -181,11 +181,6 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
       velocity_level =
           myVelocityPID.compute(desired_speed_msg->velocity, x_velocity);
 
-#ifdef ENABLE_BT_DEBUG
-        BTSerial.println("ERROR: DVL velocity measurement is invalid");
-#endif
-      }
-
       myServo1.write(heading_pos);
       myServo2.write(depth_pos);
       myServo3.write(depth_pos);
@@ -193,7 +188,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
     } else {
 
 #ifdef ENABLE_BT_DEBUG
-      BTSerial.println("ALERT: Control config values are not calibrated");
+      BTSerial.println("ALERT: Control values are not configured");
 #endif
 
       myServo1.write(DEFAULT_SERVO);
@@ -257,7 +252,7 @@ void config_sub_callback(const void *config_msgin) {
                           velocity_min_output, velocity_max_output,
                           TIMER_PID_PERIOD, velocity_bias);
 
-  calibrated = true;
+  configured = true;
 }
 
 bool create_entities() {
