@@ -26,7 +26,7 @@ case $choice in
         ;;
     2)
         # Option 2 (firmware_options)
-        read -p "Enter the name of the custom hex file in firmware_options (ex. 'sensors.hex'):" hex_file
+        read -p "Enter the name of the file in ~/config/firmware_options (ex. 'sensors.hex'):" hex_file
         cd ~/config/firmware_options
         tycmd upload --board $SENSORS_ID $hex_file
         ;;
