@@ -116,12 +116,10 @@ float x_velocity = 0.0;
 float pressure = 0.0;
 float depth = 0.0;
 
-String valid = "n";
+String data_string = "";
 String wrz = "";
 String wrp = "";
 String wru = "";
-
-String data_string = "";
 
 // pid calibration variables
 float heading_kp = 0.0;
@@ -180,13 +178,8 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
       depth_pos = myDepthPID.compute(desired_depth_msg->desired_depth, depth);
       heading_pos =
           myHeadingPID.compute(desired_heading_msg->desired_heading, yaw);
-
-      // check if our velocity measurement is valid
-      if (valid == "y") {
-        velocity_level =
-            myVelocityPID.compute(desired_speed_msg->velocity, x_velocity);
-      } else {
-        velocity_level = THRUSTER_OFF;
+      velocity_level =
+          myVelocityPID.compute(desired_speed_msg->velocity, x_velocity);
 
 #ifdef ENABLE_BT_DEBUG
         BTSerial.println("ERROR: DVL velocity measurement is invalid");
@@ -475,8 +468,6 @@ void read_dvl() {
             num_fields++;
             if (num_fields == 2) {
               x_velocity = data_string.substring(start_index, i).toFloat();
-            } else if (num_fields == 5) {
-              valid = data_string.substring(start_index, i);
             }
             start_index = i + 1;
           }
