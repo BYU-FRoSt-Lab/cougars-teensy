@@ -99,9 +99,9 @@ Servo myServo3;
 Servo myThruster;
 
 // control objects
-PID_Control myHeadingPID();
-PID_Control myDepthPID();
-PID_Control myVelocityPID();
+PID_Control myHeadingPID;
+PID_Control myDepthPID;
+PID_Control myVelocityPID;
 
 // global actuator variables
 int depth_pos;
@@ -170,7 +170,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
       //////////////////////////////////////////////////////////
 
       // reset the dead reckoning on the dvl as soon as we start moving
-      if (reset_dead_reckoning) {
+      if (dead_reckoning_reset) {
         Serial7.write("wcr\n");
         dead_reckoning_reset = true;
       }
@@ -319,9 +319,6 @@ bool create_entities() {
   RCSOFTCHECK(rclc_executor_add_subscription(&executor, &control_config_sub,
                                              &config_msg, &config_sub_callback,
                                              ON_NEW_DATA));
-
-  // wait for first message to arrive from pid_request topic
-  pid_request_msg->stop = true;
 
   return true;
 }
