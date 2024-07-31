@@ -179,7 +179,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
       heading_pos =
           myHeadingPID.compute(desired_heading_msg->desired_heading, yaw);
       velocity_level =
-          myVelocityPID.compute(desired_speed_msg->velocity, x_velocity);
+          myVelocityPID.compute(desired_speed_msg->desired_speed, x_velocity);
 
       myServo1.write(heading_pos);
       myServo2.write(depth_pos);
