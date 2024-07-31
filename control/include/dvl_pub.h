@@ -2,7 +2,7 @@
 #define DVL_PUB
 
 #include "publisher.h"
-#include <frost_interfaces/msg/dvlstrings.h>
+#include <frost_interfaces/msg/dvl_strings.h>
 #include <std_msgs/msg/string.h>
 
 class DVLPub : Publisher {

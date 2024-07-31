@@ -2,7 +2,7 @@
 #define LEAK_PUB
 
 #include "publisher.h"
-#include <frost_interfaces/msg/leakstatus.h>
+#include <frost_interfaces/msg/leak_status.h>
 #include <std_msgs/msg/bool.h>
 
 class LeakPub : Publisher {

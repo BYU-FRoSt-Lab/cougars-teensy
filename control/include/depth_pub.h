@@ -3,7 +3,7 @@
 
 #include "publisher.h"
 #include <MS5837.h>
-#include <sensor_msgs/msg/fluidpressure.h>
+#include <sensor_msgs/msg/fluid_pressure.h>
 
 class DepthPub : Publisher {
 
