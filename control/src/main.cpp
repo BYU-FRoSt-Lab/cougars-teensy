@@ -227,10 +227,8 @@ void speed_sub_callback(const void *speed_msgin) {
 // micro-ROS function that subscribes to requested calibration values
 void config_sub_callback(const void *config_msgin) {
 
-  frost_interfaces__msg__ControlConfig *config_msg =
+  const frost_interfaces__msg__ControlConfig *config_msg =
       (const frost_interfaces__msg__ControlConfig *)config_msgin;
-
-  config_msg = (frost_interfaces__msg__ControlConfig *)config_msgin;
 
   // calibrate the depth PID controller
   depth_kp = config_msg->depth_kp;
