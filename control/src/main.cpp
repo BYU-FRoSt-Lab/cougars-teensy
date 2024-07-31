@@ -194,7 +194,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
     } else {
 
 #ifdef ENABLE_BT_DEBUG
-      BTSerial.println("ALERT: Control values are not configured");
+      // BTSerial.println("ALERT: Control values are not configured");
 #endif
 
       myServo1.write(DEFAULT_SERVO);
