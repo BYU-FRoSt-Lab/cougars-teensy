@@ -4,7 +4,7 @@
 #include "publisher.h"
 #include <Adafruit_INA260.h>
 #include <Wire.h>
-#include <frost_interfaces/msg/batterystatus.h>
+#include <frost_interfaces/msg/battery_status.h>
 
 class BatteryPub : Publisher {
 
