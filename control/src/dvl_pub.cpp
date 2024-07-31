@@ -10,9 +10,9 @@ void DVLPub::setup(rcl_node_t node) {
 void DVLPub::publish(String wrz, String wrp, String wru) {
 
   // TODO: This compiles, but is still broken for some reason
-  msg.wrz = (char *)wrz;
-  msg.wrp = (char *)wrp;
-  msg.wru = (char *)wru;
+  msg.wrz = wrz.c_str();
+  msg.wrp = wrp.c_str();
+  msg.wru = wru.c_str();
 
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
   RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
