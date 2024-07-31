@@ -155,6 +155,12 @@ enum states {
   AGENT_DISCONNECTED
 } static state;
 
+void error_loop() {
+  while (1) {
+    delay(100);
+  }
+}
+
 // micro-ROS timer function that runs the PID
 void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
 

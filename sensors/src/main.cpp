@@ -71,6 +71,12 @@ enum states {
   AGENT_DISCONNECTED
 } static state;
 
+void error_loop() {
+  while (1) {
+    delay(100);
+  }
+}
+
 bool create_entities() {
 
   // the allocator object wraps the dynamic memory allocation and deallocation
