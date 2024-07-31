@@ -287,18 +287,18 @@ bool create_entities() {
   // create subscribers
   RCCHECK(rclc_subscription_init_default(
       &desired_depth_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, depth_msg, DesiredDepth),
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, DesiredDepth),
       "desired_depth"));
 
   RCCHECK(rclc_subscription_init_default(
       &desired_heading_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, heading_msg,
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg,
                                   DesiredHeading),
       "desired_heading"));
 
   RCCHECK(rclc_subscription_init_default(
       &desired_speed_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, speed_msg, DesiredSpeed),
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, DesiredSpeed),
       "desired_speed"));
 
   RCCHECK(rclc_subscription_init_default(
