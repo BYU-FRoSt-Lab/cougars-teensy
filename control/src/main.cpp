@@ -116,12 +116,10 @@ float x_velocity = 0.0;
 float pressure = 0.0;
 float depth = 0.0;
 
-String valid = "n";
+String data_string = "";
 String wrz = "";
 String wrp = "";
 String wru = "";
-
-String data_string = "";
 
 // pid calibration variables
 float heading_kp = 0.0;
@@ -147,7 +145,7 @@ int velocity_bias = 0;
 
 // flags on start
 bool dead_reckoning_reset = false;
-bool calibrated = false;
+bool configured = false;
 
 // states for state machine in loop function
 enum states {
@@ -163,7 +161,7 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
   (void)last_call_time;
   if (timer != NULL) {
 
-    if (calibrated) {
+    if (configured) {
 
       //////////////////////////////////////////////////////////
       // LOW-LEVEL CONTROLLER CODE STARTS HERE
@@ -180,24 +178,18 @@ void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
       depth_pos = myDepthPID.compute(desired_depth_msg->desired_depth, depth);
       heading_pos =
           myHeadingPID.compute(desired_heading_msg->desired_heading, yaw);
-
-      // check if our velocity measurement is valid
-      if (valid == "y") {
-        velocity_level =
-            myVelocityPID.compute(desired_speed_msg->velocity, x_velocity);
-      } else {
-        velocity_level = THRUSTER_OFF;
-
-#ifdef ENABLE_BT_DEBUG
-        BTSerial.println("ERROR: DVL velocity measurement is invalid");
-#endif
-      }
+      velocity_level =
+          myVelocityPID.compute(desired_speed_msg->velocity, x_velocity);
 
       myServo1.write(heading_pos);
       myServo2.write(depth_pos);
       myServo3.write(depth_pos);
       // myThruster.writeMicroseconds(velocity_level);
     } else {
+
+#ifdef ENABLE_BT_DEBUG
+      BTSerial.println("ALERT: Control values are not configured");
+#endif
 
       myServo1.write(DEFAULT_SERVO);
       myServo2.write(DEFAULT_SERVO);
@@ -260,7 +252,7 @@ void config_sub_callback(const void *config_msgin) {
                           velocity_min_output, velocity_max_output,
                           TIMER_PID_PERIOD, velocity_bias);
 
-  calibrated = true;
+  configured = true;
 }
 
 bool create_entities() {
@@ -471,8 +463,6 @@ void read_dvl() {
             num_fields++;
             if (num_fields == 2) {
               x_velocity = data_string.substring(start_index, i).toFloat();
-            } else if (num_fields == 5) {
-              valid = data_string.substring(start_index, i);
             }
             start_index = i + 1;
           }
