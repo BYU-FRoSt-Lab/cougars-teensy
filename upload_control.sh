@@ -10,7 +10,7 @@ cd ~/teensy_ws/gpio
 python3 program_control.py
 
 cd ~/config
-bash upload_control_helper.sh
+. upload_control_helper.sh
 
 # Prompt the user for input
 echo "1) CoUGARs Control (control)"
