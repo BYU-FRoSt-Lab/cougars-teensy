@@ -5,10 +5,10 @@
 #include <Servo.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
-#include <frost_interfaces/msg/controlconfig.h>
-#include <frost_interfaces/msg/desireddepth.h>
-#include <frost_interfaces/msg/desiredheading.h>
-#include <frost_interfaces/msg/desiredspeed.h>
+#include <frost_interfaces/msg/control_config.h>
+#include <frost_interfaces/msg/desired_depth.h>
+#include <frost_interfaces/msg/desired_heading.h>
+#include <frost_interfaces/msg/desired_speed.h>
 
 #define ENABLE_DVL
 #define ENABLE_DEPTH
