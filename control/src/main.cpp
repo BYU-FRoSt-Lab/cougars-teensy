@@ -227,7 +227,8 @@ void speed_sub_callback(const void *speed_msgin) {
 // micro-ROS function that subscribes to requested calibration values
 void config_sub_callback(const void *config_msgin) {
 
-  frost_interfaces__msg__ControlConfig * config_msg = (const frost_interfaces__msg__ControlConfig *)config_msgin;
+  frost_interfaces__msg__ControlConfig *config_msg =
+      (const frost_interfaces__msg__ControlConfig *)config_msgin;
 
   config_msg = (frost_interfaces__msg__ControlConfig *)config_msgin;
 
@@ -292,8 +293,7 @@ bool create_entities() {
 
   RCCHECK(rclc_subscription_init_default(
       &desired_heading_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg,
-                                  DesiredHeading),
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, DesiredHeading),
       "desired_heading"));
 
   RCCHECK(rclc_subscription_init_default(
@@ -303,7 +303,7 @@ bool create_entities() {
 
   RCCHECK(rclc_subscription_init_default(
       &control_config_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, Calibration),
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, ControlConfig),
       "control_config"));
 
   // create timers (handles periodic publications and PID execution)
