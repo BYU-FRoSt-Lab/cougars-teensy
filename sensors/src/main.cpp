@@ -293,7 +293,7 @@ void loop() {
       //////////////////////////////////////////////////////////
 
 #ifdef ENABLE_BATTERY
-      EXECUTE_EVERY_N_MS(VOLT_MS, read_battery());
+      EXECUTE_EVERY_N_MS(BATTERY_MS, read_battery());
 #endif
 
 #ifdef ENABLE_LEAK
