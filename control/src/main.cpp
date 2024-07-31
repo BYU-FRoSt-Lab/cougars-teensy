@@ -244,18 +244,18 @@ void config_sub_callback(const void *config_msgin) {
   heading_ki = config_msg.heading_ki;
   heading_kd = config_msg.heading_kd;
   heading_min_output = config_msg.heading_min_output;
-  heading_max_output = config_msg,heading_max_output;
-  heading_bias = config_msg,heading_bias;
+  heading_max_output = config_msg.heading_max_output;
+  heading_bias = config_msg.heading_bias;
   myHeadingPID.calibrate(heading_kp, heading_ki, heading_kd, heading_min_output,
                          heading_max_output, TIMER_PID_PERIOD, heading_bias);
 
   // calibrate the velocity PID controller
-  velocity_kp = config_msg,velocity_kp;
-  velocity_ki = config_msg,velocity_ki;
-  velocity_kd = config_msg,velocity_kd;
-  velocity_min_output = config_msg,velocity_min_output;
-  velocity_max_output = config_msg,velocity_max_output;
-  velocity_bias = config_msg,velocity_bias;
+  velocity_kp = config_msg.velocity_kp;
+  velocity_ki = config_msg.velocity_ki;
+  velocity_kd = config_msg.velocity_kd;
+  velocity_min_output = config_msg.velocity_min_output;
+  velocity_max_output = config_msg.velocity_max_output;
+  velocity_bias = config_msg.velocity_bias;
   myVelocityPID.calibrate(velocity_kp, velocity_ki, velocity_kd,
                           velocity_min_output, velocity_max_output,
                           TIMER_PID_PERIOD, velocity_bias);
