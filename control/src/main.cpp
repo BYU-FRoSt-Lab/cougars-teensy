@@ -45,11 +45,6 @@
 #define DEFAULT_SERVO 90
 #define THRUSTER_OFF 1500
 
-// pressure sensor calibration values
-#define AVG_COUNT 10
-#define AVG_DEC 0.1
-#define FLUID_DENSITY 997
-
 // sensor baud rates
 #define BT_DEBUG_RATE 9600
 #define DVL_RATE 115200
