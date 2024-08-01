@@ -10,7 +10,7 @@ cd ~/teensy_ws/gpio
 python3 program_sensors.py
 
 cd ~/config
-. upload_sensors_helper.sh
+source sensors_id.sh
 
 # Prompt the user for input
 echo "1) CoUGARs Sensors (sensors)"

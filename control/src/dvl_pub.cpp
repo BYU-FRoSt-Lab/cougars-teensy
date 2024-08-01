@@ -9,7 +9,6 @@ void DVLPub::setup(rcl_node_t node) {
 
 void DVLPub::publish(String wrz, String wrp, String wru) {
 
-  // TODO: This compiles, but is still broken for some reason
   msg.wrz.data = wrz.c_str();
   msg.wrz.size = wrz.length();
   msg.wrp.data = wrp.c_str();
