@@ -54,6 +54,9 @@
 #define DVL_MS 66    // fastest update speed is 15 Hz
 #define DEPTH_MS 100 // fastest update speed is 10 Hz (?)
 
+// sensor constants
+#define FLUID_DENSITY 997
+
 // micro-ROS objects
 rclc_support_t support;
 rcl_allocator_t allocator;
