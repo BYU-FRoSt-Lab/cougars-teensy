@@ -5,6 +5,7 @@
 #include <Wire.h>
 #include <frost_interfaces/msg/u_command.h>
 
+#define ENABLE_DEPTH
 // #define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
