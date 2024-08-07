@@ -1,3 +1,5 @@
+// TODO: ADD IN DVL SUBSCRIBER IF DVL IS NOT SERIALLY ENABLED
+
 #include "depth_pub.h"
 #include "dvl_pub.h"
 #include "pid_control.h"
@@ -10,7 +12,7 @@
 #include <frost_interfaces/msg/desired_heading.h>
 #include <frost_interfaces/msg/desired_speed.h>
 
-#define ENABLE_DVL
+// #define ENABLE_DVL
 #define ENABLE_DEPTH
 #define ENABLE_BT_DEBUG
 

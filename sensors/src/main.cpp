@@ -7,7 +7,7 @@
 
 #define ENABLE_BATTERY
 #define ENABLE_LEAK
-#define ENABLE_GPS
+// #define ENABLE_GPS
 // #define ENABLE_ECHO
 // #define ENABLE_BT_DEBUG
 
