@@ -121,28 +121,6 @@ String wrz = "";
 String wrp = "";
 String wru = "";
 
-// pid calibration variables
-float heading_kp = 0.0;
-float heading_ki = 0.0;
-float heading_kd = 0.0;
-int heading_min_output = 0;
-int heading_max_output = 0;
-int heading_bias = 0;
-
-float depth_kp = 0.0;
-float depth_ki = 0.0;
-float depth_kd = 0.0;
-int depth_min_output = 0;
-int depth_max_output = 0;
-int depth_bias = 0;
-
-float velocity_kp = 0.0;
-float velocity_ki = 0.0;
-float velocity_kd = 0.0;
-int velocity_min_output = 0;
-int velocity_max_output = 0;
-int velocity_bias = 0;
-
 // flags on start
 bool dead_reckoning_reset = false;
 bool configured = false;
@@ -231,35 +209,21 @@ void config_sub_callback(const void *config_msgin) {
       (const frost_interfaces__msg__ControlConfig *)config_msgin;
 
   // calibrate the depth PID controller
-  depth_kp = config_msg->depth_kp;
-  depth_ki = config_msg->depth_ki;
-  depth_kd = config_msg->depth_kd;
-  depth_min_output = config_msg->depth_min_output;
-  depth_max_output = config_msg->depth_max_output;
-  depth_bias = config_msg->depth_bias;
-  myDepthPID.calibrate(depth_kp, depth_ki, depth_kd, depth_min_output,
-                       depth_max_output, TIMER_PID_PERIOD, depth_bias);
-
+  myDepthPID.calibrate(config_msg->depth_kp, config_msg->depth_ki,
+                       config_msg->depth_kd, config_msg->depth_min_output,
+                       config_msg->depth_max_output, TIMER_PID_PERIOD,
+                       config_msg->depth_bias);
   // calibrate the heading PID controller
-  heading_kp = config_msg->heading_kp;
-  heading_ki = config_msg->heading_ki;
-  heading_kd = config_msg->heading_kd;
-  heading_min_output = config_msg->heading_min_output;
-  heading_max_output = config_msg->heading_max_output;
-  heading_bias = config_msg->heading_bias;
-  myHeadingPID.calibrate(heading_kp, heading_ki, heading_kd, heading_min_output,
-                         heading_max_output, TIMER_PID_PERIOD, heading_bias);
+  myHeadingPID.calibrate(config_msg->heading_kp, config_msg->heading_ki,
+                         config_msg->heading_kd, config_msg->heading_min_output,
+                         config_msg->heading_max_output, TIMER_PID_PERIOD,
+                         config_msg->heading_bias);
 
   // calibrate the velocity PID controller
-  velocity_kp = config_msg->velocity_kp;
-  velocity_ki = config_msg->velocity_ki;
-  velocity_kd = config_msg->velocity_kd;
-  velocity_min_output = config_msg->velocity_min_output;
-  velocity_max_output = config_msg->velocity_max_output;
-  velocity_bias = config_msg->velocity_bias;
-  myVelocityPID.calibrate(velocity_kp, velocity_ki, velocity_kd,
-                          velocity_min_output, velocity_max_output,
-                          TIMER_PID_PERIOD, velocity_bias);
+  myVelocityPID.calibrate(
+      config_msg->velocity_kp, config_msg->velocity_ki, config_msg->velocity_kd,
+      config_msg->velocity_min_output, config_msg->velocity_max_output,
+      TIMER_PID_PERIOD, config_msg->velocity_bias);
 
   configured = true;
 }
