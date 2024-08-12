@@ -109,7 +109,8 @@ void command_sub_callback(const void *command_msgin) {
   myServo1.write(command_msg->fin[0]);
   myServo2.write(command_msg->fin[1]);
   myServo3.write(command_msg->fin[2]);
-  // myThruster.writeMicroseconds(command_msg->thruster); TODO: need to convert from 0-100 to 1000-2000 (?)
+  int converted = map(command_msg->thruster, -100, 100, 1000, 2000);
+  myThruster.writeMicroseconds(converted);
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println(String(command_msg->fin[0]) + " " + String(command_msg->fin[1]) + " " + String(command_msg->fin[2]) + " " + String(command_msg->thruster));
