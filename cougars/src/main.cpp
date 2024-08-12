@@ -1,4 +1,4 @@
-#include "depth_pub.h"
+#include "pressure_pub.h"
 #include "leak_pub.h"
 #include "battery_pub.h"
 
@@ -9,7 +9,7 @@
 
 #define ENABLE_BATTERY
 #define ENABLE_LEAK
-#define ENABLE_DEPTH
+#define ENABLE_PRESSURE
 // #define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
@@ -57,7 +57,7 @@
 // sensor update rates
 #define BATTERY_MS 100
 #define LEAK_MS 100
-#define DEPTH_MS 100 // fastest update speed is 10 Hz (?)
+#define PRESSURE_MS 100 // fastest update speed is 10 Hz (?)
 
 // sensor constants
 #define FLUID_DENSITY 997
@@ -77,11 +77,11 @@ rcl_subscription_t command_sub;
 // publisher objects
 BatteryPub battery_pub;
 LeakPub leak_pub;
-DepthPub depth_pub;
+PressurePub pressure_pub;
 
 // sensor objects
 SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
-MS5837 myDepth;
+MS5837 myPressure;
 
 // actuator objects
 Servo myServo1;
@@ -138,7 +138,7 @@ bool create_entities() {
   // create publishers
   battery_pub.setup(node);
   leak_pub.setup(node);
-  depth_pub.setup(node);
+  pressure_pub.setup(node);
 
   // create subscribers
   RCCHECK(rclc_subscription_init_default(
@@ -165,7 +165,7 @@ void destroy_entities() {
   // destroy publishers
   battery_pub.destroy(node);
   leak_pub.destroy(node);
-  depth_pub.destroy(node);
+  pressure_pub.destroy(node);
 
   // destroy everything else
   rcl_subscription_fini(&command_sub, &node);
@@ -222,8 +222,8 @@ void setup() {
   pinMode(LEAK_PIN, INPUT);
 #endif
 
-#ifdef ENABLE_DEPTH
-  while (!myDepth.init()) {
+#ifdef ENABLE_PRESSURE
+  while (!myPressure.init()) {
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
@@ -231,7 +231,7 @@ void setup() {
 
     delay(1000);
   }
-  myDepth.setFluidDensity(FLUID_DENSITY);
+  myPressure.setFluidDensity(FLUID_DENSITY);
 #endif
 
   //////////////////////////////////////////////////////////
@@ -266,14 +266,13 @@ void read_leak() {
   leak_pub.publish(leak);
 }
 
-void read_depth() {
+void read_pressure() {
 
-  myDepth.read();
-  float pressure = myDepth.pressure();
-  depth = myDepth.depth();
+  myPressure.read();
+  float pressure = myPressure.pressure();
 
-  // publish the depth data
-  depth_pub.publish(pressure);
+  // publish the pressure data
+  pressure_pub.publish(pressure);
 }
 
 //////////////////////////////////////////////////////////
@@ -322,8 +321,8 @@ void loop() {
       EXECUTE_EVERY_N_MS(LEAK_MS, read_leak());
 #endif
 
-#ifdef ENABLE_DEPTH
-      EXECUTE_EVERY_N_MS(DEPTH_MS, read_depth());
+#ifdef ENABLE_PRESSURE
+      EXECUTE_EVERY_N_MS(PRESSURE_MS, read_pressure());
 #endif
 
       rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));

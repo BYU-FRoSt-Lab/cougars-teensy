@@ -1,11 +1,11 @@
-#ifndef DEPTH_PUB
-#define DEPTH_PUB
+#ifndef PRESSURE_PUB
+#define PRESSURE_PUB
 
 #include "publisher.h"
 #include <MS5837.h>
 #include <sensor_msgs/msg/fluid_pressure.h>
 
-class DepthPub : Publisher {
+class PressurePub : Publisher {
 
 public:
   void setup(rcl_node_t node);
@@ -16,4 +16,4 @@ private:
   sensor_msgs__msg__FluidPressure msg;
 };
 
-#endif // DEPTH_PUB
+#endif // PRESSURE_PUB

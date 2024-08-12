@@ -1,11 +1,11 @@
-#include "depth_pub.h"
+#include "pressure_pub.h"
 
 #include <Servo.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <frost_interfaces/msg/u_command.h>
 
-#define ENABLE_DEPTH
+#define ENABLE_PRESSURE
 // #define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
@@ -48,7 +48,7 @@
 #define I2C_RATE 400000
 
 // sensor update rates
-#define DEPTH_MS 100 // fastest update speed is 10 Hz (?)
+#define PRESSURE_MS 100 // fastest update speed is 10 Hz (?)
 
 // sensor constants
 #define FLUID_DENSITY 997
@@ -66,11 +66,11 @@ frost_interfaces__msg__UCommand command_msg;
 rcl_subscription_t command_sub;
 
 // publisher objects
-DepthPub depth_pub;
+PressurePub pressure_pub;
 
 // sensor objects
 SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
-MS5837 myDepth;
+MS5837 myPressure;
 
 // actuator objects
 Servo myServo1;
@@ -125,7 +125,7 @@ bool create_entities() {
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
-  depth_pub.setup(node);
+  pressure_pub.setup(node);
 
   // create subscribers
   RCCHECK(rclc_subscription_init_default(
@@ -150,7 +150,7 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
-  depth_pub.destroy(node);
+  pressure_pub.destroy(node);
 
   // destroy everything else
   rcl_subscription_fini(&command_sub, &node);
@@ -198,8 +198,8 @@ void setup() {
   BTSerial.begin(BT_DEBUG_RATE);
 #endif
 
-#ifdef ENABLE_DEPTH
-  while (!myDepth.init()) {
+#ifdef ENABLE_PRESSURE
+  while (!myPressure.init()) {
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
@@ -207,7 +207,7 @@ void setup() {
 
     delay(1000);
   }
-  myDepth.setFluidDensity(FLUID_DENSITY);
+  myPressure.setFluidDensity(FLUID_DENSITY);
 #endif
 
   //////////////////////////////////////////////////////////
@@ -223,14 +223,13 @@ void setup() {
 //   enable and disable each sensor
 //////////////////////////////////////////////////////////
 
-void read_depth() {
+void read_pressure() {
 
-  myDepth.read();
-  float pressure = myDepth.pressure();
-  depth = myDepth.depth();
+  myPressure.read();
+  float pressure = myPressure.pressure();
 
-  // publish the depth data
-  depth_pub.publish(pressure);
+  // publish the pressure data
+  pressure_pub.publish(pressure);
 }
 
 //////////////////////////////////////////////////////////
@@ -271,8 +270,8 @@ void loop() {
       // EXECUTES WHEN THE AGENT IS CONNECTED
       //////////////////////////////////////////////////////////
 
-#ifdef ENABLE_DEPTH
-      EXECUTE_EVERY_N_MS(DEPTH_MS, read_depth());
+#ifdef ENABLE_PRESSURE
+      EXECUTE_EVERY_N_MS(PRESSURE_MS, read_pressure());
 #endif
 
       rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
