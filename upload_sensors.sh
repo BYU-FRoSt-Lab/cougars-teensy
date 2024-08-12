@@ -10,8 +10,8 @@ cd ~/teensy_ws/gpio
 python3 program_sensors.py
 
 cd ~/config
-source sensors_id.sh
+source teensy_id.sh
 
 cd ~/teensy_ws/sensors/.pio/build/teensy41
-# cd ~/config/firmware_options
+# cd ~/teensy_ws/firmware_options
 tycmd upload --board $SENSORS_ID firmware.hex
