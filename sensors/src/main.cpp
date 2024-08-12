@@ -1,5 +1,4 @@
 #include "echo_pub.h"
-#include "gps_pub.h"
 #include "leak_pub.h"
 #include "battery_pub.h"
 
@@ -7,7 +6,6 @@
 
 #define ENABLE_BATTERY
 #define ENABLE_LEAK
-// #define ENABLE_GPS
 // #define ENABLE_ECHO
 // #define ENABLE_BT_DEBUG
 
@@ -37,14 +35,11 @@
 
 // sensor serial baud rates
 #define BT_DEBUG_RATE 9600
-#define GPS_RATE 38400
-#define GPS_FALLBACK_RATE 9600
 #define ECHO_RATE 115200
 
 // sensor update rates
 #define BATTERY_MS 100
 #define LEAK_MS 100
-#define GPS_MS 1000 // fastest update speed is 1 Hz
 #define ECHO_MS 33  // fastest update speed is 30 Hz (?)
 
 // micro-ROS objects
@@ -55,13 +50,11 @@ rcl_node_t node;
 // publisher objects
 BatteryPub battery_pub;
 LeakPub leak_pub;
-GPSPub gps_pub;
 EchoPub echo_pub;
 
 // sensor objects
 SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
 Ping1D myPing{Serial5};
-SFE_UBLOX_GNSS myGNSS;
 
 // states for state machine in loop function
 enum states {
@@ -95,7 +88,6 @@ bool create_entities() {
   // create publishers
   battery_pub.setup(node);
   leak_pub.setup(node);
-  gps_pub.setup(node);
   echo_pub.setup(node);
 
   return true;
@@ -109,7 +101,6 @@ void destroy_entities() {
   // destroy publishers
   battery_pub.destroy(node);
   leak_pub.destroy(node);
-  gps_pub.destroy(node);
   echo_pub.destroy(node);
 
   // destroy everything else
@@ -142,54 +133,6 @@ void setup() {
 
 #ifdef ENABLE_LEAK
   pinMode(LEAK_PIN, INPUT);
-#endif
-
-#ifdef ENABLE_GPS
-  do {
-
-#ifdef ENABLE_BT_DEBUG
-    BTSerial.println("GNSS: trying higher baud rate");
-#endif
-
-    Serial7.begin(GPS_RATE);
-    if (myGNSS.begin(Serial7) == true) {
-
-#ifdef ENABLE_BT_DEBUG
-      BTSerial.println("Success");
-#endif
-
-      break;
-    }
-
-    delay(100);
-
-#ifdef ENABLE_BT_DEBUG
-    BTSerial.println("GNSS: trying fallback baud rate");
-#endif
-
-    Serial7.begin(GPS_FALLBACK_RATE);
-    if (myGNSS.begin(Serial7) == true) {
-
-#ifdef ENABLE_BT_DEBUG
-      BTSerial.println(
-          "GNSS: connected at fallback baud rate, switching to higher rate");
-#endif
-
-      myGNSS.setSerialRate(GPS_RATE);
-      delay(100);
-    } else {
-      // myGNSS.factoryReset();
-
-#ifdef ENABLE_BT_DEBUG
-      BTSerial.println("ERROR: GPS serial connection not found");
-#endif
-
-      delay(2000);
-    }
-  } while (1);
-  myGNSS.setUART1Output(COM_TYPE_UBX);
-  myGNSS.setI2COutput(COM_TYPE_UBX);
-  myGNSS.saveConfiguration();
 #endif
 
 #ifdef ENABLE_ECHO
@@ -234,15 +177,6 @@ void read_leak() {
   
   // publish the leak data
   leak_pub.publish(leak);
-}
-
-void read_gps() {
-
-  float latitude = myGNSS.getLatitude();
-  float longitude = myGNSS.getLongitude();
-
-  // publish the GPS data
-  gps_pub.publish(latitude, longitude);
 }
 
 void read_echo() {
@@ -298,10 +232,6 @@ void loop() {
 
 #ifdef ENABLE_LEAK
       EXECUTE_EVERY_N_MS(LEAK_MS, read_leak());
-#endif
-
-#ifdef ENABLE_GPS
-      EXECUTE_EVERY_N_MS(GPS_MS, read_gps());
 #endif
 
 #ifdef ENABLE_ECHO
