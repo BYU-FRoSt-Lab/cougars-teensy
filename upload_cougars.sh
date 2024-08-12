@@ -8,10 +8,12 @@
 #   current teensy power states
 ##########################################################
 
-# TODO: Write a new program script for single teensy
-# cd ~/teensy_ws/gpio
-# python3 program_cougars.py
+echo "TODO: This isn't set up yet, use control and sensors"
 
-cd ~/teensy_ws/cougars/.pio/build/teensy41
+# cd ~/teensy_ws/gpio
+# python3 program_control.py
+# NOTE: Use the same pin as control for the single MC board
+
+# cd ~/teensy_ws/cougars/.pio/build/teensy41
 # cd ~/teensy_ws/firmware_options
-tycmd upload firmware.hex
+# tycmd upload firmware.hex
