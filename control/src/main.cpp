@@ -36,7 +36,12 @@
 
 // default actuator positions
 #define DEFAULT_SERVO 90
-#define THRUSTER_OFF 1500
+#define SERVO_OUT_HIGH 2000
+#define SERVO_OUT_LOW 1000
+#define THRUSTER_OUT_HIGH 2000
+#define THRUSTER_OUT_LOW 1000
+#define THRUSTER_IN_HIGH 100
+#define THRUSTER_IN_LOW -100
 
 // sensor baud rates
 #define BT_DEBUG_RATE 9600
@@ -73,19 +78,6 @@ Servo myServo2;
 Servo myServo3;
 Servo myThruster;
 
-// global actuator variables
-int depth_pos;
-int heading_pos;
-int velocity_level;
-
-// global sensor variables
-float roll = 0.0;
-float pitch = 0.0;
-float yaw = 0.0;
-float x_velocity = 0.0;
-float pressure = 0.0;
-float depth = 0.0;
-
 // states for state machine in loop function
 enum states {
   WAITING_AGENT,
@@ -106,10 +98,10 @@ void command_sub_callback(const void *command_msgin) {
   const frost_interfaces__msg__UCommand *command_msg =
       (const frost_interfaces__msg__UCommand *)command_msgin;
   
-  myServo1.write(command_msg->fin[0]);
-  myServo2.write(command_msg->fin[1]);
-  myServo3.write(command_msg->fin[2]);
-  int converted = map(command_msg->thruster, -100, 100, 1000, 2000);
+  myServo1.write(command_msg->fin[0] + DEFAULT_SERVO);
+  myServo2.write(command_msg->fin[1] + DEFAULT_SERVO);
+  myServo3.write(command_msg->fin[2] + DEFAULT_SERVO);
+  int converted = map(command_msg->thruster, THRUSTER_IN_LOW, THRUSTER_IN_HIGH, THRUSTER_OUT_LOW, THRUSTER_OUT_HIGH);
   myThruster.writeMicroseconds(converted);
 
 #ifdef ENABLE_BT_DEBUG
@@ -181,9 +173,9 @@ void setup() {
   pinMode(SERVO_PIN3, OUTPUT);
   pinMode(THRUSTER_PIN, OUTPUT);
 
-  myServo1.attach(SERVO_PIN1);
-  myServo2.attach(SERVO_PIN2);
-  myServo3.attach(SERVO_PIN3);
+  myServo1.attach(SERVO_PIN1, SERVO_OUT_LOW, SERVO_OUT_HIGH);
+  myServo2.attach(SERVO_PIN2, SERVO_OUT_LOW, SERVO_OUT_HIGH);
+  myServo3.attach(SERVO_PIN3, SERVO_OUT_LOW, SERVO_OUT_HIGH);
   myThruster.attach(THRUSTER_PIN);
 
   myServo1.write(DEFAULT_SERVO);
@@ -234,7 +226,7 @@ void setup() {
 void read_depth() {
 
   myDepth.read();
-  pressure = myDepth.pressure();
+  float pressure = myDepth.pressure();
   depth = myDepth.depth();
 
   // publish the depth data
