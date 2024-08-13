@@ -246,6 +246,10 @@ void loop() {
     digitalWrite(LED_PIN, HIGH);
   }
 
+  #ifdef ENABLE_BT_DEBUG
+    BTSerial.println("Running loop");
+  #endif
+
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
   case WAITING_AGENT:
