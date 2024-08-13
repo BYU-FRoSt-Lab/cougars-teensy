@@ -6,7 +6,7 @@
 #include <frost_interfaces/msg/u_command.h>
 
 #define ENABLE_PRESSURE
-// #define ENABLE_BT_DEBUG
+#define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
