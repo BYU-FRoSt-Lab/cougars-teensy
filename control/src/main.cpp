@@ -96,6 +96,10 @@ void error_loop() {
 // micro-ROS function that subscribes to requested command values
 void command_sub_callback(const void *command_msgin) {
 
+  #ifdef ENABLE_BT_DEBUG
+    BTSerial.println("Got message");
+  #endif
+
   const frost_interfaces__msg__UCommand *command_msg =
       (const frost_interfaces__msg__UCommand *)command_msgin;
   
