@@ -1,13 +1,13 @@
-#include "depth_pub.h"
+#include "pressure_pub.h"
 
-void DepthPub::setup(rcl_node_t node) {
+void PressurePub::setup(rcl_node_t node) {
 
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, FluidPressure), "depth_data"));
+      ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, FluidPressure), "pressure_data"));
 }
 
-void DepthPub::publish(float pressure) {
+void PressurePub::publish(float pressure) {
 
   msg.fluid_pressure = pressure;
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();

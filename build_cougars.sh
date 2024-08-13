@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ##########################################################
-# BUILDS DEMO FIRMWARE.HEX FILE
+# BUILDS COUGARS FIRMWARE.HEX FILE
 ##########################################################
 
-cd ~/teensy_ws/demo
+cd ~/teensy_ws/cougars
 pio run

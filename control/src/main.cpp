@@ -1,19 +1,11 @@
-// TODO: ADD IN DVL SUBSCRIBER IF DVL IS NOT SERIALLY ENABLED
-
-#include "depth_pub.h"
-#include "dvl_pub.h"
-#include "pid_control.h"
+#include "pressure_pub.h"
 
 #include <Servo.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
-#include <frost_interfaces/msg/control_config.h>
-#include <frost_interfaces/msg/desired_depth.h>
-#include <frost_interfaces/msg/desired_heading.h>
-#include <frost_interfaces/msg/desired_speed.h>
+#include <frost_interfaces/msg/u_command.h>
 
-// #define ENABLE_DVL
-#define ENABLE_DEPTH
+#define ENABLE_PRESSURE
 #define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
@@ -30,8 +22,7 @@
 
 // micro-ROS config values
 #define BAUD_RATE 6000000
-#define CALLBACK_TOTAL 5
-#define TIMER_PID_PERIOD 10 // 100 Hz
+#define CALLBACK_TOTAL 1
 #define SYNC_TIMEOUT 1000
 
 // hardware pin values
@@ -46,15 +37,19 @@
 // default actuator positions
 #define DEFAULT_SERVO 90
 #define THRUSTER_OFF 1500
+#define SERVO_OUT_HIGH 2000
+#define SERVO_OUT_LOW 1000
+#define THRUSTER_OUT_HIGH 2000
+#define THRUSTER_OUT_LOW 1000
+#define THRUSTER_IN_HIGH 100
+#define THRUSTER_IN_LOW -100
 
 // sensor baud rates
 #define BT_DEBUG_RATE 9600
-#define DVL_RATE 115200
 #define I2C_RATE 400000
 
 // sensor update rates
-#define DVL_MS 66    // fastest update speed is 15 Hz
-#define DEPTH_MS 100 // fastest update speed is 10 Hz (?)
+#define PRESSURE_MS 100 // fastest update speed is 10 Hz (?)
 
 // sensor constants
 #define FLUID_DENSITY 997
@@ -64,66 +59,25 @@ rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
 rclc_executor_t executor;
-rcl_timer_t timer_pid;
 
 // message objects
-frost_interfaces__msg__ControlConfig config_msg;
-frost_interfaces__msg__DesiredDepth depth_msg;
-frost_interfaces__msg__DesiredHeading heading_msg;
-frost_interfaces__msg__DesiredSpeed speed_msg;
-frost_interfaces__msg__DesiredDepth *desired_depth_msg =
-    new frost_interfaces__msg__DesiredDepth;
-frost_interfaces__msg__DesiredHeading *desired_heading_msg =
-    new frost_interfaces__msg__DesiredHeading;
-frost_interfaces__msg__DesiredSpeed *desired_speed_msg =
-    new frost_interfaces__msg__DesiredSpeed;
+frost_interfaces__msg__UCommand command_msg;
 
 // subscriber objects
-rcl_subscription_t desired_depth_sub;
-rcl_subscription_t desired_heading_sub;
-rcl_subscription_t desired_speed_sub;
-rcl_subscription_t control_config_sub;
+rcl_subscription_t command_sub;
 
 // publisher objects
-DVLPub dvl_pub;
-DepthPub depth_pub;
+PressurePub pressure_pub;
 
 // sensor objects
 SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
-MS5837 myDepth;
+MS5837 myPressure;
 
 // actuator objects
 Servo myServo1;
 Servo myServo2;
 Servo myServo3;
 Servo myThruster;
-
-// control objects
-PID_Control myHeadingPID;
-PID_Control myDepthPID;
-PID_Control myVelocityPID;
-
-// global actuator variables
-int depth_pos;
-int heading_pos;
-int velocity_level;
-
-// global sensor variables
-float roll = 0.0;
-float pitch = 0.0;
-float yaw = 0.0;
-float x_velocity = 0.0;
-float pressure = 0.0;
-float depth = 0.0;
-
-String data_string = "";
-String wrz = "";
-String wrp = "";
-String wru = "";
-
-// flags on start
-bool dead_reckoning_reset = false;
-bool configured = false;
 
 // states for state machine in loop function
 enum states {
@@ -139,93 +93,21 @@ void error_loop() {
   }
 }
 
-// micro-ROS timer function that runs the PID
-void timer_pid_callback(rcl_timer_t *timer, int64_t last_call_time) {
+// micro-ROS function that subscribes to requested command values
+void command_sub_callback(const void *command_msgin) {
 
-  (void)last_call_time;
-  if (timer != NULL) {
-
-    if (configured) {
-
-      //////////////////////////////////////////////////////////
-      // LOW-LEVEL CONTROLLER CODE STARTS HERE
-      // - Reference wanted values using the desired_depth_msg,
-      //   desired_heading_msg, and desired_speed_msg objects
-      //////////////////////////////////////////////////////////
-
-      // reset the dead reckoning on the dvl as soon as we start moving
-      if (dead_reckoning_reset) {
-        Serial7.write("wcr\n");
-        dead_reckoning_reset = true;
-      }
-
-      depth_pos = myDepthPID.compute(desired_depth_msg->desired_depth, depth);
-      heading_pos =
-          myHeadingPID.compute(desired_heading_msg->desired_heading, yaw);
-      velocity_level =
-          myVelocityPID.compute(desired_speed_msg->desired_speed, x_velocity);
-
-      myServo1.write(heading_pos);
-      myServo2.write(depth_pos);
-      myServo3.write(depth_pos);
-      // myThruster.writeMicroseconds(velocity_level);
-    } else {
+  const frost_interfaces__msg__UCommand *command_msg =
+      (const frost_interfaces__msg__UCommand *)command_msgin;
+  
+  myServo1.write(command_msg->fin[0] + DEFAULT_SERVO);
+  myServo2.write(command_msg->fin[1] + DEFAULT_SERVO);
+  myServo3.write(command_msg->fin[2] + DEFAULT_SERVO);
+  // int converted = map(command_msg->thruster, THRUSTER_IN_LOW, THRUSTER_IN_HIGH, THRUSTER_OUT_LOW, THRUSTER_OUT_HIGH);
+  // myThruster.writeMicroseconds(converted);
 
 #ifdef ENABLE_BT_DEBUG
-      // BTSerial.println("ALERT: Control values are not configured");
+    BTSerial.println(String(command_msg->fin[0]) + " " + String(command_msg->fin[1]) + " " + String(command_msg->fin[2]) + " " + String(command_msg->thruster));
 #endif
-
-      myServo1.write(DEFAULT_SERVO);
-      myServo2.write(DEFAULT_SERVO);
-      myServo3.write(DEFAULT_SERVO);
-      myThruster.writeMicroseconds(THRUSTER_OFF);
-    }
-
-    //////////////////////////////////////////////////////////
-    // LOW-LEVEL CONTROLLER CODE ENDS HERE
-    //////////////////////////////////////////////////////////
-  }
-}
-
-// micro-ROS function that subscribes to requested depth values
-void depth_sub_callback(const void *depth_msgin) {
-  desired_depth_msg = (frost_interfaces__msg__DesiredDepth *)depth_msgin;
-}
-
-// micro-ROS function that subscribes to requested heading values
-void heading_sub_callback(const void *heading_msgin) {
-  desired_heading_msg = (frost_interfaces__msg__DesiredHeading *)heading_msgin;
-}
-
-// micro-ROS function that subscribes to requested speed values
-void speed_sub_callback(const void *speed_msgin) {
-  desired_speed_msg = (frost_interfaces__msg__DesiredSpeed *)speed_msgin;
-}
-
-// micro-ROS function that subscribes to requested calibration values
-void config_sub_callback(const void *config_msgin) {
-
-  const frost_interfaces__msg__ControlConfig *config_msg =
-      (const frost_interfaces__msg__ControlConfig *)config_msgin;
-
-  // calibrate the depth PID controller
-  myDepthPID.calibrate(config_msg->depth_kp, config_msg->depth_ki,
-                       config_msg->depth_kd, config_msg->depth_min_output,
-                       config_msg->depth_max_output, TIMER_PID_PERIOD,
-                       config_msg->depth_bias);
-  // calibrate the heading PID controller
-  myHeadingPID.calibrate(config_msg->heading_kp, config_msg->heading_ki,
-                         config_msg->heading_kd, config_msg->heading_min_output,
-                         config_msg->heading_max_output, TIMER_PID_PERIOD,
-                         config_msg->heading_bias);
-
-  // calibrate the velocity PID controller
-  myVelocityPID.calibrate(
-      config_msg->velocity_kp, config_msg->velocity_ki, config_msg->velocity_kd,
-      config_msg->velocity_min_output, config_msg->velocity_max_output,
-      TIMER_PID_PERIOD, config_msg->velocity_bias);
-
-  configured = true;
 }
 
 bool create_entities() {
@@ -244,52 +126,21 @@ bool create_entities() {
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
-  dvl_pub.setup(node);
-  depth_pub.setup(node);
+  pressure_pub.setup(node);
 
   // create subscribers
   RCCHECK(rclc_subscription_init_default(
-      &desired_depth_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, DesiredDepth),
-      "desired_depth"));
-
-  RCCHECK(rclc_subscription_init_default(
-      &desired_heading_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, DesiredHeading),
-      "desired_heading"));
-
-  RCCHECK(rclc_subscription_init_default(
-      &desired_speed_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, DesiredSpeed),
-      "desired_speed"));
-
-  RCCHECK(rclc_subscription_init_default(
-      &control_config_sub, &node,
-      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, ControlConfig),
-      "control_config"));
-
-  // create timers (handles periodic publications and PID execution)
-  RCCHECK(rclc_timer_init_default(&timer_pid, &support,
-                                  RCL_MS_TO_NS(TIMER_PID_PERIOD),
-                                  timer_pid_callback));
+      &command_sub, &node,
+      ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, UCommand),
+      "control_command"));
 
   // create executor
   RCSOFTCHECK(rclc_executor_init(&executor, &support.context, CALLBACK_TOTAL,
                                  &allocator));
 
   // add callbacks to executor
-  RCSOFTCHECK(rclc_executor_add_timer(&executor, &timer_pid));
-  RCSOFTCHECK(rclc_executor_add_subscription(&executor, &desired_depth_sub,
-                                             &depth_msg, &depth_sub_callback,
-                                             ON_NEW_DATA));
-  RCSOFTCHECK(rclc_executor_add_subscription(
-      &executor, &desired_heading_sub, &heading_msg, &heading_sub_callback,
-      ON_NEW_DATA));
-  RCSOFTCHECK(rclc_executor_add_subscription(&executor, &desired_speed_sub,
-                                             &speed_msg, &speed_sub_callback,
-                                             ON_NEW_DATA));
-  RCSOFTCHECK(rclc_executor_add_subscription(&executor, &control_config_sub,
-                                             &config_msg, &config_sub_callback,
+  RCSOFTCHECK(rclc_executor_add_subscription(&executor, &command_sub,
+                                             &command_msg, &command_sub_callback,
                                              ON_NEW_DATA));
 
   return true;
@@ -300,15 +151,10 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
-  dvl_pub.destroy(node);
-  depth_pub.destroy(node);
+  pressure_pub.destroy(node);
 
   // destroy everything else
-  rcl_subscription_fini(&desired_depth_sub, &node);
-  rcl_subscription_fini(&desired_heading_sub, &node);
-  rcl_subscription_fini(&desired_speed_sub, &node);
-  rcl_subscription_fini(&control_config_sub, &node);
-  rcl_timer_fini(&timer_pid);
+  rcl_subscription_fini(&command_sub, &node);
   rclc_executor_fini(&executor);
   rcl_node_fini(&node);
   rclc_support_fini(&support);
@@ -328,9 +174,9 @@ void setup() {
   pinMode(SERVO_PIN3, OUTPUT);
   pinMode(THRUSTER_PIN, OUTPUT);
 
-  myServo1.attach(SERVO_PIN1);
-  myServo2.attach(SERVO_PIN2);
-  myServo3.attach(SERVO_PIN3);
+  myServo1.attach(SERVO_PIN1, SERVO_OUT_LOW, SERVO_OUT_HIGH);
+  myServo2.attach(SERVO_PIN2, SERVO_OUT_LOW, SERVO_OUT_HIGH);
+  myServo3.attach(SERVO_PIN3, SERVO_OUT_LOW, SERVO_OUT_HIGH);
   myThruster.attach(THRUSTER_PIN);
 
   myServo1.write(DEFAULT_SERVO);
@@ -353,12 +199,8 @@ void setup() {
   BTSerial.begin(BT_DEBUG_RATE);
 #endif
 
-#ifdef ENABLE_DVL
-  Serial7.begin(DVL_RATE);
-#endif
-
-#ifdef ENABLE_DEPTH
-  while (!myDepth.init()) {
+#ifdef ENABLE_PRESSURE
+  while (!myPressure.init()) {
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
@@ -366,7 +208,7 @@ void setup() {
 
     delay(1000);
   }
-  myDepth.setFluidDensity(FLUID_DENSITY);
+  myPressure.setFluidDensity(FLUID_DENSITY);
 #endif
 
   //////////////////////////////////////////////////////////
@@ -382,86 +224,13 @@ void setup() {
 //   enable and disable each sensor
 //////////////////////////////////////////////////////////
 
-void read_dvl() {
+void read_pressure() {
 
-  if (Serial7.available()) {
-    char incoming_byte = Serial7.read();
-    if (incoming_byte != '\n') {
-      data_string += (char)incoming_byte;
-    } else {
+  myPressure.read();
+  float pressure = myPressure.pressure();
 
-#ifdef ENABLE_BT_DEBUG
-      BTSerial.println("ALERT: Got DVL message");
-#endif
-
-      char identifier = data_string[2];
-
-      // check dead reckoning report
-      if (identifier == 'p') {
-        wrp = data_string;
-
-        // parse the data for roll, pitch, and yaw
-        int num_fields = 0;
-        int start_index = 3;
-        for (uint i = start_index; i < data_string.length(); i++) {
-          if (data_string[i] == ',') {
-            num_fields++;
-            if (num_fields == 7) {
-              roll =
-                  data_string.substring(start_index, i).toFloat(); // in degrees
-            } else if (num_fields == 8) {
-              pitch =
-                  data_string.substring(start_index, i).toFloat(); // in degrees
-            } else if (num_fields == 9) {
-              yaw =
-                  data_string.substring(start_index, i).toFloat(); // in degrees
-            }
-            start_index = i + 1;
-          }
-        }
-
-        // check velocity report
-      } else if (identifier == 'z') {
-        wrz = data_string;
-
-        // parse the data for x velocity
-        int num_fields = 0;
-        int start_index = 3;
-        for (uint i = start_index; i < data_string.length(); i++) {
-          if (data_string[i] == ',') {
-            num_fields++;
-            if (num_fields == 2) {
-              x_velocity = data_string.substring(start_index, i).toFloat();
-            }
-            start_index = i + 1;
-          }
-        }
-
-        // check transducer report
-      } else if (identifier == 'u') {
-        wru = data_string;
-      } else if (identifier == 'a') {
-
-#ifdef ENABLE_BT_DEBUG
-        BTSerial.println("ALERT: DVL Dead Reckoning Reset Successful");
-#endif
-      }
-
-      // publish the DVL data
-      dvl_pub.publish(wrz, wrp, wru);
-      data_string = "";
-    }
-  }
-}
-
-void read_depth() {
-
-  myDepth.read();
-  pressure = myDepth.pressure();
-  depth = myDepth.depth();
-
-  // publish the depth data
-  depth_pub.publish(pressure);
+  // publish the pressure data
+  pressure_pub.publish(pressure);
 }
 
 //////////////////////////////////////////////////////////
@@ -471,7 +240,7 @@ void read_depth() {
 void loop() {
 
   // blink the indicator light
-  if (millis() % 1000 < 500) {
+  if (millis() % 1000 < 250) {
     digitalWrite(LED_PIN, LOW);
   } else {
     digitalWrite(LED_PIN, HIGH);
@@ -502,12 +271,8 @@ void loop() {
       // EXECUTES WHEN THE AGENT IS CONNECTED
       //////////////////////////////////////////////////////////
 
-#ifdef ENABLE_DVL
-      EXECUTE_EVERY_N_MS(DVL_MS, read_dvl());
-#endif
-
-#ifdef ENABLE_DEPTH
-      EXECUTE_EVERY_N_MS(DEPTH_MS, read_depth());
+#ifdef ENABLE_PRESSURE
+      EXECUTE_EVERY_N_MS(PRESSURE_MS, read_pressure());
 #endif
 
       rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));

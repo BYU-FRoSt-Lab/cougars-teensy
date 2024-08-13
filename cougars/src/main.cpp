@@ -1,11 +1,15 @@
-#include "depth_pub.h"
+#include "pressure_pub.h"
+#include "leak_pub.h"
+#include "battery_pub.h"
 
 #include <Servo.h>
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include <frost_interfaces/msg/u_command.h>
 
-#define ENABLE_DEPTH
+#define ENABLE_BATTERY
+#define ENABLE_LEAK
+#define ENABLE_PRESSURE
 // #define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
@@ -32,18 +36,28 @@
 #define SERVO_PIN2 10
 #define SERVO_PIN3 11
 #define THRUSTER_PIN 12
+#define VOLT_PIN 18
+#define CURRENT_PIN 17
+#define LEAK_PIN 16
 #define LED_PIN 13
 
 // default actuator positions
 #define DEFAULT_SERVO 90
-#define THRUSTER_OFF 1500
+#define SERVO_OUT_HIGH 2000
+#define SERVO_OUT_LOW 1000
+#define THRUSTER_OUT_HIGH 2000
+#define THRUSTER_OUT_LOW 1000
+#define THRUSTER_IN_HIGH 100
+#define THRUSTER_IN_LOW -100
 
 // sensor baud rates
 #define BT_DEBUG_RATE 9600
 #define I2C_RATE 400000
 
 // sensor update rates
-#define DEPTH_MS 100 // fastest update speed is 10 Hz (?)
+#define BATTERY_MS 100
+#define LEAK_MS 100
+#define PRESSURE_MS 100 // fastest update speed is 10 Hz (?)
 
 // sensor constants
 #define FLUID_DENSITY 997
@@ -61,30 +75,19 @@ frost_interfaces__msg__UCommand command_msg;
 rcl_subscription_t command_sub;
 
 // publisher objects
-DepthPub depth_pub;
+BatteryPub battery_pub;
+LeakPub leak_pub;
+PressurePub pressure_pub;
 
 // sensor objects
 SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
-MS5837 myDepth;
+MS5837 myPressure;
 
 // actuator objects
 Servo myServo1;
 Servo myServo2;
 Servo myServo3;
 Servo myThruster;
-
-// global actuator variables
-int depth_pos;
-int heading_pos;
-int velocity_level;
-
-// global sensor variables
-float roll = 0.0;
-float pitch = 0.0;
-float yaw = 0.0;
-float x_velocity = 0.0;
-float pressure = 0.0;
-float depth = 0.0;
 
 // states for state machine in loop function
 enum states {
@@ -106,10 +109,11 @@ void command_sub_callback(const void *command_msgin) {
   const frost_interfaces__msg__UCommand *command_msg =
       (const frost_interfaces__msg__UCommand *)command_msgin;
   
-  myServo1.write(command_msg->fin[0]);
-  myServo2.write(command_msg->fin[1]);
-  myServo3.write(command_msg->fin[2]);
-  // myThruster.writeMicroseconds(command_msg->thruster); TODO: need to convert from 0-100 to 1000-2000 (?)
+  myServo1.write(command_msg->fin[0] + DEFAULT_SERVO);
+  myServo2.write(command_msg->fin[1] + DEFAULT_SERVO);
+  myServo3.write(command_msg->fin[2] + DEFAULT_SERVO);
+  int converted = map(command_msg->thruster, THRUSTER_IN_LOW, THRUSTER_IN_HIGH, THRUSTER_OUT_LOW, THRUSTER_OUT_HIGH);
+  myThruster.writeMicroseconds(converted);
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println(String(command_msg->fin[0]) + " " + String(command_msg->fin[1]) + " " + String(command_msg->fin[2]) + " " + String(command_msg->thruster));
@@ -132,7 +136,9 @@ bool create_entities() {
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
   // create publishers
-  depth_pub.setup(node);
+  battery_pub.setup(node);
+  leak_pub.setup(node);
+  pressure_pub.setup(node);
 
   // create subscribers
   RCCHECK(rclc_subscription_init_default(
@@ -157,7 +163,9 @@ void destroy_entities() {
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
   // destroy publishers
-  depth_pub.destroy(node);
+  battery_pub.destroy(node);
+  leak_pub.destroy(node);
+  pressure_pub.destroy(node);
 
   // destroy everything else
   rcl_subscription_fini(&command_sub, &node);
@@ -180,9 +188,9 @@ void setup() {
   pinMode(SERVO_PIN3, OUTPUT);
   pinMode(THRUSTER_PIN, OUTPUT);
 
-  myServo1.attach(SERVO_PIN1);
-  myServo2.attach(SERVO_PIN2);
-  myServo3.attach(SERVO_PIN3);
+  myServo1.attach(SERVO_PIN1, SERVO_OUT_LOW, SERVO_OUT_HIGH);
+  myServo2.attach(SERVO_PIN2, SERVO_OUT_LOW, SERVO_OUT_HIGH);
+  myServo3.attach(SERVO_PIN3, SERVO_OUT_LOW, SERVO_OUT_HIGH);
   myThruster.attach(THRUSTER_PIN);
 
   myServo1.write(DEFAULT_SERVO);
@@ -205,8 +213,17 @@ void setup() {
   BTSerial.begin(BT_DEBUG_RATE);
 #endif
 
-#ifdef ENABLE_DEPTH
-  while (!myDepth.init()) {
+#ifdef ENABLE_BATTERY
+  pinMode(CURRENT_PIN, INPUT);
+  pinMode(VOLT_PIN, INPUT);
+#endif
+
+#ifdef ENABLE_LEAK
+  pinMode(LEAK_PIN, INPUT);
+#endif
+
+#ifdef ENABLE_PRESSURE
+  while (!myPressure.init()) {
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
@@ -214,7 +231,7 @@ void setup() {
 
     delay(1000);
   }
-  myDepth.setFluidDensity(FLUID_DENSITY);
+  myPressure.setFluidDensity(FLUID_DENSITY);
 #endif
 
   //////////////////////////////////////////////////////////
@@ -230,14 +247,32 @@ void setup() {
 //   enable and disable each sensor
 //////////////////////////////////////////////////////////
 
-void read_depth() {
+void read_battery() {
 
-  myDepth.read();
-  pressure = myDepth.pressure();
-  depth = myDepth.depth();
+  // we did some testing to determine the below params, but
+  // it's possible they are not completely accurate
+  float voltage = (analogRead(VOLT_PIN) * 0.03437) + 0.68;
+  float current = (analogRead(CURRENT_PIN) * 0.122) - 11.95;
 
-  // publish the depth data
-  depth_pub.publish(pressure);
+  // publish the battery data
+  battery_pub.publish(voltage, current);
+}
+
+void read_leak() {
+
+  bool leak = digitalRead(LEAK_PIN);
+  
+  // publish the leak data
+  leak_pub.publish(leak);
+}
+
+void read_pressure() {
+
+  myPressure.read();
+  float pressure = myPressure.pressure();
+
+  // publish the pressure data
+  pressure_pub.publish(pressure);
 }
 
 //////////////////////////////////////////////////////////
@@ -278,8 +313,16 @@ void loop() {
       // EXECUTES WHEN THE AGENT IS CONNECTED
       //////////////////////////////////////////////////////////
 
-#ifdef ENABLE_DEPTH
-      EXECUTE_EVERY_N_MS(DEPTH_MS, read_depth());
+#ifdef ENABLE_BATTERY
+      EXECUTE_EVERY_N_MS(BATTERY_MS, read_battery());
+#endif
+
+#ifdef ENABLE_LEAK
+      EXECUTE_EVERY_N_MS(LEAK_MS, read_leak());
+#endif
+
+#ifdef ENABLE_PRESSURE
+      EXECUTE_EVERY_N_MS(PRESSURE_MS, read_pressure());
 #endif
 
       rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
