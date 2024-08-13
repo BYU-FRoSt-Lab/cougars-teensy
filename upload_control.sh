@@ -13,5 +13,4 @@ cd ~/config
 source teensy_id.sh
 
 cd ~/teensy_ws/control/.pio/build/teensy41
-# cd ~/teensy_ws/firmware_options
 tycmd upload --board $CONTROL_ID firmware.hex
