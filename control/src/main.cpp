@@ -96,18 +96,14 @@ void error_loop() {
 // micro-ROS function that subscribes to requested command values
 void command_sub_callback(const void *command_msgin) {
 
-  #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("Got message");
-  #endif
-
   const frost_interfaces__msg__UCommand *command_msg =
       (const frost_interfaces__msg__UCommand *)command_msgin;
   
   myServo1.write(command_msg->fin[0] + DEFAULT_SERVO);
   myServo2.write(command_msg->fin[1] + DEFAULT_SERVO);
   myServo3.write(command_msg->fin[2] + DEFAULT_SERVO);
-  int converted = map(command_msg->thruster, THRUSTER_IN_LOW, THRUSTER_IN_HIGH, THRUSTER_OUT_LOW, THRUSTER_OUT_HIGH);
-  myThruster.writeMicroseconds(converted);
+  // int converted = map(command_msg->thruster, THRUSTER_IN_LOW, THRUSTER_IN_HIGH, THRUSTER_OUT_LOW, THRUSTER_OUT_HIGH);
+  // myThruster.writeMicroseconds(converted);
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println(String(command_msg->fin[0]) + " " + String(command_msg->fin[1]) + " " + String(command_msg->fin[2]) + " " + String(command_msg->thruster));
@@ -249,10 +245,6 @@ void loop() {
   } else {
     digitalWrite(LED_PIN, HIGH);
   }
-
-  #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("Running loop");
-  #endif
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
