@@ -7,7 +7,7 @@
 ##########################################################
 
 cd ~/teensy_ws/gpio
-python3 program_sensors.py
+sudo python3 program_sensors.py
 
 cd ~/config
 source teensy_id.sh

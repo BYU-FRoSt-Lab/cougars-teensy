@@ -7,7 +7,7 @@
 ##########################################################
 
 cd ~/teensy_ws/gpio
-python3 program_control.py
+sudo python3 program_control.py
 
 cd ~/config
 source teensy_id.sh
