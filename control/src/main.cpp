@@ -37,8 +37,8 @@
 // default actuator positions
 #define DEFAULT_SERVO 90
 #define THRUSTER_OFF 1500
-#define SERVO_OUT_HIGH 2000
-#define SERVO_OUT_LOW 1000
+#define SERVO_OUT_HIGH 2500
+#define SERVO_OUT_LOW 500
 #define THRUSTER_OUT_HIGH 2000
 #define THRUSTER_OUT_LOW 1000
 #define THRUSTER_IN_HIGH 100
