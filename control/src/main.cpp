@@ -102,8 +102,8 @@ void command_sub_callback(const void *command_msgin) {
   myServo1.write(-command_msg->fin[0] + DEFAULT_SERVO); // top fin
   myServo2.write(-command_msg->fin[1] + DEFAULT_SERVO); // right fin, from front
   myServo3.write(command_msg->fin[2] + DEFAULT_SERVO); // left fin, from front
-  // int converted = map(command_msg->thruster, THRUSTER_IN_LOW, THRUSTER_IN_HIGH, THRUSTER_OUT_LOW, THRUSTER_OUT_HIGH);
-  // myThruster.writeMicroseconds(converted);
+  int converted = map(command_msg->thruster, THRUSTER_IN_LOW, THRUSTER_IN_HIGH, THRUSTER_OUT_LOW, THRUSTER_OUT_HIGH);
+  myThruster.writeMicroseconds(converted);
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println(String(command_msg->fin[0]) + " " + String(command_msg->fin[1]) + " " + String(command_msg->fin[2]) + " " + String(command_msg->thruster));
