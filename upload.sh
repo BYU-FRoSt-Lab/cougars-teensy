@@ -35,8 +35,10 @@ case $1 in
         tycmd upload --board $CONTROL_ID firmware.hex
         ;;
     *)
+        echo ""
         echo "ALERT: No pio workspace specified, checking firmware_options..."
         echo "Specify a pio workspace using 'bash build.sh <workspace>' or a file in firmware_options using 'bash build.sh <file.hex>'"
+        echo ""
 
         cd ~/teensy_ws/firmware_options
         tycmd upload --board $CONTROL_ID $1

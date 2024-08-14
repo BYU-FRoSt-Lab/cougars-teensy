@@ -19,8 +19,10 @@ case $1 in
         pio run
         ;;
     *)
+        echo ""
         echo "ALERT: No pio workspace specified, building all..."
         echo "Specify a pio workspace using 'bash build.sh <workspace>'"
+        echo ""
 
         cd ~/teensy_ws/control
         pio run
