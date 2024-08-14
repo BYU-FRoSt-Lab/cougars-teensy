@@ -3,7 +3,7 @@
 ##########################################################
 # INITS PINS AND SETS CURRENT POWER STATES TO "ON"
 # - The docker container runs this script on startup!
-#   Be careful editing it
+#   Be careful editing or moving it
 ##########################################################
 
 cd /
