@@ -11,7 +11,7 @@
 echo "TODO: This isn't set up yet, use control and sensors"
 
 # cd ~/teensy_ws/gpio
-# sudo python3 program_control.py
+# python3 program_control.py
 # NOTE: Use the same pin as control for the single MC board
 
 # cd ~/teensy_ws/cougars/.pio/build/teensy41
