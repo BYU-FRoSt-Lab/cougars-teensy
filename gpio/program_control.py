@@ -14,7 +14,7 @@ chip = gpiod.Chip('gpiochip4')
 control_prog_line = chip.get_line(CONTROL_PROGRAM_PIN)
 control_prog_line.request(consumer="CONTROL_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 
-# Set the GPIO pin low then high
+# set the GPIO pin low then high
 control_prog_line.set_value(0)
 time.sleep(2)
 control_prog_line.set_value(1)

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##########################################################
-# UPLOADS HEX FILES TO THE TEENSY'S
+# UPLOADS HEX FILES TO THE RESPECTIVE TEENSY BOARDS
 # - Specify a pio workspace using 'bash build.sh <workspace>'
 #   or a file in firmware_options using 'bash build.sh
 #   <file.hex>'

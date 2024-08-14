@@ -1,6 +1,6 @@
+#include "battery_pub.h"
 #include "echo_pub.h"
 #include "leak_pub.h"
-#include "battery_pub.h"
 
 #include <SoftwareSerial.h>
 
@@ -40,7 +40,7 @@
 // sensor update rates
 #define BATTERY_MS 100
 #define LEAK_MS 100
-#define ECHO_MS 33  // fastest update speed is 30 Hz (?)
+#define ECHO_MS 33 // fastest update speed is 30 Hz (?)
 
 // micro-ROS objects
 rclc_support_t support;
@@ -174,7 +174,7 @@ void read_battery() {
 void read_leak() {
 
   bool leak = digitalRead(LEAK_PIN);
-  
+
   // publish the leak data
   leak_pub.publish(leak);
 }
