@@ -7,6 +7,6 @@
 ##########################################################
 
 cd /
-cd home/frostlab/teensy_ws/gpio
+cd home/frostlab/teensy_ws/gpio_tools
 sudo python3 init_states.py
 cd /
