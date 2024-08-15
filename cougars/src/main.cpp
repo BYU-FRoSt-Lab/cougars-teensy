@@ -10,7 +10,7 @@
 #define ENABLE_BATTERY
 #define ENABLE_LEAK
 #define ENABLE_PRESSURE
-// #define ENABLE_BT_DEBUG
+#define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
@@ -32,9 +32,9 @@
 // hardware pin values
 #define BT_MC_RX 34
 #define BT_MC_TX 35
-#define SERVO_PIN1 9
-#define SERVO_PIN2 10
-#define SERVO_PIN3 11
+#define SERVO_PIN1 9 // top fin
+#define SERVO_PIN2 10 // right fin, from front
+#define SERVO_PIN3 11 // left fin, from front
 #define THRUSTER_PIN 12
 #define VOLT_PIN 18
 #define CURRENT_PIN 17
@@ -43,8 +43,9 @@
 
 // default actuator positions
 #define DEFAULT_SERVO 90
-#define SERVO_OUT_HIGH 2000
-#define SERVO_OUT_LOW 1000
+#define THRUSTER_OFF 1500
+#define SERVO_OUT_HIGH 2500
+#define SERVO_OUT_LOW 500
 #define THRUSTER_OUT_HIGH 2000
 #define THRUSTER_OUT_LOW 1000
 #define THRUSTER_IN_HIGH 100
@@ -55,12 +56,12 @@
 #define I2C_RATE 400000
 
 // sensor update rates
-#define BATTERY_MS 100
-#define LEAK_MS 100
-#define PRESSURE_MS 100 // fastest update speed is 10 Hz (?)
+#define BATTERY_MS 1000
+#define LEAK_MS 1000
+#define PRESSURE_MS 20 // fastest update speed is 50 Hz
 
 // sensor constants
-#define FLUID_DENSITY 997
+#define FLUID_DENSITY 997 // this shouldn't matter, we calculate depth ourselves
 
 // micro-ROS objects
 rclc_support_t support;
@@ -84,9 +85,9 @@ SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
 MS5837 myPressure;
 
 // actuator objects
-Servo myServo1;
-Servo myServo2;
-Servo myServo3;
+Servo myServo1; // top fin
+Servo myServo2; // right fin, from front
+Servo myServo3; // left fin, from front
 Servo myThruster;
 
 // states for state machine in loop function
@@ -109,9 +110,9 @@ void command_sub_callback(const void *command_msgin) {
   const frost_interfaces__msg__UCommand *command_msg =
       (const frost_interfaces__msg__UCommand *)command_msgin;
 
-  myServo1.write(command_msg->fin[0] + DEFAULT_SERVO);
-  myServo2.write(command_msg->fin[1] + DEFAULT_SERVO);
-  myServo3.write(command_msg->fin[2] + DEFAULT_SERVO);
+  myServo1.write(command_msg->fin[0] + DEFAULT_SERVO); // top fin
+  myServo2.write(command_msg->fin[1] + DEFAULT_SERVO); // right fin, from front
+  myServo3.write(command_msg->fin[2] + DEFAULT_SERVO); // left fin, from front
   int converted = map(command_msg->thruster, THRUSTER_IN_LOW, THRUSTER_IN_HIGH,
                       THRUSTER_OUT_LOW, THRUSTER_OUT_HIGH);
   myThruster.writeMicroseconds(converted);
