@@ -28,9 +28,9 @@
 // hardware pin values
 #define BT_MC_RX 34
 #define BT_MC_TX 35
-#define SERVO_PIN1 9
-#define SERVO_PIN2 10
-#define SERVO_PIN3 11
+#define SERVO_PIN1 9 // top fin
+#define SERVO_PIN2 10 // right fin, from front
+#define SERVO_PIN3 11 // left fin, from front
 #define THRUSTER_PIN 12
 #define LED_PIN 13
 
@@ -52,7 +52,7 @@
 #define PRESSURE_MS 100 // fastest update speed is 10 Hz (?)
 
 // sensor constants
-#define FLUID_DENSITY 997
+#define FLUID_DENSITY 997 // this shouldn't matter, we calculate depth ourselves
 
 // micro-ROS objects
 rclc_support_t support;
@@ -74,9 +74,9 @@ SoftwareSerial BTSerial(BT_MC_RX, BT_MC_TX);
 MS5837 myPressure;
 
 // actuator objects
-Servo myServo1;
-Servo myServo2;
-Servo myServo3;
+Servo myServo1; // top fin
+Servo myServo2; // right fin, from front
+Servo myServo3; // left fin, from front
 Servo myThruster;
 
 // states for state machine in loop function
