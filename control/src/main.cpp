@@ -49,7 +49,7 @@
 #define I2C_RATE 400000
 
 // sensor update rates
-#define PRESSURE_MS 100 // fastest update speed is 10 Hz (?)
+#define PRESSURE_MS 20 // fastest update speed is 50 Hz (?)
 
 // sensor constants
 #define FLUID_DENSITY 997 // this shouldn't matter, we calculate depth ourselves
