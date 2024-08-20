@@ -280,8 +280,8 @@ void loop() {
       // EXECUTES WHEN THE AGENT IS CONNECTED
       //////////////////////////////////////////////////////////
 
-      // if the last command was more than 1 second ago, turn off everything
-      if (millis() - last_command_time > 1000) {
+      // if the last command was more than 2 seconds ago, turn off everything
+      if (millis() - last_command_time > 2000) {
         myServo1.write(DEFAULT_SERVO);
         myServo2.write(DEFAULT_SERVO);
         myServo3.write(DEFAULT_SERVO);
