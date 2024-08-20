@@ -11,8 +11,7 @@ case $1 in
         sudo python3 strobe_on.py &
         ;;
     off)
-        cd ~/teensy_ws/gpio_tools
-        sudo python3 strobe_off.py &
+        killall strobe_on.py
         ;;
     *)
         echo ""
@@ -20,7 +19,6 @@ case $1 in
         echo "Specify a power state using 'bash strobe.sh <state>'"
         echo ""
 
-        cd ~/teensy_ws/gpio_tools
-        sudo python3 strobe_off.py &
+        killall strobe_on.py
         ;;
 esac
