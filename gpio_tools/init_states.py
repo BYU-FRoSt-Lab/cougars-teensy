@@ -4,8 +4,8 @@
 #   Be careful editing or moving it
 ##########################################################
 
-import gpiod
 import time
+import gpiod
 
 CONTROL_POWER_PIN = 27
 SENSORS_POWER_PIN = 22
