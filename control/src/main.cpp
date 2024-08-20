@@ -54,6 +54,9 @@
 // sensor constants
 #define FLUID_DENSITY 997 // this shouldn't matter, we calculate depth ourselves
 
+// time of last command (used as a fail safe)
+unsigned long last_command_time = 0;
+
 // micro-ROS objects
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -95,6 +98,9 @@ void error_loop() {
 
 // micro-ROS function that subscribes to requested command values
 void command_sub_callback(const void *command_msgin) {
+
+  // save time of last command
+  last_command_time = millis();
 
   const frost_interfaces__msg__UCommand *command_msg =
       (const frost_interfaces__msg__UCommand *)command_msgin;
@@ -273,6 +279,14 @@ void loop() {
       //////////////////////////////////////////////////////////
       // EXECUTES WHEN THE AGENT IS CONNECTED
       //////////////////////////////////////////////////////////
+
+      // if the last command was more than 1 second ago, turn off everything
+      if (millis() - last_command_time > 1000) {
+        myServo1.write(DEFAULT_SERVO);
+        myServo2.write(DEFAULT_SERVO);
+        myServo3.write(DEFAULT_SERVO);
+        myThruster.writeMicroseconds(THRUSTER_OFF);
+      }
 
 #ifdef ENABLE_PRESSURE
       EXECUTE_EVERY_N_MS(PRESSURE_MS, read_pressure());
