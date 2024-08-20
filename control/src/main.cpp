@@ -28,7 +28,7 @@
 // hardware pin values
 #define BT_MC_RX 34
 #define BT_MC_TX 35
-#define SERVO_PIN1 9 // top fin
+#define SERVO_PIN1 9  // top fin
 #define SERVO_PIN2 10 // right fin, from front
 #define SERVO_PIN3 11 // left fin, from front
 #define THRUSTER_PIN 12
@@ -54,8 +54,8 @@
 // sensor constants
 #define FLUID_DENSITY 997 // this shouldn't matter, we calculate depth ourselves
 
-// time of last command (used as a fail safe)
-unsigned long last_command_time = 0;
+// time of last received command (used as a fail safe)
+unsigned long last_received = 0;
 
 // micro-ROS objects
 rclc_support_t support;
@@ -99,8 +99,7 @@ void error_loop() {
 // micro-ROS function that subscribes to requested command values
 void command_sub_callback(const void *command_msgin) {
 
-  // save time of last command
-  last_command_time = millis();
+  last_received = millis();
 
   const frost_interfaces__msg__UCommand *command_msg =
       (const frost_interfaces__msg__UCommand *)command_msgin;
@@ -255,6 +254,14 @@ void loop() {
     digitalWrite(LED_PIN, HIGH);
   }
 
+  // fail safe for agent disconnect
+  if (millis() - last_received > 2000) {
+    myServo1.write(DEFAULT_SERVO);
+    myServo2.write(DEFAULT_SERVO);
+    myServo3.write(DEFAULT_SERVO);
+    myThruster.writeMicroseconds(THRUSTER_OFF);
+  }
+
   // state machine to manage connecting and disconnecting the micro-ROS agent
   switch (state) {
   case WAITING_AGENT:
@@ -279,14 +286,6 @@ void loop() {
       //////////////////////////////////////////////////////////
       // EXECUTES WHEN THE AGENT IS CONNECTED
       //////////////////////////////////////////////////////////
-
-      // if the last command was more than 2 seconds ago, turn off everything
-      if (millis() - last_command_time > 2000) {
-        myServo1.write(DEFAULT_SERVO);
-        myServo2.write(DEFAULT_SERVO);
-        myServo3.write(DEFAULT_SERVO);
-        myThruster.writeMicroseconds(THRUSTER_OFF);
-      }
 
 #ifdef ENABLE_PRESSURE
       EXECUTE_EVERY_N_MS(PRESSURE_MS, read_pressure());

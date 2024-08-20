@@ -63,6 +63,9 @@
 // sensor constants
 #define FLUID_DENSITY 997 // this shouldn't matter, we calculate depth ourselves
 
+// time of last received command (used as a fail safe)
+unsigned long last_received = 0;
+
 // micro-ROS objects
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -106,6 +109,8 @@ void error_loop() {
 
 // micro-ROS function that subscribes to requested command values
 void command_sub_callback(const void *command_msgin) {
+
+  last_received = millis();
 
   const frost_interfaces__msg__UCommand *command_msg =
       (const frost_interfaces__msg__UCommand *)command_msgin;
@@ -290,6 +295,14 @@ void loop() {
     digitalWrite(LED_PIN, LOW);
   } else {
     digitalWrite(LED_PIN, HIGH);
+  }
+
+  // fail safe for agent disconnect
+  if (millis() - last_received > 2000) {
+    myServo1.write(DEFAULT_SERVO);
+    myServo2.write(DEFAULT_SERVO);
+    myServo3.write(DEFAULT_SERVO);
+    myThruster.writeMicroseconds(THRUSTER_OFF);
   }
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
