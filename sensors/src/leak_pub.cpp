@@ -11,6 +11,7 @@ void LeakPub::setup(rcl_node_t node) {
 void LeakPub::publish(bool leak) {
 
   msg.leak = leak;
+  msg.header.stamp.sec = rmw_uros_epoch_seconds();
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
   RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
 }

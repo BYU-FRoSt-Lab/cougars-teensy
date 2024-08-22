@@ -12,6 +12,7 @@ void BatteryPub::publish(float voltage, float current) {
 
   msg.voltage = voltage;
   msg.current = current;
+  msg.header.stamp.sec = rmw_uros_epoch_seconds();
   msg.header.stamp.nanosec = rmw_uros_epoch_nanos();
   RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
 }
