@@ -11,7 +11,7 @@ case $1 in
         python3 strobe_on.py &
         ;;
     off)
-        killall strobe_on.py
+        killall python3
         ;;
     *)
         echo ""
@@ -19,6 +19,6 @@ case $1 in
         echo "Specify a power state using 'bash strobe.sh <state>'"
         echo ""
 
-        killall strobe_on.py
+        killall python3
         ;;
 esac

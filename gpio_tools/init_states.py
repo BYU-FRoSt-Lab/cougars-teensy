@@ -13,7 +13,7 @@ CONTROL_PROGRAM_PIN = 24
 SENSORS_PROGRAM_PIN = 21
 
 # open the GPIO chip
-chip = gpiod.Chip('gpiochip4')
+chip = gpiod.Chip('/dev/gpiochip4')
 control_power_line = chip.get_line(CONTROL_POWER_PIN)
 sensors_power_line = chip.get_line(SENSORS_POWER_PIN)
 control_prog_line = chip.get_line(CONTROL_PROGRAM_PIN)

@@ -8,7 +8,7 @@ import gpiod
 SENSORS_POWER_PIN = 22
 
 # open the gpio chip and set the control on/off pin as output
-chip = gpiod.Chip('gpiochip4')
+chip = gpiod.Chip('/dev/gpiochip4')
 sensors_power_line = chip.get_line(SENSORS_POWER_PIN)
 sensors_power_line.request(consumer="SENSORS", type=gpiod.LINE_REQ_DIR_OUT)
 

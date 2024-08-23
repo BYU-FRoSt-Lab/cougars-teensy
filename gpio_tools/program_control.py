@@ -10,7 +10,7 @@ import gpiod
 CONTROL_PROGRAM_PIN = 26
 
 # open the gpio chip and set the control program pin as output
-chip = gpiod.Chip('gpiochip4')
+chip = gpiod.Chip('/dev/gpiochip4')
 control_prog_line = chip.get_line(CONTROL_PROGRAM_PIN)
 control_prog_line.request(consumer="CONTROL_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 

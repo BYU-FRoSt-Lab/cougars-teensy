@@ -10,7 +10,7 @@ import gpiod
 SENSORS_PROGRAM_PIN = 23
 
 # open the gpio chip and set the sensors program pin as output
-chip = gpiod.Chip('gpiochip4')
+chip = gpiod.Chip('/dev/gpiochip4')
 sensors_prog_line = chip.get_line(SENSORS_PROGRAM_PIN)
 sensors_prog_line.request(consumer="SENSORS_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 
