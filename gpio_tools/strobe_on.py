@@ -9,7 +9,7 @@ STROBE_PIN = 15
 STROBE_RATE = 1 # seconds
 
 # open the gpio chip and set the control program pin as output
-chip = gpiod.Chip('gpiochip4')
+chip = gpiod.Chip('/dev/gpiochip4')
 strobe_line = chip.get_line(STROBE_PIN)
 strobe_line.request(consumer="STROBE", type=gpiod.LINE_REQ_DIR_OUT)
 
