@@ -15,21 +15,21 @@ source teensy_id.sh
 case $1 in
     control)
         cd ~/teensy_ws/gpio_tools
-        sudo python3 program_control.py
+        python3 program_control.py
 
         cd ~/teensy_ws/control/.pio/build/teensy41
         tycmd upload --board $CONTROL_ID firmware.hex
         ;;
     sensors)
         cd ~/teensy_ws/gpio_tools
-        sudo python3 program_sensors.py
+        python3 program_sensors.py
 
         cd ~/teensy_ws/control/.pio/build/teensy41
         tycmd upload --board $SENSORS_ID firmware.hex
         ;;
     cougars)
         cd ~/teensy_ws/gpio_tools
-        sudo python3 program_control.py
+        python3 program_control.py
 
         cd ~/teensy_ws/cougars/.pio/build/teensy41
         tycmd upload --board $CONTROL_ID firmware.hex
@@ -41,7 +41,7 @@ case $1 in
         echo ""
 
         cd ~/teensy_ws/gpio_tools
-        sudo python3 program_control.py
+        python3 program_control.py
 
         cd ~/teensy_ws/firmware_options
         tycmd upload --board $CONTROL_ID $1

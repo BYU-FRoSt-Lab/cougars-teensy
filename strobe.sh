@@ -8,7 +8,7 @@
 case $1 in
     on)
         cd ~/teensy_ws/gpio_tools
-        sudo python3 strobe_on.py &
+        python3 strobe_on.py &
         ;;
     off)
         killall strobe_on.py

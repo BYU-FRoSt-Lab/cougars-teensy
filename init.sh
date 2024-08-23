@@ -8,5 +8,5 @@
 
 cd /
 cd home/frostlab/teensy_ws/gpio_tools
-sudo python3 init_states.py
+python3 init_states.py
 cd /
