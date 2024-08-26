@@ -144,6 +144,14 @@ bool create_entities() {
   // functions
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
+  #ifdef ENABLE_BT_DEBUG
+  if (!rmw_uros_epoch_synchronized()) {
+    BTSerial.println("ERROR: Could not synchronize timestamps with agent");
+  } else {
+    BTSerial.println("ALERT: Timestamps synchronized with agent");
+  }
+  #endif
+
   // create publishers
   battery_pub.setup(node);
   leak_pub.setup(node);
