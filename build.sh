@@ -2,7 +2,8 @@
 
 ##########################################################
 # BUILDS FIRMWARE.HEX FILES FOR PIO WORKSPACES
-# - Specify a pio workspace using 'bash build.sh <workspace>'
+# - Specify a pio workspace using 'bash build.sh 
+#   <workspace>'
 ##########################################################
 
 case $1 in
