@@ -24,6 +24,8 @@ sensors_power_line.request(consumer="SENSORS_POWER", type=gpiod.LINE_REQ_DIR_OUT
 control_prog_line.request(consumer="CONTROL_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 sensors_prog_line.request(consumer="SENSORS_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 
+print("Initializing GPIO pins...")
+
 # set the GPIO pins high
 control_power_line.set_value(1)
 sensors_power_line.set_value(1)
@@ -34,10 +36,12 @@ sensors_prog_line.set_value(1)
 time.sleep(5)
 control_power_line.set_value(0)
 sensors_power_line.set_value(0)
+print(". . .")
 time.sleep(5)
 control_power_line.set_value(1)
 sensors_power_line.set_value(1)
 
+print("COMPLETE: GPIO pins initialized")
 control_power_line.release()
 sensors_power_line.release()
 control_prog_line.release()
