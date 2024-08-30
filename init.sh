@@ -9,6 +9,6 @@
 # Check if the teensy power states are already set
 if [ -z "$(tycmd list)" ]; then
 
-    cd home/frostlab/teensy_ws/gpio_tools
+    cd /home/frostlab/teensy_ws/gpio_tools
     sudo python3 init_gpio.py
 fi
