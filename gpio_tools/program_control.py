@@ -1,5 +1,5 @@
 ##########################################################
-# TOGGLES THE CONTROL PROGRAM PIN
+# TURNS OFF AND ON THE CONTROL PROGRAM PIN
 # - If control is on, a red light should light up on the
 #   board after running this script
 ##########################################################
