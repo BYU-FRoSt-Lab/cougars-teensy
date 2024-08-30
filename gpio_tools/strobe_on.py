@@ -19,5 +19,6 @@ try:
         strobe_line.set_value(0)
         time.sleep(STROBE_RATE)
 finally:
+    print("COMPLETE: Strobe light is now off")
     strobe_line.set_value(0)
     strobe_line.release()
