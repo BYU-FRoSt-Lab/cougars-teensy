@@ -7,10 +7,7 @@
 import time
 import gpiod
 
-CONTROL_POWER_PIN = 27
-SENSORS_POWER_PIN = 22
-CONTROL_PROGRAM_PIN = 24
-SENSORS_PROGRAM_PIN = 21
+from . import gpio_id
 
 # open the GPIO chip
 chip = gpiod.Chip('/dev/gpiochip4')

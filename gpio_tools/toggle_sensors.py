@@ -1,5 +1,7 @@
 ##########################################################
 # TOGGLES THE SENSORS TEENSY POWER
+# - Probably don't run these scripts unless you know what
+#   you're doing; they mess with the "init.sh" setup
 ##########################################################
 
 import time
