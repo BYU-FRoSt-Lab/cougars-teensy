@@ -7,7 +7,8 @@
 import time
 import gpiod
 
-from . import gpio_id
+# import gpio_id from the same directory
+from gpio_tools.gpio_def import *
 
 # open the GPIO chip
 chip = gpiod.Chip('/dev/gpiochip4')
