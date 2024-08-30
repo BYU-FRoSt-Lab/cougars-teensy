@@ -19,4 +19,3 @@ Different sensors can be enabled/disabled by commenting out the #define statemen
 - **scripts (build.sh, upload.sh, etc)** - automates helpful software tasks on the AUV.
 For example, running "bash msg_update.sh cougars" will remove the microROS library from the cougars workspace and rebuild it using updated message and service declarations from "cougars/extra_packages/frost_interfaces."
 A description of what each script does is included as a header comment in the file.
-A quick note: our custom Docker image runs "init.sh" automatically on startup, and running it manually may mess up the Teensy power states (requiring a reboot).
