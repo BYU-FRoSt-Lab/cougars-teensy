@@ -8,7 +8,6 @@
 
 # Check if the teensy power states are already set
 if [ -z "$(tycmd list)" ]; then
-    echo "ALERT: Teensy power states are already set!"
 
     cd /
     cd home/frostlab/teensy_ws/gpio_tools
