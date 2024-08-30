@@ -11,16 +11,12 @@ from gpio_def import *
 
 # open the GPIO chip
 chip = gpiod.Chip('/dev/gpiochip4')
-control_power_line = chip.get_line(CONTROL_POWER_PIN)
-sensors_power_line = chip.get_line(SENSORS_POWER_PIN)
-control_prog_line = chip.get_line(CONTROL_PROGRAM_PIN)
-sensors_prog_line = chip.get_line(SENSORS_PROGRAM_PIN)
+cougars_power_line = chip.get_line(COUGARS_POWER_PIN)
+cougars_prog_line = chip.get_line(COUGARS_PROGRAM_PIN)
 strobe_line = chip.get_line(STROBE_PIN)
 
-control_power_line.request(consumer="CONTROL_POWER", type=gpiod.LINE_REQ_DIR_OUT)
-sensors_power_line.request(consumer="SENSORS_POWER", type=gpiod.LINE_REQ_DIR_OUT)
-control_prog_line.request(consumer="CONTROL_PROG", type=gpiod.LINE_REQ_DIR_OUT)
-sensors_prog_line.request(consumer="SENSORS_PROG", type=gpiod.LINE_REQ_DIR_OUT)
+cougars_power_line.request(consumer="COUGARS_POWER", type=gpiod.LINE_REQ_DIR_OUT)
+cougars_prog_line.request(consumer="COUGARS_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 strobe_line.request(consumer="STROBE", type=gpiod.LINE_REQ_DIR_OUT)
 
 print("Initializing GPIO pins . . .")
@@ -29,23 +25,17 @@ print("Initializing GPIO pins . . .")
 strobe_line.set_value(0)
 
 # set the Teensy GPIO pins high
-control_power_line.set_value(1)
-sensors_power_line.set_value(1)
-control_prog_line.set_value(1)
-sensors_prog_line.set_value(1)
+cougars_power_line.set_value(1)
+cougars_prog_line.set_value(1)
 
-# turn the Teensy boards on
+# turn the Teensy board on
 time.sleep(5)
-control_power_line.set_value(0)
-sensors_power_line.set_value(0)
+cougars_power_line.set_value(0)
 print(". . .")
 time.sleep(5)
-control_power_line.set_value(1)
-sensors_power_line.set_value(1)
+cougars_power_line.set_value(1)
 
 print("COMPLETE: GPIO pins initialized")
-control_power_line.release()
-sensors_power_line.release()
-control_prog_line.release()
-sensors_prog_line.release()
+cougars_power_line.release()
+cougars_prog_line.release()
 strobe_line.release()

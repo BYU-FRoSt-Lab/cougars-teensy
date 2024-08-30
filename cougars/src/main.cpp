@@ -7,8 +7,8 @@
 #include <Wire.h>
 #include <frost_interfaces/msg/u_command.h>
 
-#define ENABLE_BATTERY
-#define ENABLE_LEAK
+// #define ENABLE_BATTERY
+// #define ENABLE_LEAK
 #define ENABLE_PRESSURE
 #define ENABLE_BT_DEBUG
 
