@@ -7,7 +7,7 @@
 import time
 import gpiod
 
-SENSORS_PROGRAM_PIN = 23
+from gpio_def import *
 
 # open the gpio chip and set the sensors program pin as output
 chip = gpiod.Chip('/dev/gpiochip4')
