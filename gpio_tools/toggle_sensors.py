@@ -7,14 +7,14 @@
 import time
 import gpiod
 
-SENSORS_POWER_PIN = 22
+from gpio_def import *
 
 # open the gpio chip and set the control on/off pin as output
 chip = gpiod.Chip('/dev/gpiochip4')
 sensors_power_line = chip.get_line(SENSORS_POWER_PIN)
 sensors_power_line.request(consumer="SENSORS", type=gpiod.LINE_REQ_DIR_OUT)
 
-print("Turning the Sensors Teensy on/off...")
+print("Turning the Sensors Teensy on/off . . .")
 
 # Set the GPIO pin low and then high
 sensors_power_line.set_value(0)

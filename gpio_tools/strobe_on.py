@@ -5,8 +5,7 @@
 import time
 import gpiod
 
-STROBE_PIN = 15
-STROBE_RATE = 1 # seconds
+from gpio_def import *
 
 # open the gpio chip and set the control program pin as output
 chip = gpiod.Chip('/dev/gpiochip4')

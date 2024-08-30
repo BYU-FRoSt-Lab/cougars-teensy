@@ -7,7 +7,6 @@
 import time
 import gpiod
 
-# import gpio_id from the same directory
 from gpio_def import *
 
 # open the GPIO chip
@@ -22,7 +21,7 @@ sensors_power_line.request(consumer="SENSORS_POWER", type=gpiod.LINE_REQ_DIR_OUT
 control_prog_line.request(consumer="CONTROL_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 sensors_prog_line.request(consumer="SENSORS_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 
-print("Initializing GPIO pins...")
+print("Initializing GPIO pins . . .")
 
 # set the GPIO pins high
 control_power_line.set_value(1)

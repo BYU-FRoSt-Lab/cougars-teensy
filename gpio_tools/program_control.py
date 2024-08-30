@@ -7,14 +7,14 @@
 import time
 import gpiod
 
-CONTROL_PROGRAM_PIN = 26
+from gpio_def import *
 
 # open the gpio chip and set the control program pin as output
 chip = gpiod.Chip('/dev/gpiochip4')
 control_prog_line = chip.get_line(CONTROL_PROGRAM_PIN)
 control_prog_line.request(consumer="CONTROL_PROG", type=gpiod.LINE_REQ_DIR_OUT)
 
-print("Entering program mode on the Control Teensy...")
+print("Entering program mode on the Control Teensy . . .")
 
 # set the GPIO pin low then high
 control_prog_line.set_value(0)

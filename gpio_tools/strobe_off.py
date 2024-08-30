@@ -4,7 +4,7 @@
 
 import gpiod
 
-STROBE_PIN = 15
+from gpio_def import *
 
 # open the gpio chip and set the control program pin as output
 chip = gpiod.Chip('/dev/gpiochip4')
