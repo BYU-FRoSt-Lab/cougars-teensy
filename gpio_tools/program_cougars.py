@@ -1,5 +1,5 @@
 ##########################################################
-# TURNS OFF AND ON THE COUGARS PROGRAM PIN
+# PUTS THE COUGARS TEENSY INTO PROGRAM MODE
 # - If cougars is on, a red light should light up on the
 #   board after running this script
 ##########################################################
