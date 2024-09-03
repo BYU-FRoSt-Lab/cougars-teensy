@@ -5,7 +5,7 @@
 # - Specify a power state using 'bash strobe.sh <state>'
 ##########################################################
 
-cd ~/teensy_ws/gpio_tools
+cd /home/frostlab/teensy_ws/gpio_tools
 
 case $1 in
     on)
