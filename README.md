@@ -1,6 +1,6 @@
 This repo contains microROS dev environments, GPIO hardware controls, and bash scripts used by the BYU FRoSt lab's **Cooperative Underwater Group of Autonomous Robots (CoUGARs)**. 
 If you're doing code development, feel free to clone this repo directly, make a new branch, and start coding and pushing some changes.
-Otherwise (if you're looking to set up a new Coug-UV from scratch), see this repo for instructions on how to get our custom Docker image running instead: https://github.com/snelsondurrant/CougarsSetup
+Otherwise (if you're looking to set up a new Coug-UV from scratch), see this repo for instructions on how to get our custom Docker image running instead: https://github.com/BYU-FRoSt-Lab/CougarsSetup
 
 A quick high-level overview of the repo:
 - **cougars/** - PlatformIO dev environment for the Teensy.
