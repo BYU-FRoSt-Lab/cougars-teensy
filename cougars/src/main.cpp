@@ -306,7 +306,7 @@ void loop() {
   }
 
   // fail safe for agent disconnect
-  if (millis() - last_received > 2000) {
+  if (millis() - last_received > 5000) {
     myServo1.write(DEFAULT_SERVO);
     myServo2.write(DEFAULT_SERVO);
     myServo3.write(DEFAULT_SERVO);
