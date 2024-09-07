@@ -5,23 +5,31 @@
 # - Specify a power state using 'bash strobe.sh <state>'
 ##########################################################
 
-cd /home/frostlab/teensy_ws/gpio_tools
+function printInfo {
+  echo -e "\033[0m\033[36m[INFO] $1\033[0m"
+}
 
+function printWarning {
+  echo -e "\033[0m\033[33m[WARNING] $1\033[0m"
+}
+
+function printError {
+  echo -e "\033[0m\033[31m[ERROR] $1\033[0m"
+}
+
+cd /home/frostlab/teensy_ws/gpio_tools
 case $1 in
-    on)
+    "on")
         sudo python3 strobe_on.py &
         ;;
-    off)
+    "off")
         sudo killall python3
         sudo python3 strobe_off.py
         ;;
     *)
         echo ""
-        echo "ALERT: No power state specified, turning strobe light off..."
-        echo "Specify a power state using 'bash strobe.sh <state>'"
+        printWarning "No power state specified"
+        printWarning "Specify a power state using 'bash strobe.sh <state>'"
         echo ""
-
-        sudo killall python3
-        sudo python3 strobe_off.py
         ;;
 esac
