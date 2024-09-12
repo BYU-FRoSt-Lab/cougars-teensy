@@ -16,15 +16,15 @@ print("Toggling Teensy board power . . .")
 
 # Set the GPIO pin high, low, and then high
 power_line.set_value(1)
-time.sleep(5)
+time.sleep(2)
 power_line.set_value(0)
 
 print(". . .")
-time.sleep(5)
+time.sleep(2)
 power_line.set_value(1)
 
 print(". . .")
-time.sleep(2)
+time.sleep(5)
 print("COMPLETE: Teensy board power toggled")
 
 power_line.release()
