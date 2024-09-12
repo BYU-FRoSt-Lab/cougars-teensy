@@ -3,7 +3,7 @@
 ##########################################################
 # UPLOADS HEX FILES TO THE TEENSY BOARD
 # - Specify a file in firmware_options using 'bash 
-#   build.sh <file.hex>'
+#   upload.sh <file.hex>'
 # - If this fails, check the USB connections and the
 #   current teensy power states
 ##########################################################
