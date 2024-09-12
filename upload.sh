@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##########################################################
-# UPLOADS HEX FILES TO THE RESPECTIVE TEENSY BOARDS
+# UPLOADS HEX FILES TO THE TEENSY BOARD
 # - Specify a file in firmware_options using 'bash 
 #   build.sh <file.hex>'
 # - If this fails, check the USB connections and the
@@ -11,14 +11,14 @@
 case $1 in
     "")
         cd ~/teensy_ws/gpio_tools
-        sudo python3 program_cougars.py
+        sudo python3 program.py
 
         cd ~/teensy_ws/cougars/.pio/build/teensy41
         tycmd upload firmware.hex
         ;;
     *)
         cd ~/teensy_ws/gpio_tools
-        sudo python3 program_cougars.py
+        sudo python3 program.py
 
         cd ~/teensy_ws/firmware_options
         tycmd upload $1
