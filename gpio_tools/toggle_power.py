@@ -18,9 +18,7 @@ print("Toggling Teensy board power . . .")
 power_line.set_value(1)
 time.sleep(2)
 power_line.set_value(0)
-
-print(". . .")
-time.sleep(2)
+time.sleep(5)
 power_line.set_value(1)
 
 print(". . .")
