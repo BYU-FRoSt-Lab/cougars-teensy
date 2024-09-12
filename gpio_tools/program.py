@@ -14,7 +14,7 @@ chip = gpiod.Chip('/dev/gpiochip4')
 prog_line = chip.get_line(PROGRAM_PIN)
 prog_line.request(consumer="PROG", type=gpiod.LINE_REQ_DIR_OUT)
 
-print("Entering program mode on the Teensy . . .")
+print("Entering Teensy board program mode . . .")
 
 # set the GPIO pin low then high
 prog_line.set_value(0)
@@ -24,5 +24,5 @@ prog_line.set_value(1)
 print(". . .")
 time.sleep(5)
 
-print("COMPLETE: Entered program mode on the Teensy")
+print("COMPLETE: Entered Teensy board program mode")
 prog_line.release()
