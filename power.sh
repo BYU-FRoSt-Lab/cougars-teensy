@@ -27,7 +27,7 @@ case $1 in
             sudo python3 toggle_power.py
         else
             echo ""
-            printError "Teensy is already powered on"
+            printInfo "Teensy is already powered on"
             echo ""
         fi
         ;;
@@ -35,7 +35,7 @@ case $1 in
 
         if [ -z "$(tycmd list | grep Teensy)" ]; then
             echo ""
-            printError "Teensy is already powered off"
+            printInfo "Teensy is already powered off"
             echo ""
         else
 
