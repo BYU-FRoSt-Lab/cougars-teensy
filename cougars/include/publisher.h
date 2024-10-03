@@ -7,6 +7,10 @@
 #include <rclc/executor.h>
 #include <rclc/rclc.h>
 
+#define NS_S 1000000000
+#define NS_TO_S(ns) (ns / NS_S)
+#define NS_REMAINDER(ns) (ns % NS_S)
+
 #define RCCHECK(fn)                                                            \
   {                                                                            \
     rcl_ret_t temp_rc = fn;                                                    \
@@ -14,6 +18,7 @@
       error_loop();                                                            \
     }                                                                          \
   }
+
 #define RCSOFTCHECK(fn)                                                        \
   {                                                                            \
     rcl_ret_t temp_rc = fn;                                                    \

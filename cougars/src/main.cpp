@@ -126,7 +126,7 @@ void error_loop() {
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println("[ERROR] In error loop");
-#endif
+#endif // ENABLE_BT_DEBUG
   }
 }
 
@@ -150,20 +150,20 @@ void command_sub_callback(const void *command_msgin) {
   myServo1.write(command_msg->fin[0] + DEFAULT_SERVO); // top fin
   myServo2.write(command_msg->fin[1] + DEFAULT_SERVO); // right fin, from front
   myServo3.write(command_msg->fin[2] + DEFAULT_SERVO); // left fin, from front
-#endif
+#endif                                                 // ENABLE_SERVOS
 
 #ifdef ENABLE_THRUSTER
   int converted = map(command_msg->thruster, THRUSTER_IN_LOW, THRUSTER_IN_HIGH,
                       THRUSTER_OUT_LOW, THRUSTER_OUT_HIGH);
   myThruster.writeMicroseconds(converted);
-#endif
+#endif // ENABLE_THRUSTER
 
 #ifdef ENABLE_BT_DEBUG
   BTSerial.println("[ALERT] Command Received: " + String(command_msg->fin[0]) +
                    " " + String(command_msg->fin[1]) + " " +
                    String(command_msg->fin[2]) + " " +
                    String(command_msg->thruster));
-#endif
+#endif // ENABLE_BT_DEBUG
 }
 
 /**
@@ -196,7 +196,7 @@ bool create_entities() {
   } else {
     BTSerial.println("[ALERT] Timestamps synchronized with agent");
   }
-#endif
+#endif // ENABLE_BT_DEBUG
 
   // create publishers
   battery_pub.setup(node);
@@ -220,7 +220,7 @@ bool create_entities() {
 
 #ifdef ENABLE_BT_DEBUG
   BTSerial.println("[ALERT] Micro-ROS entities created successfully");
-#endif
+#endif // ENABLE_BT_DEBUG
 
   return true;
 }
@@ -244,19 +244,19 @@ void destroy_entities() {
   if (rcl_subscription_fini(&command_sub, &node) != RCL_RET_OK) {
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println("[ERROR] Failed to destroy command_sub");
-#endif
+#endif // ENABLE_BT_DEBUG
   }
   rclc_executor_fini(&executor);
   if (rcl_node_fini(&node) != RCL_RET_OK) {
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println("[ERROR] Failed to destroy node");
-#endif
+#endif // ENABLE_BT_DEBUG
   }
   rclc_support_fini(&support);
 
 #ifdef ENABLE_BT_DEBUG
   BTSerial.println("[ALERT] Micro-ROS entities destroyed successfully");
-#endif
+#endif // ENABLE_BT_DEBUG
 }
 
 /**
@@ -279,7 +279,7 @@ void setup() {
 
 #ifdef ENABLE_BT_DEBUG
   BTSerial.begin(BT_DEBUG_RATE);
-#endif
+#endif // ENABLE_BT DEBUG
 
 #ifdef ENABLE_SERVOS
   pinMode(SERVO_PIN1, OUTPUT);
@@ -296,8 +296,8 @@ void setup() {
 
 #ifdef ENABLE_BT_DEBUG
   BTSerial.println("[ALERT] Servos enabled");
-#endif
-#endif
+#endif // ENABLE_BT_DEBUG
+#endif // ENABLE_SERVOS
 
 #ifdef ENABLE_THRUSTER
   pinMode(THRUSTER_PIN, OUTPUT);
@@ -307,8 +307,8 @@ void setup() {
 
 #ifdef ENABLE_BT_DEBUG
   BTSerial.println("[ALERT] Thruster enabled");
-#endif
-#endif
+#endif // ENABLE_BT_DEBUG
+#endif // ENABLE_THRUSTER
 
 #ifdef ENABLE_BATTERY
   pinMode(CURRENT_PIN, INPUT);
@@ -316,38 +316,38 @@ void setup() {
 
 #ifdef ENABLE_BT_DEBUG
   BTSerial.println("[ALERT] Battery Sensor enabled");
-#endif
-#endif
+#endif // ENABLE_BT_DEBUG
+#endif // ENABLE_BATTERY
 
 #ifdef ENABLE_LEAK
   pinMode(LEAK_PIN, INPUT);
 
 #ifdef ENABLE_BT_DEBUG
   BTSerial.println("[ALERT] Leak Sensor enabled");
-#endif
-#endif
+#endif // ENABLE_BT_DEBUG
+#endif // ENABLE_LEAK
 
 #ifdef ENABLE_PRESSURE
   while (!myPressure.init()) {
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println("[ERROR] Could not connect to Pressure Sensor over I2C");
-#endif
+#endif // ENABLE_BT_DEBUG
 
     delay(1000);
   }
 
 #ifdef ENABLE_BT_DEBUG
   BTSerial.println("[ALERT] Pressure Sensor enabled");
-#endif
-#endif
+#endif // ENABLE_BT_DEBUG
+#endif // ENABLE_PRESSURE
 
   state = WAITING_AGENT;
 }
 
 /**
  * @brief Read the battery sensor data
- * 
+ *
  * This function reads the battery sensor data (voltage and current) and
  * publishes it to the micro-ROS agent.
  */
@@ -364,7 +364,7 @@ void read_battery() {
 
 /**
  * @brief Read the leak sensor data
- * 
+ *
  * This function reads the leak sensor data and publishes it to the micro-ROS
  * agent.
  */
@@ -378,9 +378,9 @@ void read_leak() {
 
 /**
  * @brief Read the pressure sensor data
- * 
- * This function reads the pressure sensor data and publishes it to the micro-ROS
- * agent.
+ *
+ * This function reads the pressure sensor data and publishes it to the
+ * micro-ROS agent.
  */
 void read_pressure() {
 
@@ -414,16 +414,16 @@ void loop() {
     myServo1.write(DEFAULT_SERVO);
     myServo2.write(DEFAULT_SERVO);
     myServo3.write(DEFAULT_SERVO);
-#endif
+#endif // ENABLE_SERVOS
 
 #ifdef ENABLE_THRUSTER
     myThruster.writeMicroseconds(THRUSTER_OFF);
-#endif
+#endif // ENABLE_THRUSTER
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println(
         "[ALERT] No command received in timeout, stopping actuators");
-#endif
+#endif // ENABLE_BT_DEBUG
   }
 
   // state machine to manage connecting and disconnecting the micro-ROS agent
@@ -453,15 +453,15 @@ void loop() {
 
 #ifdef ENABLE_BATTERY
       EXECUTE_EVERY_N_MS(BATTERY_MS, read_battery());
-#endif
+#endif // ENABLE_BATTERY
 
 #ifdef ENABLE_LEAK
       EXECUTE_EVERY_N_MS(LEAK_MS, read_leak());
-#endif
+#endif // ENABLE_LEAK
 
 #ifdef ENABLE_PRESSURE
       EXECUTE_EVERY_N_MS(PRESSURE_MS, read_pressure());
-#endif
+#endif // ENABLE_PRESSURE
 
       rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
 
