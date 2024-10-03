@@ -1,3 +1,21 @@
+/**
+ * @brief Micro-ROS node for the CougUV
+ * @author Nelson Durrant
+ * @date September 2024
+ *
+ * This node is designed to run on the CougUV, a small underwater vehicle
+ * designed by the BYU Field Robotic Systems Lab. The node is
+ * responsible for controlling the vehicle's actuators (fins and thruster),
+ * reading sensor data (battery voltage, current, leak sensor, and pressure
+ * sensor), and communicating with the micro-ROS agent running on a Raspberry
+ * Pi.
+ *
+ * Subscribes:
+ * -
+ * Publishes:
+ * -
+ */
+
 #include "battery_pub.h"
 #include "leak_pub.h"
 #include "pressure_pub.h"
@@ -34,7 +52,7 @@
 // hardware pin values
 #define BT_MC_RX 34
 #define BT_MC_TX 35
-#define SERVO_PIN1 9 // top fin
+#define SERVO_PIN1 9  // top fin
 #define SERVO_PIN2 10 // right fin, from front
 #define SERVO_PIN3 11 // left fin, from front
 #define THRUSTER_PIN 12
@@ -61,8 +79,8 @@
 
 // sensor update rates
 #define BATTERY_MS 1000 // arbitrary
-#define LEAK_MS 1000 // arbitrary
-#define PRESSURE_MS 20 // fastest update speed is 50 Hz
+#define LEAK_MS 1000    // arbitrary
+#define PRESSURE_MS 20  // fastest update speed is 50 Hz
 
 // time of last received command (used as a fail safe)
 unsigned long last_received = 0;
@@ -112,7 +130,15 @@ void error_loop() {
   }
 }
 
-// micro-ROS function that subscribes to requested command values
+/**
+ * @brief Callback function for the control_command subscriber
+ *
+ * This function is called whenever a new control command is received from the
+ * micro-ROS agent. The function updates the actuator positions based on the
+ * received command.
+ *
+ * @param command_msgin The received control command
+ */
 void command_sub_callback(const void *command_msgin) {
 
   last_received = millis();
@@ -133,9 +159,10 @@ void command_sub_callback(const void *command_msgin) {
 #endif
 
 #ifdef ENABLE_BT_DEBUG
-  BTSerial.println("[ALERT] Command Received: " +
-      String(command_msg->fin[0]) + " " + String(command_msg->fin[1]) + " " +
-      String(command_msg->fin[2]) + " " + String(command_msg->thruster));
+  BTSerial.println("[ALERT] Command Received: " + String(command_msg->fin[0]) +
+                   " " + String(command_msg->fin[1]) + " " +
+                   String(command_msg->fin[2]) + " " +
+                   String(command_msg->thruster));
 #endif
 }
 
@@ -154,13 +181,13 @@ bool create_entities() {
   // functions
   RCCHECK(rmw_uros_sync_session(SYNC_TIMEOUT));
 
-  #ifdef ENABLE_BT_DEBUG
+#ifdef ENABLE_BT_DEBUG
   if (!rmw_uros_epoch_synchronized()) {
     BTSerial.println("[ERROR] Could not synchronize timestamps with agent");
   } else {
     BTSerial.println("[ALERT] Timestamps synchronized with agent");
   }
-  #endif
+#endif
 
   // create publishers
   battery_pub.setup(node);
@@ -294,18 +321,8 @@ void setup() {
 #endif
 #endif
 
-  //////////////////////////////////////////////////////////
-  // SENSOR SETUP CODE ENDS HERE
-  //////////////////////////////////////////////////////////
-
   state = WAITING_AGENT;
 }
-
-//////////////////////////////////////////////////////////
-// SENSOR VARIABLE UPDATE CODE STARTS HERE
-// - Use the #define statements at the top of this file to
-//   enable and disable each sensor
-//////////////////////////////////////////////////////////
 
 void read_battery() {
 
@@ -335,10 +352,6 @@ void read_pressure() {
   pressure_pub.publish(pressure);
 }
 
-//////////////////////////////////////////////////////////
-// SENSOR VARIABLE UPDATE CODE ENDS HERE
-//////////////////////////////////////////////////////////
-
 void loop() {
 
   // blink the indicator light
@@ -362,7 +375,8 @@ void loop() {
 #endif
 
 #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("[ALERT] No command received in timeout, stopping actuators");
+    BTSerial.println(
+        "[ALERT] No command received in timeout, stopping actuators");
 #endif
   }
 
