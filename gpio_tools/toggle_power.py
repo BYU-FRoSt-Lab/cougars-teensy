@@ -1,5 +1,5 @@
 ##########################################################
-# TOGGLES THE TEENSY POWER
+# TOGGLES THE TEENSY BOARD POWER
 ##########################################################
 
 import time
@@ -12,15 +12,17 @@ chip = gpiod.Chip('/dev/gpiochip4')
 power_line = chip.get_line(POWER_PIN)
 power_line.request(consumer="POWER", type=gpiod.LINE_REQ_DIR_OUT)
 
-print("Turning the Teensy on/off . . .")
+print("Toggling Teensy board power . . .")
 
-# Set the GPIO pin low and then high
+# Set the GPIO pin high, low, and then high
+power_line.set_value(1)
+time.sleep(2)
 power_line.set_value(0)
 time.sleep(5)
 power_line.set_value(1)
 
 print(". . .")
 time.sleep(5)
-print("COMPLETE: Teensy is now on/off")
+print("COMPLETE: Teensy board power toggled")
 
 power_line.release()
