@@ -4,7 +4,7 @@
  * @date September 2024
  *
  * This node is designed to run on the CougUV, a small underwater vehicle
- * designed by the BYU Field Robotic Systems Lab. The node is
+ * designed for multi-agent applications by the BYU FRoSt lab. The node is
  * responsible for controlling the vehicle's actuators (fins and thruster),
  * reading sensor data (battery voltage, current, leak sensor, and pressure
  * sensor), and communicating with the micro-ROS agent running on a Raspberry
@@ -166,6 +166,15 @@ void command_sub_callback(const void *command_msgin) {
 #endif
 }
 
+/**
+ * @brief Create micro-ROS entities
+ *
+ * This function initializes the micro-ROS entities (node, publishers,
+ * subscribers, and executor) and synchronizes the timestamps with the Raspberry
+ * Pi.
+ *
+ * @return true if the entities were created successfully, false otherwise
+ */
 bool create_entities() {
 
   // the allocator object wraps the dynamic memory allocation and deallocation
@@ -216,6 +225,12 @@ bool create_entities() {
   return true;
 }
 
+/**
+ * @brief Destroy micro-ROS entities
+ *
+ * This function destroys the micro-ROS entities (node, publishers, subscribers,
+ * and executor) and sets the context entity destroy session timeout to 0.
+ */
 void destroy_entities() {
   rmw_context_t *rmw_context = rcl_context_get_rmw_context(&support.context);
   (void)rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
@@ -244,6 +259,12 @@ void destroy_entities() {
 #endif
 }
 
+/**
+ * @brief Set up the micro-ROS serial transports
+ *
+ * This function sets up the micro-ROS serial transports for communication with
+ * the Raspberry Pi.
+ */
 void setup() {
 
   Serial.begin(BAUD_RATE);
@@ -324,6 +345,12 @@ void setup() {
   state = WAITING_AGENT;
 }
 
+/**
+ * @brief Read the battery sensor data
+ * 
+ * This function reads the battery sensor data (voltage and current) and
+ * publishes it to the micro-ROS agent.
+ */
 void read_battery() {
 
   // we did some testing to determine the below params, but
@@ -335,6 +362,12 @@ void read_battery() {
   battery_pub.publish(voltage, current);
 }
 
+/**
+ * @brief Read the leak sensor data
+ * 
+ * This function reads the leak sensor data and publishes it to the micro-ROS
+ * agent.
+ */
 void read_leak() {
 
   bool leak = digitalRead(LEAK_PIN);
@@ -343,6 +376,12 @@ void read_leak() {
   leak_pub.publish(leak);
 }
 
+/**
+ * @brief Read the pressure sensor data
+ * 
+ * This function reads the pressure sensor data and publishes it to the micro-ROS
+ * agent.
+ */
 void read_pressure() {
 
   myPressure.read();
@@ -352,6 +391,13 @@ void read_pressure() {
   pressure_pub.publish(pressure);
 }
 
+/**
+ * @brief Main loop function
+ *
+ * This function is the main loop for the micro-ROS node. It manages the
+ * connection and disconnection of the micro-ROS agent, actuator positions,
+ * and sensor data collection.
+ */
 void loop() {
 
   // blink the indicator light
