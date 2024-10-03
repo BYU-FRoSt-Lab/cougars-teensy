@@ -7,6 +7,8 @@
 #include <Wire.h>
 #include <frost_interfaces/msg/u_command.h>
 
+#define ENABLE_SERVOS
+#define ENABLE_THRUSTER
 // #define ENABLE_BATTERY
 // #define ENABLE_LEAK
 #define ENABLE_PRESSURE
@@ -44,6 +46,8 @@
 // default actuator positions
 #define DEFAULT_SERVO 90
 #define THRUSTER_OFF 1500
+
+// actuator conversion values
 #define SERVO_OUT_HIGH 2500
 #define SERVO_OUT_LOW 500
 #define THRUSTER_OUT_HIGH 2000
@@ -56,12 +60,9 @@
 #define I2C_RATE 400000
 
 // sensor update rates
-#define BATTERY_MS 1000
-#define LEAK_MS 1000
+#define BATTERY_MS 1000 // arbitrary
+#define LEAK_MS 1000 // arbitrary
 #define PRESSURE_MS 20 // fastest update speed is 50 Hz
-
-// sensor constants
-#define FLUID_DENSITY 997 // this shouldn't matter, we calculate depth ourselves
 
 // time of last received command (used as a fail safe)
 unsigned long last_received = 0;
@@ -104,6 +105,10 @@ enum states {
 void error_loop() {
   while (1) {
     delay(100);
+
+#ifdef ENABLE_BT_DEBUG
+    BTSerial.println("[ERROR] In error loop");
+#endif
   }
 }
 
@@ -115,15 +120,20 @@ void command_sub_callback(const void *command_msgin) {
   const frost_interfaces__msg__UCommand *command_msg =
       (const frost_interfaces__msg__UCommand *)command_msgin;
 
+#ifdef ENABLE_SERVOS
   myServo1.write(command_msg->fin[0] + DEFAULT_SERVO); // top fin
   myServo2.write(command_msg->fin[1] + DEFAULT_SERVO); // right fin, from front
   myServo3.write(command_msg->fin[2] + DEFAULT_SERVO); // left fin, from front
+#endif
+
+#ifdef ENABLE_THRUSTER
   int converted = map(command_msg->thruster, THRUSTER_IN_LOW, THRUSTER_IN_HIGH,
                       THRUSTER_OUT_LOW, THRUSTER_OUT_HIGH);
   myThruster.writeMicroseconds(converted);
+#endif
 
 #ifdef ENABLE_BT_DEBUG
-  BTSerial.println(
+  BTSerial.println("[ALERT] Command Received: " +
       String(command_msg->fin[0]) + " " + String(command_msg->fin[1]) + " " +
       String(command_msg->fin[2]) + " " + String(command_msg->thruster));
 #endif
@@ -146,9 +156,9 @@ bool create_entities() {
 
   #ifdef ENABLE_BT_DEBUG
   if (!rmw_uros_epoch_synchronized()) {
-    BTSerial.println("ERROR: Could not synchronize timestamps with agent");
+    BTSerial.println("[ERROR] Could not synchronize timestamps with agent");
   } else {
-    BTSerial.println("ALERT: Timestamps synchronized with agent");
+    BTSerial.println("[ALERT] Timestamps synchronized with agent");
   }
   #endif
 
@@ -172,6 +182,10 @@ bool create_entities() {
       rclc_executor_add_subscription(&executor, &command_sub, &command_msg,
                                      &command_sub_callback, ON_NEW_DATA));
 
+#ifdef ENABLE_BT_DEBUG
+  BTSerial.println("[ALERT] Micro-ROS entities created successfully");
+#endif
+
   return true;
 }
 
@@ -185,10 +199,22 @@ void destroy_entities() {
   pressure_pub.destroy(node);
 
   // destroy everything else
-  rcl_subscription_fini(&command_sub, &node);
+  if (rcl_subscription_fini(&command_sub, &node) != RCL_RET_OK) {
+#ifdef ENABLE_BT_DEBUG
+    BTSerial.println("[ERROR] Failed to destroy command_sub");
+#endif
+  }
   rclc_executor_fini(&executor);
-  rcl_node_fini(&node);
+  if (rcl_node_fini(&node) != RCL_RET_OK) {
+#ifdef ENABLE_BT_DEBUG
+    BTSerial.println("[ERROR] Failed to destroy node");
+#endif
+  }
   rclc_support_fini(&support);
+
+#ifdef ENABLE_BT_DEBUG
+  BTSerial.println("[ALERT] Micro-ROS entities destroyed successfully");
+#endif
 }
 
 void setup() {
@@ -199,56 +225,73 @@ void setup() {
   // set up the indicator light
   pinMode(LED_PIN, OUTPUT);
 
-  // set up the servo and thruster pins
-  pinMode(SERVO_PIN1, OUTPUT);
-  pinMode(SERVO_PIN2, OUTPUT);
-  pinMode(SERVO_PIN3, OUTPUT);
-  pinMode(THRUSTER_PIN, OUTPUT);
-
-  myServo1.attach(SERVO_PIN1, SERVO_OUT_LOW, SERVO_OUT_HIGH);
-  myServo2.attach(SERVO_PIN2, SERVO_OUT_LOW, SERVO_OUT_HIGH);
-  myServo3.attach(SERVO_PIN3, SERVO_OUT_LOW, SERVO_OUT_HIGH);
-  myThruster.attach(THRUSTER_PIN);
-
-  myServo1.write(DEFAULT_SERVO);
-  myServo2.write(DEFAULT_SERVO);
-  myServo3.write(DEFAULT_SERVO);
-  myThruster.writeMicroseconds(THRUSTER_OFF);
-  delay(7000);
-
   // set up the I2C
   Wire.begin();
   Wire.setClock(I2C_RATE);
-
-  //////////////////////////////////////////////////////////
-  // SENSOR SETUP CODE STARTS HERE
-  // - Use the #define statements at the top of this file to
-  //   enable and disable each sensor
-  //////////////////////////////////////////////////////////
 
 #ifdef ENABLE_BT_DEBUG
   BTSerial.begin(BT_DEBUG_RATE);
 #endif
 
+#ifdef ENABLE_SERVOS
+  pinMode(SERVO_PIN1, OUTPUT);
+  pinMode(SERVO_PIN2, OUTPUT);
+  pinMode(SERVO_PIN3, OUTPUT);
+
+  myServo1.attach(SERVO_PIN1, SERVO_OUT_LOW, SERVO_OUT_HIGH);
+  myServo2.attach(SERVO_PIN2, SERVO_OUT_LOW, SERVO_OUT_HIGH);
+  myServo3.attach(SERVO_PIN3, SERVO_OUT_LOW, SERVO_OUT_HIGH);
+
+  myServo1.write(DEFAULT_SERVO);
+  myServo2.write(DEFAULT_SERVO);
+  myServo3.write(DEFAULT_SERVO);
+
+#ifdef ENABLE_BT_DEBUG
+  BTSerial.println("[ALERT] Servos enabled");
+#endif
+#endif
+
+#ifdef ENABLE_THRUSTER
+  pinMode(THRUSTER_PIN, OUTPUT);
+  myThruster.attach(THRUSTER_PIN);
+  myThruster.writeMicroseconds(THRUSTER_OFF);
+  delay(7000);
+
+#ifdef ENABLE_BT_DEBUG
+  BTSerial.println("[ALERT] Thruster enabled");
+#endif
+#endif
+
 #ifdef ENABLE_BATTERY
   pinMode(CURRENT_PIN, INPUT);
   pinMode(VOLT_PIN, INPUT);
+
+#ifdef ENABLE_BT_DEBUG
+  BTSerial.println("[ALERT] Battery Sensor enabled");
+#endif
 #endif
 
 #ifdef ENABLE_LEAK
   pinMode(LEAK_PIN, INPUT);
+
+#ifdef ENABLE_BT_DEBUG
+  BTSerial.println("[ALERT] Leak Sensor enabled");
+#endif
 #endif
 
 #ifdef ENABLE_PRESSURE
   while (!myPressure.init()) {
 
 #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("ERROR: Could not connect to Pressure Sensor over I2C");
+    BTSerial.println("[ERROR] Could not connect to Pressure Sensor over I2C");
 #endif
 
     delay(1000);
   }
-  myPressure.setFluidDensity(FLUID_DENSITY);
+
+#ifdef ENABLE_BT_DEBUG
+  BTSerial.println("[ALERT] Pressure Sensor enabled");
+#endif
 #endif
 
   //////////////////////////////////////////////////////////
@@ -307,10 +350,20 @@ void loop() {
 
   // fail safe for agent disconnect
   if (millis() - last_received > 5000) {
+
+#ifdef ENABLE_SERVOS
     myServo1.write(DEFAULT_SERVO);
     myServo2.write(DEFAULT_SERVO);
     myServo3.write(DEFAULT_SERVO);
+#endif
+
+#ifdef ENABLE_THRUSTER
     myThruster.writeMicroseconds(THRUSTER_OFF);
+#endif
+
+#ifdef ENABLE_BT_DEBUG
+    BTSerial.println("[ALERT] No command received in timeout, stopping actuators");
+#endif
   }
 
   // state machine to manage connecting and disconnecting the micro-ROS agent

@@ -1,8 +1,7 @@
 #!/bin/bash
+# Created by Nelson Durrant, Sep 2024
+#
+# Builds the firmware.hex file from the PIO workspace
 
-##########################################################
-# BUILDS FIRMWARE.HEX FILES FOR PIO WORKSPACES
-##########################################################
-
-cd ~/teensy_ws/cougars
+cd /home/frostlab/teensy_ws/cougars
 pio run

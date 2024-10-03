@@ -1,9 +1,8 @@
 #!/bin/bash
-
-##########################################################
-# TURNS THE TEENSY ON OR OFF
+# Created by Nelson Durrant, Sep 2024
+#
+# Toggles the power state of the Teensy 4.1
 # - Specify a power state using 'bash power.sh <state>'
-##########################################################
 
 function printInfo {
   echo -e "\033[0m\033[36m[INFO] $1\033[0m"

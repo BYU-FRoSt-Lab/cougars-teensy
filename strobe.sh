@@ -1,9 +1,8 @@
 #!/bin/bash
-
-##########################################################
-# TURNS THE STROBE LIGHT ON OR OFF
+# Created by Nelson Durrant, Sep 2024
+#
+# Turns the strobe light on or off
 # - Specify a power state using 'bash strobe.sh <state>'
-##########################################################
 
 function printInfo {
   echo -e "\033[0m\033[36m[INFO] $1\033[0m"
