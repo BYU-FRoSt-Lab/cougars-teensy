@@ -1,6 +1,9 @@
-##########################################################
-# TURNS ON THE STROBE LIGHT
-##########################################################
+'''
+:author: Nelson Durrant
+:date: September 2024
+
+Turns on the strobe light
+'''
 
 import time
 import gpiod
@@ -11,6 +14,8 @@ from gpio_def import *
 chip = gpiod.Chip('/dev/gpiochip4')
 strobe_line = chip.get_line(STROBE_PIN)
 strobe_line.request(consumer="STROBE", type=gpiod.LINE_REQ_DIR_OUT)
+
+print("[COMPLETE] Strobe light turned on")
 
 try:
     while True:

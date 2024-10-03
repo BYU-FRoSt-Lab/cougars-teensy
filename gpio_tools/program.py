@@ -1,8 +1,10 @@
-##########################################################
-# PUTS THE TEENSY INTO PROGRAM MODE
-# - If the Teensy is on, a red light should light up on
-#   the board after running this script
-##########################################################
+'''
+:author: Nelson Durrant
+:date: September 2024
+
+Puts the Teensy board into program mode
+If the Teensy board is on, a red light should light up on it after running this script
+'''
 
 import time
 import gpiod
@@ -24,5 +26,5 @@ prog_line.set_value(1)
 print(". . .")
 time.sleep(5)
 
-print("COMPLETE: Entered Teensy board program mode")
+print("[COMPLETE] Entered Teensy board program mode")
 prog_line.release()

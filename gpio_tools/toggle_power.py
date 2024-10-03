@@ -1,6 +1,9 @@
-##########################################################
-# TOGGLES THE TEENSY BOARD POWER
-##########################################################
+'''
+:author: Nelson Durrant
+:date: September 2024
+
+Toggles the power to the Teensy 4.1 board
+'''
 
 import time
 import gpiod
@@ -23,6 +26,6 @@ power_line.set_value(1)
 
 print(". . .")
 time.sleep(5)
-print("COMPLETE: Teensy board power toggled")
+print("[COMPLETE] Teensy board power toggled")
 
 power_line.release()

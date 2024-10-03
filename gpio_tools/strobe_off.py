@@ -1,6 +1,9 @@
-##########################################################
-# TURNS OFF THE STROBE LIGHT
-##########################################################
+'''
+:author: Nelson Durrant
+:date: September 2024
+
+Turns off the strobe light
+'''
 
 import gpiod
 
@@ -13,3 +16,5 @@ strobe_line.request(consumer="STROBE", type=gpiod.LINE_REQ_DIR_OUT)
 
 strobe_line.set_value(0)
 strobe_line.release()
+
+print("[COMPLETE] Strobe light turned off")
