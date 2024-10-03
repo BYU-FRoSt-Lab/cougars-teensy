@@ -22,7 +22,6 @@ case $1 in
 
         if [ -z "$(tycmd list | grep Teensy)" ]; then
 
-            cd /home/frostlab/teensy_ws/gpio_tools
             sudo python3 toggle_power.py
         else
             echo ""
@@ -38,7 +37,6 @@ case $1 in
             echo ""
         else
 
-            cd /home/frostlab/teensy_ws/gpio_tools
             sudo python3 toggle_power.py
         fi
         ;;
