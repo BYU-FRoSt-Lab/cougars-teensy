@@ -11,9 +11,11 @@
  * Pi.
  *
  * Subscribes:
- * -
+ * - control_command: frost_interfaces/msg/UCommand
  * Publishes:
- * -
+ * - battery_status: frost_interfaces/msg/BatteryStatus
+ * - leak_status: frost_interfaces/msg/LeakStatus
+ * - pressure_data: sensor_msgs/msg/FluidPressure
  */
 
 #include "battery_pub.h"
