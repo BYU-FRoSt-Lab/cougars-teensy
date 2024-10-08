@@ -1,21 +1,18 @@
 /**
- * @brief Micro-ROS node for the CougUV
+ * @brief Micro-ROS node for the CougUV.
  * @author Nelson Durrant
  * @date September 2024
  *
- * This node is designed to run on the CougUV, a small underwater vehicle
- * designed for multi-agent applications by the BYU FRoSt lab. The node is
- * responsible for controlling the vehicle's actuators (fins and thruster),
- * reading sensor data (battery voltage, current, leak sensor, and pressure
- * sensor), and communicating with the micro-ROS agent running on a Raspberry
- * Pi.
+ * This node is the micro-ROS node for the CougUV. It controls the actuators
+ * (servos and thruster) and reads the sensor data (battery, leak, and pressure).
+ * The node communicates with the Raspberry Pi over micro-ROS.
  *
  * Subscribes:
- * - control_command: frost_interfaces/msg/UCommand
+ * - kinematics/command (frost_interfaces/msg/UCommand)
  * Publishes:
- * - battery_status: frost_interfaces/msg/BatteryStatus
- * - leak_status: frost_interfaces/msg/LeakStatus
- * - pressure_data: sensor_msgs/msg/FluidPressure
+ * - battery_status (frost_interfaces/msg/BatteryStatus)
+ * - leak_status (frost_interfaces/msg/LeakStatus)
+ * - pressure_data (sensor_msgs/msg/FluidPressure)
  */
 
 #include "battery_pub.h"
@@ -209,7 +206,7 @@ bool create_entities() {
   RCCHECK(rclc_subscription_init_default(
       &command_sub, &node,
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, UCommand),
-      "control_command"));
+      "kinematics/command"));
 
   // create executor
   RCSOFTCHECK(rclc_executor_init(&executor, &support.context, CALLBACK_TOTAL,
