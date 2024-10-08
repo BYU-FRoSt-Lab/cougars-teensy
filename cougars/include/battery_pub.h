@@ -6,9 +6,9 @@
 #include <frost_interfaces/msg/battery_status.h>
 
 /**
+ * @brief Publisher for battery sensor data.
  * @author Nelson Durrant
  * @date September 2024
- * @brief Publisher for battery sensor data
  * 
  * This class is a publisher for the battery sensor data. It publishes the battery
  * data to the micro-ROS agent.
@@ -30,8 +30,8 @@ public:
    * 
    * This function publishes the battery data to the micro-ROS agent.
    * 
-   * @param voltage the battery voltage
-   * @param current the battery current
+   * @param voltage the battery voltage (V)
+   * @param current the battery current (A)
    */
   void publish(float voltage, float current);
   using Publisher::destroy;

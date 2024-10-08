@@ -6,9 +6,9 @@
 #include <std_msgs/msg/bool.h>
 
 /**
+ * @brief Publisher for leak sensor data.
  * @author Nelson Durrant
  * @date September 2024
- * @brief Publisher for leak sensor data
  * 
  * This class is a publisher for the leak sensor data. It publishes the leak data
  * to the micro-ROS agent.
@@ -31,7 +31,7 @@ public:
    * 
    * This function publishes the leak data to the micro-ROS agent.
    * 
-   * @param leak the leak data
+   * @param leak the leak data (true if leak, false if no leak)
    */
   void publish(bool leak);
   using Publisher::destroy;

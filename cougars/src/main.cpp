@@ -228,7 +228,7 @@ bool create_entities() {
  * @brief Destroy micro-ROS entities
  *
  * This function destroys the micro-ROS entities (node, publishers, subscribers,
- * and executor) and sets the context entity destroy session timeout to 0.
+ * and executor).
  */
 void destroy_entities() {
   rmw_context_t *rmw_context = rcl_context_get_rmw_context(&support.context);

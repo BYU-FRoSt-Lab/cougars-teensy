@@ -6,9 +6,9 @@
 #include <sensor_msgs/msg/fluid_pressure.h>
 
 /**
+ * @brief Publisher for pressure sensor data.
  * @author Nelson Durrant
  * @date September 2024
- * @brief Publisher for pressure sensor data
  * 
  * This class is a publisher for the pressure sensor data. It publishes the
  * pressure data to the micro-ROS agent.
@@ -31,7 +31,7 @@ public:
    * 
    * This function publishes the pressure data to the micro-ROS agent.
    * 
-   * @param pressure the pressure data
+   * @param pressure the pressure data (TODO: add units)
    */
   void publish(float pressure);
   using Publisher::destroy;
