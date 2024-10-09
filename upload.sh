@@ -7,21 +7,20 @@
 # - If this fails, check the USB connections and the
 #   current teensy power states
 
-cd /home/frostlab/teensy_ws
 sudo bash power.sh on
 
-cd /home/frostlab/teensy_ws/gpio_tools
+cd gpio_tools
 case $1 in
     "")
         sudo python3 program.py
 
-        cd /home/frostlab/teensy_ws/cougars/.pio/build/teensy41
+        cd cougars/.pio/build/teensy41
         tycmd upload firmware.hex
         ;;
     *)
         sudo python3 program.py
 
-        cd /home/frostlab/teensy_ws/firmware_options
+        cd firmware_options
         tycmd upload $1
         ;;
 esac

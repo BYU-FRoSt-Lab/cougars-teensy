@@ -1,4 +1,5 @@
 /**
+ * @file main.cpp
  * @brief Micro-ROS node for the CougUV.
  * @author Nelson Durrant
  * @date September 2024

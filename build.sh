@@ -3,5 +3,5 @@
 #
 # Builds the firmware.hex file from the PIO workspace
 
-cd /home/frostlab/teensy_ws/cougars
+cd cougars
 pio run
