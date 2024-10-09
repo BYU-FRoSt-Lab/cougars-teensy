@@ -16,7 +16,7 @@ function printError {
   echo -e "\033[0m\033[31m[ERROR] $1\033[0m"
 }
 
-cd gpio_tools
+cd ~/teensy_ws/gpio_tools
 case $1 in
     "on")
         sudo python3 strobe_on.py &
