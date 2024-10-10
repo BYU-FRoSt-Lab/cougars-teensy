@@ -5,8 +5,8 @@
  * @date September 2024
  *
  * This node is the micro-ROS node for the CougUV. It controls the actuators
- * (servos and thruster) and reads the sensor data (battery, leak, and pressure).
- * The node communicates with the Raspberry Pi over micro-ROS.
+ * (servos and thruster) and reads the sensor data (battery, leak, and
+ * pressure). The node communicates with the Raspberry Pi over micro-ROS.
  *
  * Subscribes:
  * - kinematics/command (frost_interfaces/msg/UCommand)
@@ -131,11 +131,9 @@ void error_loop() {
 }
 
 /**
- * @brief Callback function for the control_command subscriber
- *
- * This function is called whenever a new control command is received from the
- * micro-ROS agent. The function updates the actuator positions based on the
- * received command.
+ * @brief Callback function for the control_command subscriber. This function is
+ * called whenever a new control command is received from the micro-ROS agent.
+ * The function updates the actuator positions based on the received command.
  *
  * @param command_msgin The received control command
  */
@@ -167,11 +165,9 @@ void command_sub_callback(const void *command_msgin) {
 }
 
 /**
- * @brief Create micro-ROS entities
- *
- * This function initializes the micro-ROS entities (node, publishers,
- * subscribers, and executor) and synchronizes the timestamps with the Raspberry
- * Pi.
+ * @brief Creates micro-ROS entities. This function initializes the micro-ROS
+ * entities (node, publishers, subscribers, and executor) and synchronizes the
+ * timestamps with the Raspberry Pi.
  *
  * @return true if the entities were created successfully, false otherwise
  */
@@ -226,10 +222,8 @@ bool create_entities() {
 }
 
 /**
- * @brief Destroy micro-ROS entities
- *
- * This function destroys the micro-ROS entities (node, publishers, subscribers,
- * and executor).
+ * @brief Destroys micro-ROS entities. This function destroys the micro-ROS
+ * entities (node, publishers, subscribers, and executor).
  */
 void destroy_entities() {
   rmw_context_t *rmw_context = rcl_context_get_rmw_context(&support.context);
@@ -260,10 +254,8 @@ void destroy_entities() {
 }
 
 /**
- * @brief Set up the micro-ROS serial transports
- *
- * This function sets up the micro-ROS serial transports for communication with
- * the Raspberry Pi.
+ * @brief Sets up the micro-ROS serial transports. This function sets up the
+ * micro-ROS serial transports for communication with the Raspberry Pi.
  */
 void setup() {
 
@@ -346,10 +338,8 @@ void setup() {
 }
 
 /**
- * @brief Read the battery sensor data
- *
- * This function reads the battery sensor data (voltage and current) and
- * publishes it to the micro-ROS agent.
+ * @brief Reads the battery sensor data. This function reads the battery sensor
+ * data (voltage and current) and publishes it to the micro-ROS agent.
  */
 void read_battery() {
 
@@ -363,10 +353,8 @@ void read_battery() {
 }
 
 /**
- * @brief Read the leak sensor data
- *
- * This function reads the leak sensor data and publishes it to the micro-ROS
- * agent.
+ * @brief Reads the leak sensor data. This function reads the leak sensor data
+ * and publishes it to the micro-ROS agent.
  */
 void read_leak() {
 
@@ -377,9 +365,7 @@ void read_leak() {
 }
 
 /**
- * @brief Read the pressure sensor data
- *
- * This function reads the pressure sensor data and publishes it to the
+ * @brief Reads the pressure sensor data. This function reads the pressure sensor data and publishes it to the
  * micro-ROS agent.
  */
 void read_pressure() {
@@ -392,9 +378,7 @@ void read_pressure() {
 }
 
 /**
- * @brief Main loop function
- *
- * This function is the main loop for the micro-ROS node. It manages the
+ * @brief This function is the main loop for the micro-ROS node. It manages the
  * connection and disconnection of the micro-ROS agent, actuator positions,
  * and sensor data collection.
  */
