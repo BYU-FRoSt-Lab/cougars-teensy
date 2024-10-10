@@ -1,10 +1,9 @@
 /**
  * @file main.cpp
- * @brief Micro-ROS node for the CougUV.
  * @author Nelson Durrant
  * @date September 2024
  *
- * This node is the micro-ROS node for the CougUV. It controls the actuators
+ * @brief This node is the micro-ROS node for the CougUV. It controls the actuators
  * (servos and thruster) and reads the sensor data (battery, leak, and
  * pressure). The node communicates with the Raspberry Pi over micro-ROS.
  *

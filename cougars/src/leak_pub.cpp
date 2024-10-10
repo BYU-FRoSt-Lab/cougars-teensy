@@ -1,8 +1,5 @@
 #include "leak_pub.h"
 
-#define NS_TO_S(ns) (ns / 1000000000)
-#define NS_REMAINDER(ns) (ns % 1000000000)
-
 void LeakPub::setup(rcl_node_t node) {
 
   RCCHECK(rclc_publisher_init_best_effort(
