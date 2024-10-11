@@ -26,7 +26,7 @@ cleanup() {
 }
 trap cleanup SIGINT
 
-sudo bash ~/teensy_ws/power.sh on
+sudo bash ~/gpio/power.sh on
 
 if [ -z "$(tycmd list | grep Teensy)" ]; then
     echo ""
