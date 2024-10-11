@@ -12,6 +12,7 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 find_package(std_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -20,11 +21,11 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/DesiredHeading.msg"
   "msg/DesiredSpeed.msg"
   "msg/LeakStatus.msg"
-  "msg/ModemRec.msg"
-  "msg/ModemSend.msg"
   "msg/UCommand.msg"
+  "msg/VehicleStatus.msg"
   "srv/EmergencyStop.srv"
   DEPENDENCIES std_msgs
+  DEPENDENCIES nav_msgs
 )
 
 if(BUILD_TESTING)
