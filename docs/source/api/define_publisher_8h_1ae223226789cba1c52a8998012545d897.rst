@@ -1,0 +1,14 @@
+.. _exhale_define_publisher_8h_1ae223226789cba1c52a8998012545d897:
+
+Define NS_TO_S
+==============
+
+- Defined in :ref:`file__home_frostlab_teensy_ws_cougars_include_publisher.h`
+
+
+Define Documentation
+--------------------
+
+
+.. doxygendefine:: NS_TO_S
+   :project: CoUGARs

@@ -1,0 +1,14 @@
+.. _exhale_define_main_8cpp_1a78a73a2407c0d63cd1810dc4439bb344:
+
+Define SERVO_OUT_HIGH
+=====================
+
+- Defined in :ref:`file__home_frostlab_teensy_ws_cougars_src_main.cpp`
+
+
+Define Documentation
+--------------------
+
+
+.. doxygendefine:: SERVO_OUT_HIGH
+   :project: CoUGARs

@@ -1,0 +1,14 @@
+.. _exhale_define_main_8cpp_1a5bd07a795448af3f61f1f6de06463445:
+
+Define LEAK_MS
+==============
+
+- Defined in :ref:`file__home_frostlab_teensy_ws_cougars_src_main.cpp`
+
+
+Define Documentation
+--------------------
+
+
+.. doxygendefine:: LEAK_MS
+   :project: CoUGARs

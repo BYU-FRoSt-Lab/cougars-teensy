@@ -10,10 +10,7 @@ Welcome to Configurable Underwater Group of Autonomous Robots (CoUGARs)'s docume
    :maxdepth: 2
    :caption: Contents:
 
-.. doxygenclass:: BatteryPub
-
-.. doxygenfile:: main.cpp
-
+   api/library_root
 
 Indices and tables
 ==================

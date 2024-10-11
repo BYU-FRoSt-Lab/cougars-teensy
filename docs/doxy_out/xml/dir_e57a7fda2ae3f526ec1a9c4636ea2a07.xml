@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="dir_e57a7fda2ae3f526ec1a9c4636ea2a07" kind="dir">
+    <compoundname>/home/frostlab/teensy_ws/cougars/include</compoundname>
+    <innerfile refid="battery__pub_8h">battery_pub.h</innerfile>
+    <innerfile refid="leak__pub_8h">leak_pub.h</innerfile>
+    <innerfile refid="pressure__pub_8h">pressure_pub.h</innerfile>
+    <innerfile refid="publisher_8h">publisher.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/frostlab/teensy_ws/cougars/include/"/>
+  </compounddef>
+</doxygen>

@@ -1,3 +1,5 @@
+import textwrap
+
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -32,6 +34,7 @@ release = '1.0.0'
 # ones.
 extensions = [
     'breathe',
+    'exhale',
 ]
 
 # Setup the breathe extension
@@ -39,6 +42,25 @@ breathe_projects = {
     "CoUGARs": "../doxy_out/xml"
 }
 breathe_default_project = "CoUGARs"
+
+# Setup the exhale extension
+exhale_args = {
+    # These arguments are required
+    "containmentFolder":     "./api",
+    "rootFileName":          "library_root.rst",
+    "doxygenStripFromPath":  "..",
+    # Heavily encouraged optional argument (see docs)
+    "rootFileTitle":         "Library API",
+    # Suggested optional arguments
+    "createTreeView":        True,
+    # TIP: if using the sphinx-bootstrap-theme, you need
+    # "treeViewIsBootstrap": True,
+    "exhaleExecutesDoxygen": True,
+    "exhaleDoxygenStdin": textwrap.dedent('''
+        INPUT      = ../../cougars/include
+        INPUT     += ../../cougars/src
+    ''')
+}
 
 
 # Add any paths that contain templates here, relative to this directory.
