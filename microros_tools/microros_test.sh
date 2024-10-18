@@ -38,11 +38,8 @@ source ~/ros2_ws/install/setup.bash
 ros2 daemon stop
 ros2 daemon start
 sleep 5
-echo ""
 
 bash ~/gpio/power.sh on
-
-echo ""
 
 if [ -z "$(tycmd list | grep Teensy)" ]; then
   printError "No Teensy boards avaliable to connect to"
