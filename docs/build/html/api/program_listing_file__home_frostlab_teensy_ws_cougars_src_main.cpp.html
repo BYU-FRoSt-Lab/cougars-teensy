@@ -201,7 +201,7 @@
 <span class="cp">#endif </span><span class="c1">// ENABLE_THRUSTER</span>
 
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
-<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ALERT] Command Received: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="n">command_msg</span><span class="o">-&gt;</span><span class="n">fin</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
+<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[INFO] Command Received: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="n">command_msg</span><span class="o">-&gt;</span><span class="n">fin</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
 <span class="w">                   </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="n">command_msg</span><span class="o">-&gt;</span><span class="n">fin</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
 <span class="w">                   </span><span class="n">String</span><span class="p">(</span><span class="n">command_msg</span><span class="o">-&gt;</span><span class="n">fin</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"></span>
 <span class="w">                   </span><span class="n">String</span><span class="p">(</span><span class="n">command_msg</span><span class="o">-&gt;</span><span class="n">thruster</span><span class="p">));</span><span class="w"></span>
@@ -227,7 +227,7 @@
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">rmw_uros_epoch_synchronized</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ERROR] Could not synchronize timestamps with agent&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ALERT] Timestamps synchronized with agent&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[INFO] Timestamps synchronized with agent&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 
@@ -240,7 +240,7 @@
 <span class="w">  </span><span class="n">RCCHECK</span><span class="p">(</span><span class="n">rclc_subscription_init_default</span><span class="p">(</span><span class="w"></span>
 <span class="w">      </span><span class="o">&amp;</span><span class="n">command_sub</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">node</span><span class="p">,</span><span class="w"></span>
 <span class="w">      </span><span class="n">ROSIDL_GET_MSG_TYPE_SUPPORT</span><span class="p">(</span><span class="n">frost_interfaces</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">,</span><span class="w"> </span><span class="n">UCommand</span><span class="p">),</span><span class="w"></span>
-<span class="w">      </span><span class="s">&quot;kinematics/command&quot;</span><span class="p">));</span><span class="w"></span>
+<span class="w">      </span><span class="n">NAMESPACE</span><span class="w"> </span><span class="s">&quot;kinematics/command&quot;</span><span class="p">));</span><span class="w"></span>
 
 <span class="w">  </span><span class="c1">// create executor</span>
 <span class="w">  </span><span class="n">RCSOFTCHECK</span><span class="p">(</span><span class="n">rclc_executor_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">executor</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">support</span><span class="p">.</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">CALLBACK_TOTAL</span><span class="p">,</span><span class="w"></span>
@@ -252,7 +252,7 @@
 <span class="w">                                     </span><span class="o">&amp;</span><span class="n">command_sub_callback</span><span class="p">,</span><span class="w"> </span><span class="n">ON_NEW_DATA</span><span class="p">));</span><span class="w"></span>
 
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
-<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ALERT] Micro-ROS entities created successfully&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[INFO] Micro-ROS entities created successfully&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
@@ -270,19 +270,19 @@
 <span class="w">  </span><span class="c1">// destroy everything else</span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rcl_subscription_fini</span><span class="p">(</span><span class="o">&amp;</span><span class="n">command_sub</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">node</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">RCL_RET_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
-<span class="w">    </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ERROR] Failed to destroy command_sub&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[WARNING] Failed to destroy command_sub&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="w">  </span><span class="n">rclc_executor_fini</span><span class="p">(</span><span class="o">&amp;</span><span class="n">executor</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rcl_node_fini</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">RCL_RET_OK</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
-<span class="w">    </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ERROR] Failed to destroy node&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[WARNING] Failed to destroy node&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="w">  </span><span class="n">rclc_support_fini</span><span class="p">(</span><span class="o">&amp;</span><span class="n">support</span><span class="p">);</span><span class="w"></span>
 
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
-<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ALERT] Micro-ROS entities destroyed successfully&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[INFO] Micro-ROS entities destroyed successfully&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 <span class="p">}</span><span class="w"></span>
 
@@ -316,7 +316,7 @@
 <span class="w">  </span><span class="n">myServo3</span><span class="p">.</span><span class="n">write</span><span class="p">(</span><span class="n">DEFAULT_SERVO</span><span class="p">);</span><span class="w"></span>
 
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
-<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ALERT] Servos enabled&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[INFO] Servos enabled&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_SERVOS</span>
 
@@ -327,7 +327,7 @@
 <span class="w">  </span><span class="n">delay</span><span class="p">(</span><span class="mi">7000</span><span class="p">);</span><span class="w"></span>
 
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
-<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ALERT] Thruster enabled&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[INFO] Thruster enabled&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_THRUSTER</span>
 
@@ -336,7 +336,7 @@
 <span class="w">  </span><span class="n">pinMode</span><span class="p">(</span><span class="n">VOLT_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">INPUT</span><span class="p">);</span><span class="w"></span>
 
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
-<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ALERT] Battery Sensor enabled&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[INFO] Battery Sensor enabled&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BATTERY</span>
 
@@ -344,7 +344,7 @@
 <span class="w">  </span><span class="n">pinMode</span><span class="p">(</span><span class="n">LEAK_PIN</span><span class="p">,</span><span class="w"> </span><span class="n">INPUT</span><span class="p">);</span><span class="w"></span>
 
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
-<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ALERT] Leak Sensor enabled&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[INFO] Leak Sensor enabled&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_LEAK</span>
 
@@ -359,7 +359,7 @@
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
-<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[ALERT] Pressure Sensor enabled&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;[INFO] Pressure Sensor enabled&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_PRESSURE</span>
 
@@ -418,7 +418,7 @@
 
 <span class="cp">#ifdef ENABLE_BT_DEBUG</span>
 <span class="w">    </span><span class="n">BTSerial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="w"></span>
-<span class="w">        </span><span class="s">&quot;[ALERT] No command received in timeout, stopping actuators&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="s">&quot;[INFO] No command received in timeout, stopping actuators&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="cp">#endif </span><span class="c1">// ENABLE_BT_DEBUG</span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 

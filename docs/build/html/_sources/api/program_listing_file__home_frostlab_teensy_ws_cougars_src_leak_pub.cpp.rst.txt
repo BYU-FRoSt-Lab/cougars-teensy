@@ -17,7 +17,7 @@ Program Listing for File leak_pub.cpp
      RCCHECK(rclc_publisher_init_best_effort(
          &publisher, &node,
          ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, LeakStatus),
-         "leak/data"));
+         NAMESPACE "leak/data"));
    }
    
    void LeakPub::publish(bool leak) {

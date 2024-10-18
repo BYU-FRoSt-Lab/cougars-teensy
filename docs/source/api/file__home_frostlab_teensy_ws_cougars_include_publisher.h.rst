@@ -33,6 +33,8 @@ Includes
 
 - ``micro_ros_platformio.h``
 
+- ``namespace.h`` (:ref:`file__home_frostlab_teensy_ws_cougars_include_namespace.h`)
+
 - ``rcl/rcl.h``
 
 - ``rclc/executor.h``

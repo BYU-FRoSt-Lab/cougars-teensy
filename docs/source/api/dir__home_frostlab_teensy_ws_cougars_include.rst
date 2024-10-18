@@ -17,6 +17,7 @@ Files
 
 - :ref:`file__home_frostlab_teensy_ws_cougars_include_battery_pub.h`
 - :ref:`file__home_frostlab_teensy_ws_cougars_include_leak_pub.h`
+- :ref:`file__home_frostlab_teensy_ws_cougars_include_namespace.h`
 - :ref:`file__home_frostlab_teensy_ws_cougars_include_pressure_pub.h`
 - :ref:`file__home_frostlab_teensy_ws_cougars_include_publisher.h`
 

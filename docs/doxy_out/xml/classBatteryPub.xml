@@ -115,7 +115,7 @@
         </detaileddescription>
         <inbodydescription>
         </inbodydescription>
-        <location file="/home/frostlab/teensy_ws/cougars/include/battery_pub.h" line="30" column="3" bodyfile="/home/frostlab/teensy_ws/cougars/include/publisher.h" bodystart="50" bodyend="52"/>
+        <location file="/home/frostlab/teensy_ws/cougars/include/battery_pub.h" line="30" column="3" bodyfile="/home/frostlab/teensy_ws/cougars/include/publisher.h" bodystart="52" bodyend="54"/>
       </memberdef>
       </sectiondef>
     <briefdescription>

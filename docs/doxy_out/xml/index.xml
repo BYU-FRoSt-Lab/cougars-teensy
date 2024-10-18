@@ -28,6 +28,9 @@
   </compound>
   <compound refid="leak__pub_8h" kind="file"><name>leak_pub.h</name>
   </compound>
+  <compound refid="namespace_8h" kind="file"><name>namespace.h</name>
+    <member refid="namespace_8h_1afa7779fe56b160955b535cd6a8aaf8f4" kind="define"><name>NAMESPACE</name></member>
+  </compound>
   <compound refid="pressure__pub_8h" kind="file"><name>pressure_pub.h</name>
   </compound>
   <compound refid="publisher_8h" kind="file"><name>publisher.h</name>

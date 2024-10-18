@@ -55,6 +55,11 @@ Files
 .. toctree::
    :maxdepth: 5
 
+   file__home_frostlab_teensy_ws_cougars_include_namespace.h.rst
+
+.. toctree::
+   :maxdepth: 5
+
    file__home_frostlab_teensy_ws_cougars_src_pressure_pub.cpp.rst
 
 .. toctree::

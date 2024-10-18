@@ -10,29 +10,29 @@
     <includes local="no">Wire.h</includes>
     <includes local="no">frost_interfaces/msg/u_command.h</includes>
     <incdepgraph>
-      <node id="12">
+      <node id="13">
         <label>frost_interfaces/msg/leak_status.h</label>
       </node>
-      <node id="11">
+      <node id="12">
         <label>leak_pub.h</label>
         <link refid="leak__pub_8h_source"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="12" relation="include">
-        </childnode>
         <childnode refid="13" relation="include">
         </childnode>
+        <childnode refid="14" relation="include">
+        </childnode>
       </node>
-      <node id="10">
+      <node id="11">
         <label>frost_interfaces/msg/battery_status.h</label>
       </node>
-      <node id="8">
+      <node id="9">
         <label>rclc/rclc.h</label>
       </node>
-      <node id="6">
+      <node id="7">
         <label>rcl/rcl.h</label>
       </node>
-      <node id="5">
+      <node id="6">
         <label>micro_ros_platformio.h</label>
       </node>
       <node id="2">
@@ -40,9 +40,9 @@
         <link refid="battery__pub_8h_source"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
-        </childnode>
         <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="11" relation="include">
         </childnode>
       </node>
       <node id="3">
@@ -58,29 +58,35 @@
         </childnode>
         <childnode refid="8" relation="include">
         </childnode>
-      </node>
-      <node id="15">
-        <label>MS5837.h</label>
-      </node>
-      <node id="19">
-        <label>frost_interfaces/msg/u_command.h</label>
-      </node>
-      <node id="9">
-        <label>Wire.h</label>
-      </node>
-      <node id="13">
-        <label>std_msgs/msg/bool.h</label>
+        <childnode refid="9" relation="include">
+        </childnode>
       </node>
       <node id="16">
-        <label>sensor_msgs/msg/fluid_pressure.h</label>
+        <label>MS5837.h</label>
       </node>
-      <node id="7">
-        <label>rclc/executor.h</label>
-      </node>
-      <node id="17">
-        <label>Servo.h</label>
+      <node id="20">
+        <label>frost_interfaces/msg/u_command.h</label>
       </node>
       <node id="4">
+        <label>namespace.h</label>
+        <link refid="namespace_8h_source"/>
+      </node>
+      <node id="10">
+        <label>Wire.h</label>
+      </node>
+      <node id="14">
+        <label>std_msgs/msg/bool.h</label>
+      </node>
+      <node id="17">
+        <label>sensor_msgs/msg/fluid_pressure.h</label>
+      </node>
+      <node id="8">
+        <label>rclc/executor.h</label>
+      </node>
+      <node id="18">
+        <label>Servo.h</label>
+      </node>
+      <node id="5">
         <label>Arduino.h</label>
       </node>
       <node id="1">
@@ -88,30 +94,30 @@
         <link refid="main_8cpp"/>
         <childnode refid="2" relation="include">
         </childnode>
-        <childnode refid="11" relation="include">
+        <childnode refid="12" relation="include">
         </childnode>
-        <childnode refid="14" relation="include">
-        </childnode>
-        <childnode refid="17" relation="include">
+        <childnode refid="15" relation="include">
         </childnode>
         <childnode refid="18" relation="include">
         </childnode>
-        <childnode refid="9" relation="include">
-        </childnode>
         <childnode refid="19" relation="include">
         </childnode>
+        <childnode refid="10" relation="include">
+        </childnode>
+        <childnode refid="20" relation="include">
+        </childnode>
       </node>
-      <node id="18">
+      <node id="19">
         <label>SoftwareSerial.h</label>
       </node>
-      <node id="14">
+      <node id="15">
         <label>pressure_pub.h</label>
         <link refid="pressure__pub_8h_source"/>
         <childnode refid="3" relation="include">
         </childnode>
-        <childnode refid="15" relation="include">
-        </childnode>
         <childnode refid="16" relation="include">
+        </childnode>
+        <childnode refid="17" relation="include">
         </childnode>
       </node>
     </incdepgraph>
@@ -1032,7 +1038,7 @@ Subscribes:<itemizedlist>
 <codeline lineno="156"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_THRUSTER</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="157"><highlight class="normal"></highlight></codeline>
 <codeline lineno="158"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="159"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ALERT]<sp/>Command<sp/>Received:<sp/>&quot;</highlight><highlight class="normal"><sp/>+<sp/>String(command_msg-&gt;fin[0])<sp/>+</highlight></codeline>
+<codeline lineno="159"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[INFO]<sp/>Command<sp/>Received:<sp/>&quot;</highlight><highlight class="normal"><sp/>+<sp/>String(command_msg-&gt;fin[0])<sp/>+</highlight></codeline>
 <codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;<sp/>&quot;</highlight><highlight class="normal"><sp/>+<sp/>String(command_msg-&gt;fin[1])<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
 <codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>String(command_msg-&gt;fin[2])<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;<sp/>&quot;</highlight><highlight class="normal"><sp/>+</highlight></codeline>
 <codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>String(command_msg-&gt;thruster));</highlight></codeline>
@@ -1058,7 +1064,7 @@ Subscribes:<itemizedlist>
 <codeline lineno="189"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!rmw_uros_epoch_synchronized())<sp/>{</highlight></codeline>
 <codeline lineno="190"><highlight class="normal"><sp/><sp/><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ERROR]<sp/>Could<sp/>not<sp/>synchronize<sp/>timestamps<sp/>with<sp/>agent&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="191"><highlight class="normal"><sp/><sp/>}<sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/>{</highlight></codeline>
-<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ALERT]<sp/>Timestamps<sp/>synchronized<sp/>with<sp/>agent&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="192"><highlight class="normal"><sp/><sp/><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[INFO]<sp/>Timestamps<sp/>synchronized<sp/>with<sp/>agent&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="193"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
 <codeline lineno="194"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="195"><highlight class="normal"></highlight></codeline>
@@ -1071,7 +1077,7 @@ Subscribes:<itemizedlist>
 <codeline lineno="202"><highlight class="normal"><sp/><sp/>RCCHECK(rclc_subscription_init_default(</highlight></codeline>
 <codeline lineno="203"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>&amp;command_sub,<sp/>&amp;node,</highlight></codeline>
 <codeline lineno="204"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces,<sp/>msg,<sp/>UCommand),</highlight></codeline>
-<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;kinematics/command&quot;</highlight><highlight class="normal">));</highlight></codeline>
+<codeline lineno="205"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>NAMESPACE<sp/></highlight><highlight class="stringliteral">&quot;kinematics/command&quot;</highlight><highlight class="normal">));</highlight></codeline>
 <codeline lineno="206"><highlight class="normal"></highlight></codeline>
 <codeline lineno="207"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>create<sp/>executor</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="208"><highlight class="normal"><sp/><sp/>RCSOFTCHECK(rclc_executor_init(&amp;executor,<sp/>&amp;support.context,<sp/>CALLBACK_TOTAL,</highlight></codeline>
@@ -1083,7 +1089,7 @@ Subscribes:<itemizedlist>
 <codeline lineno="214"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>&amp;<ref refid="main_8cpp_1a98ff7fd3dd310e11aac835bf0632b4bc" kindref="member">command_sub_callback</ref>,<sp/>ON_NEW_DATA));</highlight></codeline>
 <codeline lineno="215"><highlight class="normal"></highlight></codeline>
 <codeline lineno="216"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="217"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ALERT]<sp/>Micro-ROS<sp/>entities<sp/>created<sp/>successfully&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="217"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[INFO]<sp/>Micro-ROS<sp/>entities<sp/>created<sp/>successfully&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="218"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="219"><highlight class="normal"></highlight></codeline>
 <codeline lineno="220"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
@@ -1101,19 +1107,19 @@ Subscribes:<itemizedlist>
 <codeline lineno="236"><highlight class="normal"><sp/><sp/></highlight><highlight class="comment">//<sp/>destroy<sp/>everything<sp/>else</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="237"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rcl_subscription_fini(&amp;command_sub,<sp/>&amp;node)<sp/>!=<sp/>RCL_RET_OK)<sp/>{</highlight></codeline>
 <codeline lineno="238"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ERROR]<sp/>Failed<sp/>to<sp/>destroy<sp/>command_sub&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="239"><highlight class="normal"><sp/><sp/><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[WARNING]<sp/>Failed<sp/>to<sp/>destroy<sp/>command_sub&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="240"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="241"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
 <codeline lineno="242"><highlight class="normal"><sp/><sp/>rclc_executor_fini(&amp;executor);</highlight></codeline>
 <codeline lineno="243"><highlight class="normal"><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(rcl_node_fini(&amp;node)<sp/>!=<sp/>RCL_RET_OK)<sp/>{</highlight></codeline>
 <codeline lineno="244"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ERROR]<sp/>Failed<sp/>to<sp/>destroy<sp/>node&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="245"><highlight class="normal"><sp/><sp/><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[WARNING]<sp/>Failed<sp/>to<sp/>destroy<sp/>node&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="246"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="247"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
 <codeline lineno="248"><highlight class="normal"><sp/><sp/>rclc_support_fini(&amp;support);</highlight></codeline>
 <codeline lineno="249"><highlight class="normal"></highlight></codeline>
 <codeline lineno="250"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="251"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ALERT]<sp/>Micro-ROS<sp/>entities<sp/>destroyed<sp/>successfully&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="251"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[INFO]<sp/>Micro-ROS<sp/>entities<sp/>destroyed<sp/>successfully&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="252"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="253"><highlight class="normal">}</highlight></codeline>
 <codeline lineno="254"><highlight class="normal"></highlight></codeline>
@@ -1147,7 +1153,7 @@ Subscribes:<itemizedlist>
 <codeline lineno="286"><highlight class="normal"><sp/><sp/>myServo3.write(DEFAULT_SERVO);</highlight></codeline>
 <codeline lineno="287"><highlight class="normal"></highlight></codeline>
 <codeline lineno="288"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="289"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ALERT]<sp/>Servos<sp/>enabled&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="289"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[INFO]<sp/>Servos<sp/>enabled&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="290"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="291"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_SERVOS</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="292"><highlight class="normal"></highlight></codeline>
@@ -1158,7 +1164,7 @@ Subscribes:<itemizedlist>
 <codeline lineno="297"><highlight class="normal"><sp/><sp/>delay(7000);</highlight></codeline>
 <codeline lineno="298"><highlight class="normal"></highlight></codeline>
 <codeline lineno="299"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="300"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ALERT]<sp/>Thruster<sp/>enabled&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="300"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[INFO]<sp/>Thruster<sp/>enabled&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="301"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="302"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_THRUSTER</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="303"><highlight class="normal"></highlight></codeline>
@@ -1167,7 +1173,7 @@ Subscribes:<itemizedlist>
 <codeline lineno="306"><highlight class="normal"><sp/><sp/>pinMode(VOLT_PIN,<sp/>INPUT);</highlight></codeline>
 <codeline lineno="307"><highlight class="normal"></highlight></codeline>
 <codeline lineno="308"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="309"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ALERT]<sp/>Battery<sp/>Sensor<sp/>enabled&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="309"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[INFO]<sp/>Battery<sp/>Sensor<sp/>enabled&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="310"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="311"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BATTERY</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="312"><highlight class="normal"></highlight></codeline>
@@ -1175,7 +1181,7 @@ Subscribes:<itemizedlist>
 <codeline lineno="314"><highlight class="normal"><sp/><sp/>pinMode(LEAK_PIN,<sp/>INPUT);</highlight></codeline>
 <codeline lineno="315"><highlight class="normal"></highlight></codeline>
 <codeline lineno="316"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="317"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ALERT]<sp/>Leak<sp/>Sensor<sp/>enabled&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="317"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[INFO]<sp/>Leak<sp/>Sensor<sp/>enabled&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="318"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="319"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_LEAK</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="320"><highlight class="normal"></highlight></codeline>
@@ -1190,7 +1196,7 @@ Subscribes:<itemizedlist>
 <codeline lineno="329"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
 <codeline lineno="330"><highlight class="normal"></highlight></codeline>
 <codeline lineno="331"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="332"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[ALERT]<sp/>Pressure<sp/>Sensor<sp/>enabled&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="332"><highlight class="normal"><sp/><sp/>BTSerial.println(</highlight><highlight class="stringliteral">&quot;[INFO]<sp/>Pressure<sp/>Sensor<sp/>enabled&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="333"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="334"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_PRESSURE</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="335"><highlight class="normal"></highlight></codeline>
@@ -1249,7 +1255,7 @@ Subscribes:<itemizedlist>
 <codeline lineno="405"><highlight class="normal"></highlight></codeline>
 <codeline lineno="406"><highlight class="normal"></highlight><highlight class="preprocessor">#ifdef<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="407"><highlight class="normal"><sp/><sp/><sp/><sp/>BTSerial.println(</highlight></codeline>
-<codeline lineno="408"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;[ALERT]<sp/>No<sp/>command<sp/>received<sp/>in<sp/>timeout,<sp/>stopping<sp/>actuators&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="408"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="stringliteral">&quot;[INFO]<sp/>No<sp/>command<sp/>received<sp/>in<sp/>timeout,<sp/>stopping<sp/>actuators&quot;</highlight><highlight class="normal">);</highlight></codeline>
 <codeline lineno="409"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/></highlight><highlight class="comment">//<sp/>ENABLE_BT_DEBUG</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="410"><highlight class="normal"><sp/><sp/>}</highlight></codeline>
 <codeline lineno="411"><highlight class="normal"></highlight></codeline>

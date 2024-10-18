@@ -265,6 +265,11 @@ Defines
 .. toctree::
    :maxdepth: 5
 
+   define_namespace_8h_1afa7779fe56b160955b535cd6a8aaf8f4.rst
+
+.. toctree::
+   :maxdepth: 5
+
    define_publisher_8h_1a1461c6cf9fc2e8c1d2e895c772c0582d.rst
 
 .. toctree::

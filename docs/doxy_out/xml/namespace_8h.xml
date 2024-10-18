@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.9.1" xml:lang="en-US">
+  <compounddef id="namespace_8h" kind="file" language="C++">
+    <compoundname>namespace.h</compoundname>
+    <includedby refid="publisher_8h" local="yes">/home/frostlab/teensy_ws/cougars/include/publisher.h</includedby>
+    <invincdepgraph>
+      <node id="5">
+        <label>/home/frostlab/teensy_ws/cougars/include/leak_pub.h</label>
+        <link refid="leak__pub_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="3">
+        <label>/home/frostlab/teensy_ws/cougars/include/battery_pub.h</label>
+        <link refid="battery__pub_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>/home/frostlab/teensy_ws/cougars/include/publisher.h</label>
+        <link refid="publisher_8h_source"/>
+        <childnode refid="3" relation="include">
+        </childnode>
+        <childnode refid="5" relation="include">
+        </childnode>
+        <childnode refid="6" relation="include">
+        </childnode>
+      </node>
+      <node id="1">
+        <label>/home/frostlab/teensy_ws/cougars/include/namespace.h</label>
+        <link refid="namespace_8h"/>
+        <childnode refid="2" relation="include">
+        </childnode>
+      </node>
+      <node id="4">
+        <label>/home/frostlab/teensy_ws/cougars/src/main.cpp</label>
+        <link refid="main_8cpp"/>
+      </node>
+      <node id="6">
+        <label>/home/frostlab/teensy_ws/cougars/include/pressure_pub.h</label>
+        <link refid="pressure__pub_8h_source"/>
+        <childnode refid="4" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+      <sectiondef kind="define">
+      <memberdef kind="define" id="namespace_8h_1afa7779fe56b160955b535cd6a8aaf8f4" prot="public" static="no">
+        <name>NAMESPACE</name>
+        <initializer>&quot;coug1/&quot;</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para><simplesect kind="author"><para>Nelson Durrant </para>
+</simplesect>
+<simplesect kind="date"><para>September 2024</para>
+</simplesect>
+Simple namespace declaration for micro-ROS. This is used to avoid naming conflicts with the other vehicles while still keeping them all under the same ROS_DOMAIN_ID. THIS NEEDS TO MATCH THE ROS 2 NAMESPACE! </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/frostlab/teensy_ws/cougars/include/namespace.h" line="10" column="9" bodyfile="/home/frostlab/teensy_ws/cougars/include/namespace.h" bodystart="10" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#define<sp/>NAMESPACE<sp/>&quot;coug1/&quot;</highlight><highlight class="normal"></highlight></codeline>
+    </programlisting>
+    <location file="/home/frostlab/teensy_ws/cougars/include/namespace.h"/>
+  </compounddef>
+</doxygen>

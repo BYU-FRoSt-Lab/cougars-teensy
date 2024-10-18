@@ -17,7 +17,7 @@ Program Listing for File pressure_pub.cpp
      RCCHECK(rclc_publisher_init_best_effort(
          &publisher, &node,
          ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, FluidPressure),
-         "pressure/data"));
+         NAMESPACE "pressure/data"));
    }
    
    void PressurePub::publish(float pressure) {

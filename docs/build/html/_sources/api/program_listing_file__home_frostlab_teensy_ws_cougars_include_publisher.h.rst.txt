@@ -13,6 +13,8 @@ Program Listing for File publisher.h
    #ifndef PUBLISHER
    #define PUBLISHER
    
+   #include "namespace.h"
+   
    #include <Arduino.h>
    #include <micro_ros_platformio.h>
    #include <rcl/rcl.h>

@@ -17,7 +17,7 @@ Program Listing for File battery_pub.cpp
      RCCHECK(rclc_publisher_init_best_effort(
          &publisher, &node,
          ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, BatteryStatus),
-         "battery/data"));
+         NAMESPACE "battery/data"));
    }
    
    void BatteryPub::publish(float voltage, float current) {
