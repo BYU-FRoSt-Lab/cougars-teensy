@@ -156,7 +156,7 @@ void command_sub_callback(const void *command_msgin) {
 #endif // ENABLE_THRUSTER
 
 #ifdef ENABLE_BT_DEBUG
-  BTSerial.println("[ALERT] Command Received: " + String(command_msg->fin[0]) +
+  BTSerial.println("[INFO] Command Received: " + String(command_msg->fin[0]) +
                    " " + String(command_msg->fin[1]) + " " +
                    String(command_msg->fin[2]) + " " +
                    String(command_msg->thruster));
@@ -189,7 +189,7 @@ bool create_entities() {
   if (!rmw_uros_epoch_synchronized()) {
     BTSerial.println("[ERROR] Could not synchronize timestamps with agent");
   } else {
-    BTSerial.println("[ALERT] Timestamps synchronized with agent");
+    BTSerial.println("[INFO] Timestamps synchronized with agent");
   }
 #endif // ENABLE_BT_DEBUG
 
@@ -202,7 +202,7 @@ bool create_entities() {
   RCCHECK(rclc_subscription_init_default(
       &command_sub, &node,
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, UCommand),
-      "kinematics/command"));
+      NAMESPACE "kinematics/command"));
 
   // create executor
   RCSOFTCHECK(rclc_executor_init(&executor, &support.context, CALLBACK_TOTAL,
@@ -214,7 +214,7 @@ bool create_entities() {
                                      &command_sub_callback, ON_NEW_DATA));
 
 #ifdef ENABLE_BT_DEBUG
-  BTSerial.println("[ALERT] Micro-ROS entities created successfully");
+  BTSerial.println("[INFO] Micro-ROS entities created successfully");
 #endif // ENABLE_BT_DEBUG
 
   return true;
@@ -236,19 +236,19 @@ void destroy_entities() {
   // destroy everything else
   if (rcl_subscription_fini(&command_sub, &node) != RCL_RET_OK) {
 #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("[ERROR] Failed to destroy command_sub");
+    BTSerial.println("[WARNING] Failed to destroy command_sub");
 #endif // ENABLE_BT_DEBUG
   }
   rclc_executor_fini(&executor);
   if (rcl_node_fini(&node) != RCL_RET_OK) {
 #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("[ERROR] Failed to destroy node");
+    BTSerial.println("[WARNING] Failed to destroy node");
 #endif // ENABLE_BT_DEBUG
   }
   rclc_support_fini(&support);
 
 #ifdef ENABLE_BT_DEBUG
-  BTSerial.println("[ALERT] Micro-ROS entities destroyed successfully");
+  BTSerial.println("[INFO] Micro-ROS entities destroyed successfully");
 #endif // ENABLE_BT_DEBUG
 }
 
@@ -286,7 +286,7 @@ void setup() {
   myServo3.write(DEFAULT_SERVO);
 
 #ifdef ENABLE_BT_DEBUG
-  BTSerial.println("[ALERT] Servos enabled");
+  BTSerial.println("[INFO] Servos enabled");
 #endif // ENABLE_BT_DEBUG
 #endif // ENABLE_SERVOS
 
@@ -297,7 +297,7 @@ void setup() {
   delay(7000);
 
 #ifdef ENABLE_BT_DEBUG
-  BTSerial.println("[ALERT] Thruster enabled");
+  BTSerial.println("[INFO] Thruster enabled");
 #endif // ENABLE_BT_DEBUG
 #endif // ENABLE_THRUSTER
 
@@ -306,7 +306,7 @@ void setup() {
   pinMode(VOLT_PIN, INPUT);
 
 #ifdef ENABLE_BT_DEBUG
-  BTSerial.println("[ALERT] Battery Sensor enabled");
+  BTSerial.println("[INFO] Battery Sensor enabled");
 #endif // ENABLE_BT_DEBUG
 #endif // ENABLE_BATTERY
 
@@ -314,7 +314,7 @@ void setup() {
   pinMode(LEAK_PIN, INPUT);
 
 #ifdef ENABLE_BT_DEBUG
-  BTSerial.println("[ALERT] Leak Sensor enabled");
+  BTSerial.println("[INFO] Leak Sensor enabled");
 #endif // ENABLE_BT_DEBUG
 #endif // ENABLE_LEAK
 
@@ -329,7 +329,7 @@ void setup() {
   }
 
 #ifdef ENABLE_BT_DEBUG
-  BTSerial.println("[ALERT] Pressure Sensor enabled");
+  BTSerial.println("[INFO] Pressure Sensor enabled");
 #endif // ENABLE_BT_DEBUG
 #endif // ENABLE_PRESSURE
 
@@ -405,7 +405,7 @@ void loop() {
 
 #ifdef ENABLE_BT_DEBUG
     BTSerial.println(
-        "[ALERT] No command received in timeout, stopping actuators");
+        "[INFO] No command received in timeout, stopping actuators");
 #endif // ENABLE_BT_DEBUG
   }
 
