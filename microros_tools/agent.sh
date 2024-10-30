@@ -17,10 +17,11 @@ function printError {
   echo -e "\033[0m\033[31m[ERROR] $1\033[0m"
 }
 
-sudo bash /home/$UNAME/gpio/power.sh on
+sudo bash /home/$LABNAME/gpio/power.sh on
 
 if [ -z "$(tycmd list | grep Teensy)" ]; then
   printError "No Teensy boards avaliable to connect to"
+  exit 1
 else 
   source ~/microros_ws/install/setup.bash
   ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyACM0 -b 6000000
