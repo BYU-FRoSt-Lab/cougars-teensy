@@ -17,7 +17,7 @@ function printError {
   echo -e "\033[0m\033[31m[ERROR] $1\033[0m"
 }
 
-sudo bash /home/$LABNAME/gpio/power.sh on
+bash ~/gpio/power.sh on
 
 if [ -z "$(tycmd list | grep Teensy)" ]; then
   printError "No Teensy boards avaliable to connect to"

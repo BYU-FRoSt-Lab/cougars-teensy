@@ -28,7 +28,7 @@ cleanup() {
 }
 trap cleanup SIGINT
 
-sudo bash /home/$LABNAME/gpio/power.sh on
+bash ~/gpio/power.sh on
 
 if [ -z "$(tycmd list | grep Teensy)" ]; then
   printError "No Teensy boards avaliable to connect to"
