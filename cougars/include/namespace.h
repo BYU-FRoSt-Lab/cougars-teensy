@@ -4,4 +4,4 @@
  * same ROS_DOMAIN_ID. THIS NEEDS TO MATCH THE ROS 2 NAMESPACE!
  */
 
-#define NAMESPACE "coug1/"
+#define NAMESPACE "coug1"

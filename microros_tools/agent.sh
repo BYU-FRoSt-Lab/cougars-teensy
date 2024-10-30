@@ -3,6 +3,8 @@
 #
 # Starts the micro-ROS agent
 
+source ~/config/constants.sh
+
 function printInfo {
   echo -e "\033[0m\033[36m[INFO] $1\033[0m"
 }
@@ -15,7 +17,7 @@ function printError {
   echo -e "\033[0m\033[31m[ERROR] $1\033[0m"
 }
 
-sudo bash ~/gpio/power.sh on
+sudo bash /home/$UNAME/gpio/power.sh on
 
 if [ -z "$(tycmd list | grep Teensy)" ]; then
   printError "No Teensy boards avaliable to connect to"

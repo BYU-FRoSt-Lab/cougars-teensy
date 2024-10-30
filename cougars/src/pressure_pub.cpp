@@ -5,7 +5,7 @@ void PressurePub::setup(rcl_node_t node) {
   RCCHECK(rclc_publisher_init_best_effort(
       &publisher, &node,
       ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, FluidPressure),
-      NAMESPACE "pressure/data"));
+      NAMESPACE "/pressure/data"));
 }
 
 void PressurePub::publish(float pressure) {

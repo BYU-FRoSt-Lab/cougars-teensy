@@ -7,8 +7,7 @@
 # - If this fails, check the USB connections and the
 #   current teensy power states
 
-# Match with the username defined in the Dockerfile
-export UNAME=frostlab
+source ~/config/constants.sh
 
 sudo bash /home/$UNAME/gpio/power.sh on
 

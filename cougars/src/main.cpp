@@ -202,7 +202,7 @@ bool create_entities() {
   RCCHECK(rclc_subscription_init_default(
       &command_sub, &node,
       ROSIDL_GET_MSG_TYPE_SUPPORT(frost_interfaces, msg, UCommand),
-      NAMESPACE "kinematics/command"));
+      NAMESPACE "/kinematics/command"));
 
   // create executor
   RCSOFTCHECK(rclc_executor_init(&executor, &support.context, CALLBACK_TOTAL,
