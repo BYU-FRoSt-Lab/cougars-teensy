@@ -7,8 +7,6 @@
 # - If this fails, check the USB connections and the
 #   current teensy power states
 
-source ~/config/constants.sh
-
 bash ~/gpio/power.sh on
 
 case $1 in
