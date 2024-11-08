@@ -5,7 +5,7 @@
 # - Use this after setting up a new PCB to test the agent
 #   and Teensy board connections
 
-source ~/config/env_config.sh
+source ~/config/bash_params.sh
 
 function printInfo {
   echo -e "\033[0m\033[36m[INFO] $1\033[0m"

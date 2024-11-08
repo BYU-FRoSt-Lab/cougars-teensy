@@ -3,7 +3,7 @@
 #
 # Starts the micro-ROS agent
 
-source ~/config/env_config.sh
+source ~/config/bash_params.sh
 
 function printInfo {
   echo -e "\033[0m\033[36m[INFO] $1\033[0m"
