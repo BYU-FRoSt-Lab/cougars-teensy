@@ -8,21 +8,22 @@
 /**
  * @author Nelson Durrant
  * @date September 2024
- * @brief Publisher for leak sensor data.
+ * 
+ * Publisher for leak sensor data.
  */
 class LeakPub : Publisher {
 
 public:
 
   /**
-   * @brief This function sets up the leak publisher.
+   * This function sets up the leak publisher.
    * 
    * @param node the micro-ROS node
    */
   void setup(rcl_node_t node);
 
   /**
-   * @brief This function publishes the leak data to the micro-ROS agent.
+   * This function publishes the leak data to the micro-ROS agent.
    * 
    * @param leak the leak data (true if leak, false if no leak)
    */

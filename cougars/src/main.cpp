@@ -3,12 +3,13 @@
  * @author Nelson Durrant
  * @date September 2024
  *
- * @brief This node is the micro-ROS node for the CougUV. It controls the actuators
+ * This node is the micro-ROS node for the CougUV. It controls the actuators
  * (servos and thruster) and reads the sensor data (battery, leak, and
  * pressure). The node communicates with the Raspberry Pi over micro-ROS.
  *
  * Subscribes:
  * - kinematics/command (frost_interfaces/msg/UCommand)
+ * 
  * Publishes:
  * - battery_status (frost_interfaces/msg/BatteryStatus)
  * - leak_status (frost_interfaces/msg/LeakStatus)
@@ -130,11 +131,11 @@ void error_loop() {
 }
 
 /**
- * @brief Callback function for the control_command subscriber. This function is
+ * Callback function for the "kinematics/command" subscriber. This function is
  * called whenever a new control command is received from the micro-ROS agent.
  * The function updates the actuator positions based on the received command.
  *
- * @param command_msgin The received control command
+ * @param command_msgin The received frost_interfaces/msg/UCommand message
  */
 void command_sub_callback(const void *command_msgin) {
 
@@ -164,7 +165,7 @@ void command_sub_callback(const void *command_msgin) {
 }
 
 /**
- * @brief Creates micro-ROS entities. This function initializes the micro-ROS
+ * Creates micro-ROS entities. This function initializes the micro-ROS
  * entities (node, publishers, subscribers, and executor) and synchronizes the
  * timestamps with the Raspberry Pi.
  *
@@ -221,7 +222,7 @@ bool create_entities() {
 }
 
 /**
- * @brief Destroys micro-ROS entities. This function destroys the micro-ROS
+ * Destroys micro-ROS entities. This function destroys the micro-ROS
  * entities (node, publishers, subscribers, and executor).
  */
 void destroy_entities() {
@@ -236,13 +237,13 @@ void destroy_entities() {
   // destroy everything else
   if (rcl_subscription_fini(&command_sub, &node) != RCL_RET_OK) {
 #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("[WARNING] Failed to destroy command_sub");
+    BTSerial.println("[WARN] Failed to destroy command_sub");
 #endif // ENABLE_BT_DEBUG
   }
   rclc_executor_fini(&executor);
   if (rcl_node_fini(&node) != RCL_RET_OK) {
 #ifdef ENABLE_BT_DEBUG
-    BTSerial.println("[WARNING] Failed to destroy node");
+    BTSerial.println("[WARN] Failed to destroy node");
 #endif // ENABLE_BT_DEBUG
   }
   rclc_support_fini(&support);
@@ -253,7 +254,7 @@ void destroy_entities() {
 }
 
 /**
- * @brief Sets up the micro-ROS serial transports. This function sets up the
+ * Sets up the micro-ROS serial transports. This function sets up the
  * micro-ROS serial transports for communication with the Raspberry Pi.
  */
 void setup() {
@@ -337,7 +338,7 @@ void setup() {
 }
 
 /**
- * @brief Reads the battery sensor data. This function reads the battery sensor
+ * Reads the battery sensor data. This function reads the battery sensor
  * data (voltage and current) and publishes it to the micro-ROS agent.
  */
 void read_battery() {
@@ -352,7 +353,7 @@ void read_battery() {
 }
 
 /**
- * @brief Reads the leak sensor data. This function reads the leak sensor data
+ * Reads the leak sensor data. This function reads the leak sensor data
  * and publishes it to the micro-ROS agent.
  */
 void read_leak() {
@@ -364,7 +365,7 @@ void read_leak() {
 }
 
 /**
- * @brief Reads the pressure sensor data. This function reads the pressure sensor data and publishes it to the
+ * Reads the pressure sensor data. This function reads the pressure sensor data and publishes it to the
  * micro-ROS agent.
  */
 void read_pressure() {
@@ -377,7 +378,7 @@ void read_pressure() {
 }
 
 /**
- * @brief This function is the main loop for the micro-ROS node. It manages the
+ * This function is the main loop for the micro-ROS node. It manages the
  * connection and disconnection of the micro-ROS agent, actuator positions,
  * and sensor data collection.
  */
