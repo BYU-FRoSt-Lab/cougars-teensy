@@ -6,4 +6,4 @@
  * TODO: Figure out how to add this to the config folder.
  */
 
-#define NAMESPACE "coug1"
+#define NAMESPACE "coug0"
