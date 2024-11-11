@@ -45,7 +45,7 @@ else
   source ~/microros_ws/install/setup.bash
   ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyACM0 -b 6000000 &
 
-  wait 5
+  sleep 5
 fi
 
 source ~/ros2_ws/install/setup.bash
