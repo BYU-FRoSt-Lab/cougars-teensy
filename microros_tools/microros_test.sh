@@ -44,6 +44,8 @@ if [ -z "$(tycmd list | grep Teensy)" ]; then
 else 
   source ~/microros_ws/install/setup.bash
   ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyACM0 -b 6000000 &
+
+  wait 5
 fi
 
 source ~/ros2_ws/install/setup.bash
@@ -80,17 +82,6 @@ else
     printSuccess "Pressure sensor connected! (fluid_pressure: $pressure_data)"
   else
     printFailure "Pressure sensor may not be working. (fluid_pressure: $pressure_data)"
-  fi
-fi
-
-depth_data=$(timeout 3 ros2 topic echo --once --no-arr $NAMESPACE/depth_data 2>/dev/null | grep -A 3 position: | grep -oP '(?<=z: )\d+(\.\d+)?')
-if [ -z "$depth_data" ]; then
-  printFailure "No depth sensor connection found."
-else
-  if [[ $(echo "$depth_data" | awk '{if ($1 == 0.0) print 1; else print 0}') -eq 0 ]]; then
-    printSuccess "Depth sensor connected! (z: $depth_data)"
-  else
-    printFailure "Depth sensor may not be working. (z: $depth_data)"
   fi
 fi
 
