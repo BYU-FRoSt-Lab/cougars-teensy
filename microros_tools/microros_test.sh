@@ -5,7 +5,7 @@
 # - Use this after setting up a new PCB to test the agent
 #   and Teensy board connections
 
-source ~/config/bash_params.sh
+source ~/config/bash_vars.sh
 
 function printInfo {
   echo -e "\033[0m\033[96m[INFO] $1\033[0m"
@@ -17,6 +17,14 @@ function printWarning {
 
 function printError {
   echo -e "\033[0m\033[91m[ERROR] $1\033[0m"
+}
+
+function printSuccess {
+  echo -e "\033[0m\033[92m[SUCCESS] $1\033[0m"
+}
+
+function printFailure {
+  echo -e "\033[0m\033[91m[FAIL] $1\033[0m"
 }
 
 cleanup() {
@@ -41,38 +49,63 @@ fi
 source ~/ros2_ws/install/setup.bash
 
 echo ""
-printInfo "LISTING FOUND TOPICS..."
-ros2 topic list
+
+leak_data=$(timeout 3 ros2 topic echo --once --no-arr $NAMESPACE/leak/data 2>/dev/null | grep -oP '(?<=leak: )\d+')
+if [ -z "$leak_data" ]; then
+  printFailure "No leak sensor connection found."
+else
+  if [[ $(echo "$leak_data" | awk '{if ($1 == false) print 1; else print 0}') -eq 0 ]]; then
+    printSuccess "Leak sensor connected! (leak: $leak_data)"
+  else
+    printFailure "Leak sensor may not be working. (leak: $leak_data)"
+  fi
+fi
+
+battery_data=$(timeout 3 ros2 topic echo --once --no-arr $NAMESPACE/battery/data 2>/dev/null | grep -oP '(?<=voltage: )\d+')
+if [ -z "$battery_data" ]; then
+  printFailure "No battery monitor connection found."
+else
+  if [[ $(echo "$battery_data" | awk '{if ($1 == 0.0) print 1; else print 0}') -eq 0 ]]; then
+    printSuccess "Battery monitor connected! (voltage: $battery_data)"
+  else
+    printFailure "Battery monitor may not be working. (voltage: $battery_data)"
+  fi
+fi
+
+pressure_data=$(timeout 3 ros2 topic echo --once --no-arr $NAMESPACE/pressure/data 2>/dev/null | grep -oP '(?<=fluid_pressure: )\d+(\.\d+)?')
+if [ -z "$pressure_data" ]; then
+  printFailure "No pressure sensor connection found."
+else
+  if [[ $(echo "$pressure_data" | awk '{if ($1 == 0.0) print 1; else print 0}') -eq 0 ]]; then
+    printSuccess "Pressure sensor connected! (fluid_pressure: $pressure_data)"
+  else
+    printFailure "Pressure sensor may not be working. (fluid_pressure: $pressure_data)"
+  fi
+fi
+
+depth_data=$(timeout 3 ros2 topic echo --once --no-arr $NAMESPACE/depth_data 2>/dev/null | grep -A 3 position: | grep -oP '(?<=z: )\d+(\.\d+)?')
+if [ -z "$depth_data" ]; then
+  printFailure "No depth sensor connection found."
+else
+  if [[ $(echo "$depth_data" | awk '{if ($1 == 0.0) print 1; else print 0}') -eq 0 ]]; then
+    printSuccess "Depth sensor connected! (z: $depth_data)"
+  else
+    printFailure "Depth sensor may not be working. (z: $depth_data)"
+  fi
+fi
 
 echo ""
-printInfo "LISTENING TO TOPIC 'PRESSURE/DATA'..."
-ros2 topic echo --once $NAMESPACE/pressure/data
 
-# echo ""
-# printInfo "LISTENING TO TOPIC 'LEAK/DATA'..."
-# ros2 topic echo --once $NAMESPACE/leak/data
+printInfo "Testing top servo, publishing to 'kinematics/command'..."
+timeout 5 ros2 topic pub -1 $NAMESPACE/kinematics/command frost_interfaces/msg/UCommand '{fin: [45, 0, 0, 0], thruster: 0}' 2>/dev/null
 
-# echo ""
-# printInfo "LISTENING TO TOPIC 'BATTERY/DATA'..."
-# ros2 topic echo --once $NAMESPACE/battery/data
+printInfo "Testing side servos, publishing to 'kinematics/command'..."
+timeout 5 ros2 topic pub -1 $NAMESPACE/kinematics/command frost_interfaces/msg/UCommand '{fin: [0, 45, 45, 0], thruster: 0}' 2>/dev/null
 
-echo ""
-printInfo "TESTING TOP SERVO, PUBLISHING TO 'KINEMATICS/COMMAND'..."
-ros2 topic pub -1 $NAMESPACE/kinematics/command frost_interfaces/msg/UCommand '{fin: [45, 0, 0, 0], thruster: 0}'
+printInfo "Testing thruster (ON), publishing to 'kinematics/command'..."
+timeout 5 ros2 topic pub -1 $NAMESPACE/kinematics/command frost_interfaces/msg/UCommand '{fin: [0, 0, 0, 0], thruster: 10}' 2>/dev/null
 
-echo ""
-printInfo "TESTING SIDE SERVOS, PUBLISHING TO 'KINEMATICS/COMMAND'..."
-ros2 topic pub -1 $NAMESPACE/kinematics/command frost_interfaces/msg/UCommand '{fin: [0, 45, 45, 0], thruster: 0}'
-
-echo ""
-printInfo "TESTING THRUSTER (ON), PUBLISHING TO 'KINEMATICS/COMMAND'..."
-ros2 topic pub -1 $NAMESPACE/kinematics/command frost_interfaces/msg/UCommand '{fin: [0, 0, 0, 0], thruster: 10}'
-
-echo ""
-printInfo "TESTING THRUSTER (OFF), PUBLISHING TO 'KINEMATICS/COMMAND'..."
-ros2 topic pub -1 $NAMESPACE/kinematics/command frost_interfaces/msg/UCommand '{fin: [0, 0, 0, 0], thruster: 0}'
-
-echo ""
-printInfo "TEST COMPLETE"
+printInfo "Testing thruster (OFF), publishing to 'kinematics/command'..."
+timeout 5 ros2 topic pub -1 $NAMESPACE/kinematics/command frost_interfaces/msg/UCommand '{fin: [0, 0, 0, 0], thruster: 0}' 2>/dev/null
 
 cleanup
