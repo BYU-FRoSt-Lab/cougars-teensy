@@ -8,23 +8,22 @@
 /**
  * @author Nelson Durrant
  * @date September 2024
- * 
+ *
  * Publisher for battery sensor data.
  */
 class BatteryPub : Publisher {
 
 public:
-
   /**
    * This function sets up the battery publisher.
-   * 
+   *
    * @param node the micro-ROS node
    */
   void setup(rcl_node_t node);
 
   /**
    * This function publishes the battery data to the micro-ROS agent.
-   * 
+   *
    * @param voltage the battery voltage (V)
    * @param current the battery current (A)
    */

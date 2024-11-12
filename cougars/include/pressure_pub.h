@@ -8,23 +8,22 @@
 /**
  * @author Nelson Durrant
  * @date September 2024
- * 
+ *
  * Publisher for pressure sensor data.
  */
 class PressurePub : Publisher {
 
 public:
-
   /**
    * This function sets up the pressure publisher.
-   * 
+   *
    * @param node the micro-ROS node
    */
   void setup(rcl_node_t node);
 
   /**
    * This function publishes the pressure data to the micro-ROS agent.
-   * 
+   *
    * @param pressure the pressure data (TODO: add units)
    */
   void publish(float pressure);

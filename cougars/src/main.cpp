@@ -9,7 +9,7 @@
  *
  * Subscribes:
  * - kinematics/command (frost_interfaces/msg/UCommand)
- * 
+ *
  * Publishes:
  * - battery_status (frost_interfaces/msg/BatteryStatus)
  * - leak_status (frost_interfaces/msg/LeakStatus)
@@ -27,10 +27,10 @@
 
 #define ENABLE_SERVOS
 #define ENABLE_THRUSTER
-// #define ENABLE_BATTERY
-// #define ENABLE_LEAK
+#define ENABLE_BATTERY
+#define ENABLE_LEAK
 #define ENABLE_PRESSURE
-#define ENABLE_BT_DEBUG
+// #define ENABLE_BT_DEBUG
 
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
@@ -365,8 +365,8 @@ void read_leak() {
 }
 
 /**
- * Reads the pressure sensor data. This function reads the pressure sensor data and publishes it to the
- * micro-ROS agent.
+ * Reads the pressure sensor data. This function reads the pressure sensor data
+ * and publishes it to the micro-ROS agent.
  */
 void read_pressure() {
 
