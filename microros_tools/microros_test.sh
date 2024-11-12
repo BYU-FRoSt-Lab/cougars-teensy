@@ -28,10 +28,8 @@ function printFailure {
 }
 
 cleanup() {
-
   killall micro_ros_agent
   wait
-    
   exit 0
 }
 trap cleanup SIGINT
