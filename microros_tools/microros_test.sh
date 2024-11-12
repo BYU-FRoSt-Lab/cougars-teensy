@@ -2,8 +2,7 @@
 # Created by Nelson Durrant, Sep 2024
 #
 # Tests each of the expected micro-ROS topics
-# - Use this after setting up a new PCB to test the agent
-#   and Teensy board connections
+# - Use this after setting up a new PCB to test the agent and Teensy board connections
 
 source ~/config/bash_vars.sh
 
