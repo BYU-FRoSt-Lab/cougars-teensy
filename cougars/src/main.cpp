@@ -25,6 +25,13 @@
 #include <Wire.h>
 #include <frost_interfaces/msg/u_command.h>
 
+#define ENABLE_SERVOS
+#define ENABLE_THRUSTER
+#define ENABLE_BATTERY
+#define ENABLE_LEAK
+#define ENABLE_PRESSURE
+// #define ENABLE_BT_DEBUG
+
 #define EXECUTE_EVERY_N_MS(MS, X)                                              \
   do {                                                                         \
     static volatile int64_t init = -1;                                         \
