@@ -14,10 +14,10 @@ read -p "Enter your choice (1 or 2): " choice
 
 case $choice in
     1)
-        DIRECTORY="~/teensy_ws/serial"
+        DIRECTORY="$HOME/teensy_ws/serial"
         ;;
     2)
-        DIRECTORY="~/teensy_ws/cougars"
+        DIRECTORY="$HOME/teensy_ws/cougars"
         ;;
     *)
         echo "Invalid choice. Please run the script again and select 1 or 2."
@@ -28,8 +28,7 @@ esac
 case $1 in
     "")
         python3 ~/gpio/gpio_tools/program.py
-        cd $DIRECTORY/.pio/build/teensy41
-        tycmd upload firmware.hex
+        tycmd upload $DIRECTORY/.pio/build/teensy41/firmware.hex
         ;;
     *)
         python3 ~/gpio/gpio_tools/program.py

@@ -6,8 +6,8 @@
 
 #define ENABLE_SERVOS
 #define ENABLE_THRUSTER
-// #define ENABLE_BATTERY
-// #define ENABLE_LEAK
+#define ENABLE_BATTERY
+#define ENABLE_LEAK
 #define ENABLE_PRESSURE
 // #define ENABLE_BT_DEBUG
 
@@ -20,9 +20,9 @@
 #define SERVO_PIN2 10
 #define SERVO_PIN3 11
 #define THRUSTER_PIN 12
-#define VOLT_PIN 18
-#define CURRENT_PIN 17
-#define LEAK_PIN 16
+#define VOLT_PIN 28   //18
+#define CURRENT_PIN 27   //17
+#define LEAK_PIN 26       //16
 #define LED_PIN 13
 
 // default actuator positions
