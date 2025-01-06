@@ -20,8 +20,8 @@
 #define SERVO_PIN2 10
 #define SERVO_PIN3 11
 #define THRUSTER_PIN 12
-#define VOLT_PIN 28   //18
-#define CURRENT_PIN 27   //17
+#define VOLT_PIN 27   //18
+#define CURRENT_PIN 22   //17
 #define LEAK_PIN 26       //16
 #define LED_PIN 13
 
@@ -30,8 +30,8 @@
 #define THRUSTER_OFF 1500
 
 // actuator conversion values
-#define SERVO_OUT_HIGH 2500
-#define SERVO_OUT_LOW 500
+#define SERVO_OUT_HIGH 2000
+#define SERVO_OUT_LOW 1000
 #define THRUSTER_OUT_HIGH 1900
 #define THRUSTER_OUT_LOW 1100
 #define THRUSTER_IN_HIGH 100
@@ -134,8 +134,8 @@ void setup() {
       Serial.println("ERROR: Could not connect to Pressure Sensor over I2C");
       delay(1000);
     }
-    // myPressure.setModel(MS5837::MS5837_02BA);
-    myPressure.setModel(MS5837::MS5837_30BA);
+    myPressure.setModel(MS5837::MS5837_02BA);
+    // myPressure.setModel(MS5837::MS5837_30BA);
 
     #ifdef ENABLE_BT_DEBUG
       Serial.println("[INFO] Pressure Sensor enabled");
