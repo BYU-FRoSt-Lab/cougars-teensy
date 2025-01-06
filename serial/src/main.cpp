@@ -3,6 +3,7 @@
 #include <SoftwareSerial.h>
 #include <Wire.h>
 #include "MS5837.h"
+#include "/home/frostlab/config/teensy_params.h"
 
 #define ENABLE_SERVOS
 #define ENABLE_THRUSTER
@@ -20,9 +21,9 @@
 #define SERVO_PIN2 10
 #define SERVO_PIN3 11
 #define THRUSTER_PIN 12
-#define VOLT_PIN 27   //18
-#define CURRENT_PIN 22   //17
-#define LEAK_PIN 26       //16
+// #define VOLT_PIN 27   //18
+// #define CURRENT_PIN 22   //17   //defined in teensy_params.h
+// #define LEAK_PIN 26       //16
 #define LED_PIN 13
 
 // default actuator positions
@@ -30,8 +31,8 @@
 #define THRUSTER_OFF 1500
 
 // actuator conversion values
-#define SERVO_OUT_HIGH 2000
-#define SERVO_OUT_LOW 1000
+// #define SERVO_OUT_HIGH 2000   //defined in teensy_params.h
+// #define SERVO_OUT_LOW 1000
 #define THRUSTER_OUT_HIGH 1900
 #define THRUSTER_OUT_LOW 1100
 #define THRUSTER_IN_HIGH 100
@@ -134,8 +135,15 @@ void setup() {
       Serial.println("ERROR: Could not connect to Pressure Sensor over I2C");
       delay(1000);
     }
+    
+  #ifdef PRESSURE_10M
     myPressure.setModel(MS5837::MS5837_02BA);
     // myPressure.setModel(MS5837::MS5837_30BA);
+  #endif 
+
+  #ifdef PRESSURE_30M
+  myPressure.setModel(MS5837::MS5837_30BA);
+  #endif
 
     #ifdef ENABLE_BT_DEBUG
       Serial.println("[INFO] Pressure Sensor enabled");
