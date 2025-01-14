@@ -10,7 +10,7 @@ void PressurePub::setup(rcl_node_t node) {
 
 void PressurePub::publish(float pressure) {
 
-  msg.fluid_pressure = pressure;
+  msg.fluid_pressure = pressure * 100.0;
   msg.header.stamp.sec = NS_TO_S(rmw_uros_epoch_nanos());
   msg.header.stamp.nanosec = NS_REMAINDER(rmw_uros_epoch_nanos());
   RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
