@@ -7,11 +7,28 @@
 
 bash ~/gpio/power.sh on
 
+echo "Select an option to build:"
+echo "1. NMEA"
+echo "2. micrros"
+read -p "Enter your choice (1 or 2): " choice
+
+case $choice in
+    1)
+        DIRECTORY="$HOME/teensy_ws/serial"
+        ;;
+    2)
+        DIRECTORY="$HOME/teensy_ws/cougars"
+        ;;
+    *)
+        echo "Invalid choice. Please run the script again and select 1 or 2."
+        exit 1
+        ;;
+esac
+
 case $1 in
     "")
         python3 ~/gpio/gpio_tools/program.py
-        cd ~/teensy_ws/cougars/.pio/build/teensy41
-        tycmd upload firmware.hex
+        tycmd upload $DIRECTORY/.pio/build/teensy41/firmware.hex
         ;;
     *)
         python3 ~/gpio/gpio_tools/program.py
